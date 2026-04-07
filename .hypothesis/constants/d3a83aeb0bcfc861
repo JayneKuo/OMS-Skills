@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\cartonization_engine\validator.py
+# hypothesis_version: 6.151.10
+
+['1.0', 'INVALID_INPUT', 'NO_AVAILABLE_BOX', 'hazmat_type', 'height', 'length', 'temperature_zone', 'weight', 'width', '无可用箱型', '缺失危险品类型字段，默认设置为无', '缺失温区字段，默认设置为常温']

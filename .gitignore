@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+_tmp_input.json
+_case*.json
+test_simple.py
+test_simple_input.json
+test_input.json
+test_input_v2.json
+test_result.json

@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\cartonization_engine\models.py
+# hypothesis_version: 6.151.10
+
+['0', '0.6', '0.9', 'CARTON_FAILED', 'F1', 'F2', 'F3', 'F4', 'SUCCESS', '低填充率', '冷冻', '冷藏', '常温', '承运商尺寸超限', '数据降级', '无', '易燃', '易爆', '腐蚀', '规则冲突待人工介入', '超大件专线', '需人工包装']
