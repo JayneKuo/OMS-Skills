@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\config.py
+# hypothesis_version: 6.151.10
+
+['15', '30', 'LAN0000002', 'LANLT', 'LT', 'OQE_BASE_URL', 'OQE_MERCHANT_NO', 'OQE_PASSWORD', 'OQE_REQUEST_TIMEOUT', 'OQE_TENANT_ID', 'OQE_USERNAME', 'lantester@item.com']

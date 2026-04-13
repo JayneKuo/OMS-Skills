@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\cartonization_engine\hard_rule_checker.py
+# hypothesis_version: 6.151.10
+
+['2', '3', '体积超限', '包含易碎品但箱型不支持防震填充', '包含液体品但箱型不支持防漏', '单包不超尺寸', '单包不超重', '危险品与普通品混装', '危险品隔离', '围长超限', '易碎品保护', '液体品防漏', '温区不混装', '禁混品类隔离']

@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\api_client.py
+# hypothesis_version: 6.151.10
+
+[200, 300, 'Authorization', 'Content-Type', 'No token in response', 'accessToken', 'access_token', 'application/json', 'custom_rules', 'data', 'deallocate_query', 'dispatch_log', 'expires_in', 'fulfillment_orders', 'grantType', 'hold_rules', 'inventory_list', 'order_detail', 'order_list', 'order_logs', 'order_status_count', 'order_timeline', 'password', 'routing_rules', 'search_order', 'shipment_detail', 'sku_warehouse', 'token', 'tracking_detail', 'tracking_status', 'username', 'warehouse_list', 'x-tenant-id']

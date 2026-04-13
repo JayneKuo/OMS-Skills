@@ -53,7 +53,7 @@ OMS Agent 面向以下典型场景：
 当前已接入 / 规划接入的 skills 包括：
 
 - cartonization
-- order_query
+- oms_query
 - order_analysis
 - warehouse_allocation
 - shipping_rate
@@ -98,7 +98,7 @@ OMS Agent 设计遵循以下原则：
 
 ### 第一步：新增 skill 目录
 例如：
-- `order-query/`
+- `oms-query/`
 - `order-analysis/`
 - `shipping-rate/`
 
@@ -163,7 +163,7 @@ OMS Agent 设计遵循以下原则：
 
 建议下一阶段优先补齐：
 
-1. `order_query`
+1. `oms_query`
 2. `order_analysis`
 
 因为这两个能力是大多数 OMS 场景的基础入口。

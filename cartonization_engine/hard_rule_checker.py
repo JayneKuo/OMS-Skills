@@ -28,13 +28,15 @@ class HardRuleChecker:
         box_type: BoxType,
         carrier_limits: CarrierLimits,
     ) -> list[RuleViolation]:
-        """对一个包裹执行全部 7 条硬规则校验。"""
+        """对一个包裹执行全部硬规则校验（含围长和体积）。"""
         violations: list[RuleViolation] = []
         for rule_fn in (
             self._check_temperature_zone,
             self._check_hazmat_isolation,
             self._check_weight_limit,
             self._check_dimension_limit,
+            self._check_girth_limit,
+            self._check_volume_limit,
             self._check_cannot_ship_with,
             self._check_fragile_protection,
             self._check_liquid_leak_proof,
@@ -136,6 +138,44 @@ class HardRuleChecker:
                         violated_skus=[item.sku_id, forbidden_id],
                         description=f"{item.sku_id} 禁止与 {forbidden_id} 同包",
                     )
+        return None
+
+    def _check_girth_limit(
+        self,
+        items: list[SKUItem],
+        box_type: BoxType,
+        carrier_limits: CarrierLimits,
+    ) -> Optional[RuleViolation]:
+        """围长校验: girth = longest + 2*(second + third) <= max_girth。"""
+        if carrier_limits.max_girth is None:
+            return None
+        outer = box_type.outer_dimensions
+        dims = sorted([outer.length, outer.width, outer.height], reverse=True)
+        girth = dims[0] + Decimal("2") * (dims[1] + dims[2])
+        if girth > carrier_limits.max_girth:
+            return RuleViolation(
+                rule_name="围长超限",
+                violated_skus=[it.sku_id for it in items],
+                description=f"箱型围长 {girth}cm 超过承运商限制 {carrier_limits.max_girth}cm",
+            )
+        return None
+
+    def _check_volume_limit(
+        self,
+        items: list[SKUItem],
+        box_type: BoxType,
+        carrier_limits: CarrierLimits,
+    ) -> Optional[RuleViolation]:
+        """体积校验: outer volume <= max_volume。"""
+        if carrier_limits.max_volume is None:
+            return None
+        outer_vol = box_type.outer_dimensions.volume
+        if outer_vol > carrier_limits.max_volume:
+            return RuleViolation(
+                rule_name="体积超限",
+                violated_skus=[it.sku_id for it in items],
+                description=f"箱型外部体积 {outer_vol}cm³ 超过承运商限制 {carrier_limits.max_volume}cm³",
+            )
         return None
 
     def _check_fragile_protection(

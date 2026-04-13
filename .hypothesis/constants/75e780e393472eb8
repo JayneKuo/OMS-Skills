@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\cartonization_engine\fallback_handler.py
+# hypothesis_version: 6.151.10
+
+[1.0, 3.0, '0', '0.9', '1', '10', '100', '2', '5', 'F1非标箱型回退', 'F2虚拟箱型回退', 'F3承运商超限回退', 'OVERSIZE_VIRTUAL', 'VIRTUAL_BOX', '使用虚拟箱型，需人工包装', '使用非标箱型完成装箱', '回退箱型选择', '承运商尺寸超限，建议切换大件承运商', '虚拟箱型', '超限虚拟箱型']

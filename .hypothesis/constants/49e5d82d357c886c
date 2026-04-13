@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\api_client.py
+# hypothesis_version: 6.151.10
+
+[200, 300, 'Authorization', 'Content-Type', 'access_token', 'application/json', 'data', 'expires_in', 'grantType', 'password', 'username', 'x-tenant-id']

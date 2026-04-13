@@ -3,12 +3,13 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cartonization-engine"
+name = "warehouse-engines"
 version = "0.1.0"
-description = "装箱计算引擎 - Cartonization Engine"
+description = "仓储引擎集合 - Cartonization Engine + OMS Query Engine"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.0",
+    "requests>=2.28",
 ]
 
 [project.optional-dependencies]
@@ -19,4 +20,4 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", ".kiro/skills/oms-query/scripts", ".kiro/skills/oms-analysis/scripts", ".kiro/skills/order-query/scripts"]

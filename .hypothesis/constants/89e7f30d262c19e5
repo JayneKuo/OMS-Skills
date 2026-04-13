@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\query_orchestrator.py
+# hypothesis_version: 6.151.10
+
+[404, 'custom_rules', 'deallocate_info', 'deallocate_query', 'event', 'fulfillment_orders', 'hold', 'hold_rules', 'inventory', 'inventory_list', 'merchantNo', 'omsOrderNo', 'orderNo', 'order_detail', 'order_logs', 'order_timeline', 'pageNo', 'pageSize', 'panorama', 'routing', 'routing_rules', 'rule', 'search_order', 'shipment', 'sku_warehouse', 'sku_warehouse_rules', 'status_code', 'timeline', 'tracking', 'tracking_detail', 'tracking_status', 'warehouse', 'warehouse_list', '事件', '仓库', '全景', '全部', '分仓', '发运', '库存', '拦截', '时间线', '暂停', '策略', '规则', '运单', '追踪']

@@ -5,7 +5,7 @@
 
 ---
 
-## 1. order_query_workflow
+## 1. oms_query_workflow
 
 ### Trigger
 当用户请求：
@@ -17,7 +17,7 @@
 
 ### Steps
 1. 识别订单号或相关订单标识
-2. 调用 `order_query`
+2. 调用 `oms_query`
 3. 获取订单头、订单行、订单状态、履约状态、发货状态
 4. 输出关键结果
 5. 如有必要，补充业务解释
@@ -44,7 +44,7 @@
 - 为什么没有算出运费
 
 ### Steps
-1. 调用 `order_query` 获取订单状态和上下文
+1. 调用 `oms_query` 获取订单状态和上下文
 2. 调用 `order_analysis` 获取失败节点和根因
 3. 如与仓分配有关，可调用 `warehouse_allocation` 检查规则和候选仓
 4. 如与物流有关，可调用 `cartonization` / `shipping_rate` / `eta` 检查依赖环节
@@ -77,7 +77,7 @@
 - 这个订单从哪个仓发最合理
 
 ### Steps
-1. 调用 `order_query` 获取订单、商品、目的地
+1. 调用 `oms_query` 获取订单、商品、目的地
 2. 调用库存/仓能力相关能力，获取库存与仓能力
 3. 调用 `warehouse_allocation` 生成候选仓和推荐仓
 4. 如用户要求完整发货建议，则继续：
@@ -113,7 +113,7 @@
 - 给我一个完整发货方案
 
 ### Steps
-1. 调用 `order_query` 获取订单、商品、目的地
+1. 调用 `oms_query` 获取订单、商品、目的地
 2. 获取 SKU 主数据与物理属性
 3. 调用 `cartonization` 生成装箱方案
 4. 调用 `shipping_rate` 获取不同承运商/服务报价
@@ -150,7 +150,7 @@
 - 从仓库到物流服务一起推荐
 
 ### Steps
-1. 调用 `order_query`
+1. 调用 `oms_query`
 2. 调用库存/仓能力相关能力
 3. 调用 `warehouse_allocation`
 4. 调用 `cartonization`

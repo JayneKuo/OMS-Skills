@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\result_assembler.py
+# hypothesis_version: 6.151.10
+
+['Hold', 'Hold 规则命中', 'accountingCode', 'address', 'address1', 'addressLine1', 'allocationReason', 'carrierName', 'carrierScac', 'channelName', 'channelNo', 'city', 'country', 'createTime', 'customerOrderNo', 'data', 'deliveryService', 'description', 'dimensions', 'eventType', 'exception', 'externalOrderNo', 'fulfillmentStatus', 'full', 'itemLines', 'itemName', 'items', 'merchantNo', 'minimal', 'omsOrderNo', 'orderItems', 'orderNo', 'orderSource', 'orderType', 'orderTypeTags', 'partial', 'postalCode', 'quantity', 'records', 'relatedOrderNo', 'ruleName', 'shipmentNo', 'shipmentStatus', 'shippingAddress', 'sku', 'state', 'status', 'trackingNo', 'warehouseCode', 'warehouseName', 'weight', 'zipcode', '初始', '已分仓', '异常', '未知规则', '正常', '特殊', '终态', '订单出现异常，需要排查', '订单已导入系统，等待处理', '订单标记为异常状态', '订单被暂停履约', '过渡', '逆向']

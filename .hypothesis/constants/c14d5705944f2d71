@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\config.py
+# hypothesis_version: 6.151.10
+
+['LAN0000002', 'LANLT', 'LT', 'OMS_BASE_URL', 'OMS_MERCHANT_NO', 'OMS_PASSWORD', 'OMS_REQUEST_TIMEOUT', 'OMS_TENANT_ID', 'OMS_USERNAME', 'base_url', 'before', 'lantester@item.com', 'merchant_no', 'password', 'request_timeout', 'tenant_id', 'token_refresh_buffer', 'username']

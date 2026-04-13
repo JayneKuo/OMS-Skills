@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\order_query_engine\errors.py
+# hypothesis_version: 6.151.10
+
+['api_error', 'auth_failed', 'context', 'error_type', 'input_value', 'message', 'network_error', 'not_found', 'order_no', 'path', 'resolve_failed', 'response_summary', 'status_code', 'tried_types', 'url']

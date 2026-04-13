@@ -44,26 +44,66 @@ class FallbackHandler:
         failure_reason: str,
         context: FallbackContext,
         carrier_limits: CarrierLimits,
+        force_carrier_issue: bool = False,
     ) -> FallbackResult:
-        """按 F1→F2→F3→F4 顺序逐级尝试回退。"""
+        """按 F1→F3→F2→F4 顺序逐级尝试回退。
+
+        F3 在 F2 之前：如果是承运商尺寸/重量超限，应优先建议切换承运商，
+        而不是直接使用虚拟箱型。
+        """
 
         # F1: 尝试非标箱型
         f1 = self._try_f1(items, context, carrier_limits)
         if f1 is not None:
             return f1
 
+        # F3: 承运商超限 → 建议切换大件承运商（优先于 F2）
+        if force_carrier_issue or self._is_carrier_issue(items, carrier_limits):
+            f3 = self._try_f3(items, carrier_limits)
+            if f3 is not None:
+                return f3
+
         # F2: 虚拟箱型 + 人工包装
         f2 = self._try_f2(items, carrier_limits)
         if f2 is not None:
             return f2
 
-        # F3: 超大件承运商切换
-        f3 = self._try_f3(items, carrier_limits)
-        if f3 is not None:
-            return f3
-
         # F4: 规则冲突人工介入
         return self._try_f4(items, failure_reason)
+
+    def _is_carrier_issue(
+        self,
+        items: list[SKUItem],
+        carrier_limits: CarrierLimits,
+    ) -> bool:
+        """判断失败是否因为承运商限制（尺寸或重量超限）。
+
+        如果有箱型能装下商品但超过承运商尺寸限制，则判定为承运商问题。
+        """
+        limit = carrier_limits.max_dimension
+        limit_dims = sorted([limit.length, limit.width, limit.height], reverse=True)
+        # 检查单件是否超过承运商尺寸
+        for it in items:
+            l = it.length or Decimal(0)
+            w = it.width or Decimal(0)
+            h = it.height or Decimal(0)
+            item_dims = sorted([l, w, h], reverse=True)
+            if item_dims[0] > limit_dims[0] or item_dims[1] > limit_dims[1]:
+                return True
+        # 检查总重是否超过承运商限制
+        total_wt = sum((it.weight or Decimal(0)) * it.quantity for it in items)
+        if total_wt > carrier_limits.max_weight:
+            return True
+        # 检查总体积是否需要超过承运商尺寸的箱型
+        total_vol = sum(
+            (it.length or Decimal(0)) * (it.width or Decimal(0)) * (it.height or Decimal(0)) * it.quantity
+            for it in items
+        )
+        # 如果最小能装下的箱型体积 > 承运商最大体积限制
+        max_carrier_vol = limit.length * limit.width * limit.height
+        if total_vol > max_carrier_vol * Decimal("0.9"):
+            return True
+        return False
 
     def _try_f1(
         self,

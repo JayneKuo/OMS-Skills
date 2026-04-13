@@ -2,13 +2,13 @@
 """装箱结果验证器。
 
 验证装箱结果的正确性：
-1. 7 条硬规则校验
+1. 硬规则校验（结构层 + 完整 SKU 数据层）
 2. SKU 数量守恒
 3. 计费重量正确性
 
 Usage:
     python validate_result.py result.json
-    echo '{"status": "SUCCESS", ...}' | python validate_result.py
+    echo '{"request": {...}, "result": {...}}' | python validate_result.py
 """
 
 from __future__ import annotations
@@ -27,32 +27,50 @@ from cartonization_engine.models import (
     CartonizationRequest,
     CartonStatus,
     HazmatType,
+    SKUItem,
 )
+from cartonization_engine.hard_rule_checker import HardRuleChecker
 
 
 def validate_hard_rules(result: CartonizationResult) -> list[str]:
-    """校验 7 条硬规则。"""
+    """校验结构层硬规则。"""
     errors: list[str] = []
     for pkg in result.packages:
         pid = pkg.package_id
         items = pkg.items
-
-        # 注意: Package.items 是 PackageItem（无物理属性），
-        # 硬规则校验需要原始 SKUItem 信息。
-        # 此处仅校验结构层面可验证的规则。
-
-        # 规则 1: 检查 box_type 存在
         if not pkg.box_type or not pkg.box_type.box_id:
             errors.append(f"[{pid}] 缺少箱型信息")
-
-        # 规则: 非空 SKU 列表
         if not items:
             errors.append(f"[{pid}] SKU 列表为空")
-
-        # 规则: 每个 SKU 数量 > 0
         for item in items:
             if item.quantity <= 0:
                 errors.append(f"[{pid}] SKU {item.sku_id} 数量 <= 0")
+    return errors
+
+
+def validate_hard_rules_with_sku_data(
+    result: CartonizationResult,
+    request: CartonizationRequest,
+) -> list[str]:
+    """使用原始 SKU 数据做完整硬规则校验。"""
+    errors: list[str] = []
+    checker = HardRuleChecker()
+    sku_map: dict[str, SKUItem] = {it.sku_id: it for it in request.items}
+
+    for pkg in result.packages:
+        # 重建 SKUItem 列表
+        sku_items: list[SKUItem] = []
+        for pi in pkg.items:
+            ref = sku_map.get(pi.sku_id)
+            if ref:
+                sku_items.append(ref.model_copy(update={"quantity": pi.quantity}))
+
+        if not sku_items:
+            continue
+
+        violations = checker.check(sku_items, pkg.box_type, request.carrier_limits)
+        for v in violations:
+            errors.append(f"[{pkg.package_id}] {v.rule_name}: {v.description}")
 
     return errors
 
@@ -63,25 +81,19 @@ def validate_sku_conservation(
     """校验 SKU 数量守恒。"""
     if request_json is None:
         return ["跳过 SKU 守恒校验: 未提供原始请求"]
-
     if result.status != CartonStatus.SUCCESS:
         return []
-
     errors: list[str] = []
     input_qty: dict[str, int] = {}
     for item in request_json.get("items", []):
         sid = item.get("sku_id", "")
         input_qty[sid] = input_qty.get(sid, 0) + item.get("quantity", 0)
-
     output_qty: dict[str, int] = {}
     for pkg in result.packages:
         for pi in pkg.items:
             output_qty[pi.sku_id] = output_qty.get(pi.sku_id, 0) + pi.quantity
-
     if input_qty != output_qty:
-        errors.append(
-            f"SKU 数量不守恒: 输入={input_qty}, 输出={output_qty}"
-        )
+        errors.append(f"SKU 数量不守恒: 输入={input_qty}, 输出={output_qty}")
     return errors
 
 
@@ -102,7 +114,6 @@ def validate_billing_weight(result: CartonizationResult) -> list[str]:
 
 
 def main() -> None:
-    # 读取输入
     if len(sys.argv) > 1:
         input_path = Path(sys.argv[1])
         if not input_path.exists():
@@ -117,7 +128,6 @@ def main() -> None:
 
     data = json.loads(raw)
 
-    # 支持两种格式: 纯 result 或 {request, result}
     if "status" in data:
         result_data = data
         request_data = None
@@ -135,9 +145,20 @@ def main() -> None:
         sys.exit(1)
 
     all_errors: list[str] = []
+    total_checks = 3
 
-    # 1. 硬规则校验
+    # 1. 结构层硬规则校验
     all_errors.extend(validate_hard_rules(result))
+
+    # 1.5 完整硬规则校验（如果有原始请求）
+    if request_data is not None:
+        try:
+            request = CartonizationRequest.model_validate(request_data)
+            full_rule_errors = validate_hard_rules_with_sku_data(result, request)
+            all_errors.extend(full_rule_errors)
+            total_checks += 1
+        except Exception:
+            pass  # 无法解析请求，跳过完整校验
 
     # 2. SKU 数量守恒
     all_errors.extend(validate_sku_conservation(request_data, result))
@@ -145,10 +166,9 @@ def main() -> None:
     # 3. 计费重量正确性
     all_errors.extend(validate_billing_weight(result))
 
-    # 输出结果
     output = {
         "status": "PASS" if not all_errors else "FAIL",
-        "total_checks": 3,
+        "total_checks": total_checks,
         "errors": all_errors,
         "packages_checked": len(result.packages),
     }

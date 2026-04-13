@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\cartonization_engine\engine.py
+# hypothesis_version: 6.151.10
+
+['0', '100', '2', '200', '60', '90', '999', '; ', 'CARTON_FAILED', 'DG', 'FRAGILE', 'INVALID_INPUT', 'LIQUID', 'LOW_FILL_RATE', 'OVERSIZE_VIRTUAL', 'RULE_CONFLICT', 'SKU 列表为空', 'quantity', '已是最优箱型', '已是最小可用箱型', '无可用箱型', '更小箱型不可用: ', '超大件专线', '超大件分离']

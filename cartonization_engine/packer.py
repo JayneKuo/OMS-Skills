@@ -32,14 +32,27 @@ class OpenBin:
         return self.box_type.max_weight - self.used_weight
 
     def can_fit(self, item: SKUItem) -> bool:
-        """检查箱型能否容纳该 SKU（体积 + 重量）"""
-        item_vol = (item.length or Decimal(0)) * (item.width or Decimal(0)) * (item.height or Decimal(0))
+        """检查箱型能否容纳该 SKU（体积 + 重量 + 不可叠放约束）。
+
+        不可叠放(stackable=False)的商品，每件占用整层空间：
+        effective_volume = box_length × box_width × item_height
+        """
         item_wt = item.weight or Decimal(0)
+        if not item.stackable:
+            # 不可叠放：占用整层 = box_footprint × item_height
+            ih = item.height or Decimal(0)
+            item_vol = self.box_type.inner_dimensions.length * self.box_type.inner_dimensions.width * ih
+        else:
+            item_vol = (item.length or Decimal(0)) * (item.width or Decimal(0)) * (item.height or Decimal(0))
         return item_vol <= self.remaining_volume and item_wt <= self.remaining_weight
 
     def add(self, item: SKUItem) -> None:
-        item_vol = (item.length or Decimal(0)) * (item.width or Decimal(0)) * (item.height or Decimal(0))
         item_wt = item.weight or Decimal(0)
+        if not item.stackable:
+            ih = item.height or Decimal(0)
+            item_vol = self.box_type.inner_dimensions.length * self.box_type.inner_dimensions.width * ih
+        else:
+            item_vol = (item.length or Decimal(0)) * (item.width or Decimal(0)) * (item.height or Decimal(0))
         self.items.append(item)
         self.used_volume += item_vol
         self.used_weight += item_wt

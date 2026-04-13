@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "oms-agent": {
+      "command": "python",
+      "args": [".kiro/skills/oms-agent/mcp_server.py"],
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "ANALYSIS_VERSION": "4"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "oms_query",
+        "oms_batch_query",
+        "oms_warehouse_list",
+        "oms_inventory_list",
+        "oms_rule_list",
+        "oms_hold_rules",
+        "oms_channel_list",
+        "oms_order_search",
+        "oms_order_timeline",
+        "oms_order_logs",
+        "oms_dispatch_log",
+        "oms_shipment_tracking",
+        "oms_analysis",
+        "cartonize",
+        "validate_cartonization"
+      ]
+    }
+  }
+}
