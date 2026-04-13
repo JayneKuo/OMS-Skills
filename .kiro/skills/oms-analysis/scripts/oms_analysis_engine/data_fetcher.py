@@ -113,6 +113,13 @@ class DataFetcher:
         # 总是获取状态统计（轻量级）
         ctx.status_counts = self._fetch_status_counts(request.merchant_no)
 
+        # 补充商品行明细：sale-order/page 不返回 itemLines，需要逐单查详情
+        if ctx.batch_orders:
+            need_items = [o for o in ctx.batch_orders
+                          if not o.get("itemLines") and not o.get("items")]
+            if need_items:
+                self._enrich_item_lines(need_items[:50], request.merchant_no)
+
         # 批量模式：batch_orders 获取后，为异常订单抽样获取事件日志
         if "event_data" in needed and not request.identifier and ctx.batch_orders:
             try:
@@ -210,6 +217,31 @@ class DataFetcher:
             enriched.append(o)
 
         return enriched
+
+    def _enrich_item_lines(self, orders: list, merchant_no: str | None) -> None:
+        """为缺少 itemLines 的订单逐单查详情补充商品行。"""
+        try:
+            c = self._get_client()
+            for o in orders:
+                ono = o.get("orderNo", "")
+                if not ono:
+                    continue
+                try:
+                    resp = c.get(f"/api/linker-oms/opc/app-api/sale-order/{ono}")
+                    detail = resp.get("data", resp)
+                    if isinstance(detail, dict):
+                        items = detail.get("itemLines") or detail.get("items") or []
+                        if items:
+                            o["itemLines"] = items
+                        # 顺便补充其他缺失字段
+                        for key in ("accountingCode", "warehouseCode", "channelName",
+                                    "dataChannel", "carrierName"):
+                            if detail.get(key) and not o.get(key):
+                                o[key] = detail[key]
+                except Exception:
+                    continue
+        except Exception:
+            pass
 
     @staticmethod
     def _apply_sampling(data: list, threshold: int = SAMPLING_THRESHOLD) -> tuple[list, SamplingInfo | None]:

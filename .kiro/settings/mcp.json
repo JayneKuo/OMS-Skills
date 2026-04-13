@@ -5,7 +5,7 @@
       "args": [".kiro/skills/oms-agent/mcp_server.py"],
       "env": {
         "PYTHONDONTWRITEBYTECODE": "1",
-        "ANALYSIS_VERSION": "4"
+        "ANALYSIS_VERSION": "5"
       },
       "disabled": false,
       "autoApprove": [
