@@ -9,7 +9,7 @@ description: >
 license: MIT
 metadata:
   author: warehouse-allocation-team
-  version: "1.0"
+  version: "2.0"
   category: oms-operations
   complexity: advanced
 ---
@@ -40,9 +40,9 @@ metadata:
 ### 洞察类
 - 库存健康分析：缺货/积压/补货建议
 - 仓库效率分析：履约速度/积压/异常率对比
-- 渠道业绩分析：各渠道订单量/异常率
-- 订单趋势分析：订单量/状态分布/异常率趋势
-- SKU 销售分析：热销/滞销/各仓分布
+- 渠道业绩分析：各渠道订单量/GMV/客单价/异常率/取消率
+- 订单趋势分析：订单量/GMV/客单价/异常率/取消率/件单比趋势
+- SKU 销售分析：热销/滞销/销售额/各仓分布
 
 ### 建议类
 - 修复建议：基于诊断结果的可执行建议

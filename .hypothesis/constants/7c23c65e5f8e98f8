@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\.kiro/skills/shipping-rate/scripts\shipping_rate_engine\rate_engine.py
+# hypothesis_version: 6.151.10
+
+['MISSING_ADDRESS', 'MISSING_PACKAGE_INFO', 'PACKAGE_CALC_FAILED', 'carrier', 'code', 'high', 'medium', 'merchant_agreement', 'message', 'promotion_rules', 'recommend_source', 'source', 'surcharge_rules', '包裹列表为空', '发货仓地址缺失', '承运商缺失', '收货地址缺失', '；']

@@ -41,27 +41,25 @@
 - 为什么没有分仓
 - 为什么没有发货
 - 为什么没有生成标签
-- 为什么没有算出运费
+- 为什么订单总是异常
 
-### Steps
-1. 调用 `oms_query` 获取订单状态和上下文
-2. 调用 `order_analysis` 获取失败节点和根因
-3. 如与仓分配有关，可调用 `warehouse_allocation` 检查规则和候选仓
-4. 如与物流有关，可调用 `cartonization` / `shipping_rate` / `eta` 检查依赖环节
-5. 汇总输出：
-   - 问题类型
-   - 根因
-   - 影响步骤
-   - 是否可重试
-   - 修复建议
+### Steps（单订单）
+1. 调用 `oms_query`（intent=panorama）获取订单全景
+2. 调用 `oms_analysis`（intent=root_cause, identifier=订单号）获取根因 + 影响 + 修复建议
+3. 按 OUTPUT_POLICY Level 2 模板输出
+
+### Steps（批量异常）
+1. 调用 `oms_analysis`（query="为什么订单总是异常"）
+   - IntentDetector 自动扩展为 batch_pattern + impact_assessment + fix_recommendation
+   - DataFetcher 自动拉取订单列表 + 抽样事件日志
+2. 按 OUTPUT_POLICY Level 2 模板输出根因 + 影响范围 + 修复建议
 
 ### Outputs
-- issue_type
-- root_cause
-- impacted_step
-- recommendation
-- retryable_flag
-- manual_action_needed
+- root_cause（根因）
+- affected_skus（涉及的 SKU）
+- impact_scope（影响范围：订单数、仓库数）
+- severity（严重程度）
+- recommendations（修复建议，含前置条件和风险）
 
 ---
 
@@ -101,7 +99,7 @@
 
 ---
 
-## 4. shipping_plan_recommendation_workflow
+## 4. shipping_plan_recommendation_workflow（✅ 已实现）
 
 ### Trigger
 当用户请求：
@@ -112,31 +110,35 @@
 - 这票货怎么装箱并发货
 - 给我一个完整发货方案
 
-### Steps
-1. 调用 `oms_query` 获取订单、商品、目的地
-2. 获取 SKU 主数据与物理属性
-3. 调用 `cartonization` 生成装箱方案
-4. 调用 `shipping_rate` 获取不同承运商/服务报价
-5. 调用 `eta` 获取不同承运商/服务时效
-6. 调用 `cost` 计算综合成本
-7. 输出推荐方案：
-   - 装箱方案
-   - 推荐承运商
-   - 推荐服务
-   - 预计运费
-   - 预计时效
-   - 推荐理由
-   - 备选方案
+### MCP Tool
+`shipping_plan_recommend(order_no, merchant_no?, risk_level?)`
+
+### 实现
+`workflow_engine/shipping_plan.py` → `ShippingPlanWorkflow.run()`
+
+### Pipeline Steps
+1. **oms_query** → 调用 OMSQueryEngine 获取订单全景（SKU、数量、地址、仓库）
+2. **build_packages** → 构建包裹信息（无 SKU 物理数据时用默认重量 0.9kg 估算，标注 degraded）
+3. **shipping_rate** → 调用 DefaultUSRateProvider 做多承运商运费比价（UPS Ground / FedEx Ground / USPS Priority）
+4. **eta** → 调用 ETAEngine 为每个承运商方案计算 ETA（支持 P50/P75/P90 口径）
+5. **cost_score** → 调用 CostEngine 做综合评分排序（4 维加权：成本/时效/准时率/容量）
+6. **输出** → Top-3 推荐方案 + 每步执行状态 + 白盒解释
+
+### 降级策略
+- 每一步失败不阻断后续步骤，降级继续
+- 无 SKU 重量数据 → 使用默认 0.9kg/件估算
+- 无仓库地址 → 默认 NJ 州
+- cost_engine 失败 → 降级为仅按运费排序
+- 结果中标注所有降级步骤和原因
 
 ### Outputs
-- package_plan
-- recommended_carrier
-- recommended_service
-- estimated_shipping_cost
-- estimated_eta
-- total_cost
-- recommendation_reason
-- alternative_options
+- order_summary（订单摘要：SKU、数量、地址、仓库）
+- package_summary（包裹摘要：包裹数、重量）
+- plans[]（Top-3 方案：承运商、运费、ETA、准时率、Score、排名）
+- recommended_plan（推荐方案）
+- pipeline_steps[]（每步执行状态：名称、成功/失败、耗时、降级标记）
+- degraded / degraded_reasons（降级标记和原因）
+- explanation（白盒解释）
 
 ---
 

@@ -1,0 +1,2 @@
+Shopify URL provided by user: https://admin.shopify.com/store/teser-eddie/products/9496233214103
+Parsed shop domain/subdomain: teser-eddie

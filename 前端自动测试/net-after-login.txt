@@ -1,0 +1,16 @@
+[POST] https://id-staging.item.com/login => [200] OK
+  Request body: username=lantester%40item.com&password=LANLT&tenantId=&verificationCode=&extauth=&source=default
+[POST] https://omsv3-staging.item.com/api/linker-oms/opc/iam/token => [200] 
+  Request body: {"grantType":"authorization_code","iamCode":"hagCdWHQGdF41eNBTwIcTh7qxhh_UmAdTdJcaaQD_ylKU4M8mPOXAWtKps6E9NdiwJQnZ8BgkdQ4HMcnWFXEkipeGRt9lHLCPEbGL-MNwVwmn-RDw1QlPCRFM3KiOcsq","redirectUrl":"https://omsv3-staging.item.com/auth-code"}
+[GET] https://omsv3-staging.item.com/api/iam/user-info => [200] 
+[GET] https://omsv3-staging.item.com/api/iam/user-info => [200] 
+[GET] https://omsv3-staging.item.com/api/iam/openapi/v1/users/full-info?identifier=1862026806640377857 => [200] 
+[GET] https://omsv3-staging.item.com/api/linker-dict/app-api/i18n/item_oms/simple-list => [200] 
+[GET] https://omsv3-staging.item.com/api/linker-dict/app-api/dict/data/item_oms/simple-list => [200] 
+[POST] https://omsv3-staging.item.com/api/linker-oms/opc/app-api/crm-api/crm/customers/v1/page => [200] 
+  Request body: {"pageIndex":1,"pageSize":1,"orderBy":1,"isAsc":true,"status":2}
+[GET] https://omsv3-staging.item.com/assets/end-to-end-BwjpC3HA.js
+[GET] https://omsv3-staging.item.com/assets/calendar-DPSqV0vd.js
+[GET] https://omsv3-staging.item.com/assets/lucide-react-BzUfhU5S.js
+[GET] https://omsv3-staging.item.com/assets/star-B8lk0YRe.js
+[GET] https://omsv3-staging.item.com/images/Item%20Logo%20Mark%20(All)/Item%20Logo%20Mark/SVG/logo-mark-fullcolor.svg

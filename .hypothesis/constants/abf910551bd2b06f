@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\.kiro/skills/shipping-rate/scripts\shipping_rate_engine\surcharge_calculator.py
+# hypothesis_version: 6.151.10
+
+['%Y-%m-%d', '0', '0.01', 'end', 'start', '包含冷藏/冷冻商品', '收货地址在偏远地区列表中', '无冷链商品', '无需上楼费', '节假日期间', '非偏远地区', '非节假日']

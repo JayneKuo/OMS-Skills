@@ -95,6 +95,9 @@ class DataFetcher:
                     # 兜底：从 shipping request 获取
                     sr_raw = self._fetch_shipping_requests(request.merchant_no, request.filters)
                     raw = [flatten_shipping_request(sr) for sr in sr_raw]
+                # 按时间范围过滤
+                if request.time_range and raw:
+                    raw = self._filter_by_time(raw, request.time_range)
                 ctx.batch_orders = raw
                 ctx.batch_orders, sampling = self._apply_sampling(ctx.batch_orders)
                 ctx.sampling_info = sampling
@@ -104,7 +107,10 @@ class DataFetcher:
         if "shipping_requests" in needed:
             try:
                 sr_raw = self._fetch_shipping_requests(request.merchant_no, request.filters)
-                ctx.batch_orders = [flatten_shipping_request(sr) for sr in sr_raw]
+                raw = [flatten_shipping_request(sr) for sr in sr_raw]
+                if request.time_range and raw:
+                    raw = self._filter_by_time(raw, request.time_range)
+                ctx.batch_orders = raw
                 ctx.batch_orders, sampling = self._apply_sampling(ctx.batch_orders)
                 ctx.sampling_info = sampling
             except Exception as e:
@@ -242,6 +248,30 @@ class DataFetcher:
                     continue
         except Exception:
             pass
+
+    @staticmethod
+    def _filter_by_time(orders: list, time_range) -> list:
+        """按时间范围过滤订单。支持毫秒时间戳和 ISO 字符串。"""
+        from datetime import datetime, timezone
+        start_ts = time_range.start.timestamp() * 1000  # 转毫秒
+        end_ts = time_range.end.timestamp() * 1000
+
+        filtered = []
+        for o in orders:
+            ts = o.get("orderTime") or o.get("createTime")
+            if ts is None:
+                filtered.append(o)  # 没有时间字段的保留
+                continue
+            if isinstance(ts, str):
+                try:
+                    dt = datetime.fromisoformat(ts)
+                    ts = dt.timestamp() * 1000
+                except Exception:
+                    filtered.append(o)
+                    continue
+            if start_ts <= ts <= end_ts:
+                filtered.append(o)
+        return filtered
 
     @staticmethod
     def _apply_sampling(data: list, threshold: int = SAMPLING_THRESHOLD) -> tuple[list, SamplingInfo | None]:

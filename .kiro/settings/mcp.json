@@ -5,7 +5,7 @@
       "args": [".kiro/skills/oms-agent/mcp_server.py"],
       "env": {
         "PYTHONDONTWRITEBYTECODE": "1",
-        "ANALYSIS_VERSION": "5"
+        "ANALYSIS_VERSION": "11"
       },
       "disabled": false,
       "autoApprove": [
@@ -22,6 +22,7 @@
         "oms_dispatch_log",
         "oms_shipment_tracking",
         "oms_analysis",
+        "warehouse_allocate",
         "cartonize",
         "validate_cartonization"
       ]

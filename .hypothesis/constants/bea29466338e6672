@@ -1,0 +1,4 @@
+# file: C:\Users\Jayne\Desktop\Skills\.kiro/skills/shipping-rate/scripts\shipping_rate_engine\rate_models.py
+# hypothesis_version: 6.151.10
+
+['0', '1', 'CN', 'cold_chain', 'first_weight_step', 'fixed', 'fixed_amount', 'fuel', 'full_free', 'high', 'holiday', 'insurance', 'oversize', 'overweight', 'percentage', 'remote', 'stair', 'volume', 'weight_tier']

@@ -20,6 +20,18 @@ class OMSAnalysisEngine:
         self._registry.auto_discover()
 
     def analyze(self, request: AnalysisRequest) -> AnalysisResponse:
+        # 从 query 中提取时间范围（如果用户没有显式指定）
+        if not request.time_range:
+            extracted = self._intent_detector.extract_time_range(request)
+            if extracted:
+                request.time_range = extracted
+            elif not request.identifier:
+                # 批量分析场景默认近 30 天
+                from datetime import datetime, timedelta, timezone
+                from oms_analysis_engine.models.request import TimeRange
+                now = datetime.now(timezone.utc)
+                request.time_range = TimeRange(start=now - timedelta(days=30), end=now)
+
         intents = self._intent_detector.detect(request)
         if not intents:
             return AnalysisResponse()

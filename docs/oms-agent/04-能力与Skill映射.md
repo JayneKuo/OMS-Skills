@@ -82,23 +82,34 @@ OMS 代码为 cartonization 提供的是**输入数据源**，而非计算逻辑
 | E5 | carrier_data | 数据复用 | 承运商基础数据 |
 | E6 | specify_carrier_delivery | 部分复用 | 指定承运商逻辑 |
 
-## 6. eta
+## 6. eta（✅ 已实现）
 
 | 能力编号 | capability_name | 复用方式 | 说明 |
 |---------|----------------|---------|------|
 | B5 | warehouse_distance_data | 数据复用 | 仓库→目的地距离 |
 | E5 | carrier_data | 数据复用 | 承运商信息 |
 
-注：OMS 代码中暂无 ETA 计算逻辑实现，仅有距离和承运商数据可作为输入。
+已有独立实现：ETAEngine（Python），基于 8 组件 ETA 公式计算预估送达时间。
+- 8 组件：T_queue + T_cutoff_wait + T_process + T_handover + T_transit + T_last_mile + T_weather + T_risk_buffer
+- 支持 P50/P75/P90 三个风险化口径
+- 内置美国市场默认 transit time 表（州级距离分段）
+- 无历史数据时降级估算，标注 confidence="estimated" 和 degraded=True
+- OMS 代码为 eta 提供的是**输入数据源**（距离、承运商信息），而非计算逻辑
 
-## 7. cost
+## 7. cost（✅ 已实现）
 
 | 能力编号 | capability_name | 复用方式 | 说明 |
 |---------|----------------|---------|------|
 | B5 | warehouse_distance_data | 数据复用 | 距离影响运费 |
 | E4 | shipping_mapping_execute | 逻辑复用 | 运费条件映射 |
 
-注：OMS 代码中暂无综合成本计算逻辑实现，仅有距离和映射数据可作为输入。
+已有独立实现：CostEngine（Python），实现综合成本计算和多方案评分排序。
+- Cost_total 公式（6 项成本）：Freight_order + Cost_warehouse + Cost_transfer + Penalty_split + Penalty_capacity + Cost_risk
+- Score 公式（4 维加权评分）：w_cost × Normalize(Cost_total) + w_eta × Normalize(ETA) + w_ontime × OnTimeProbability + w_cap × Normalize(RemainCapacity)
+- 容量惩罚 4 梯度（0-70% 无惩罚 / 70-85% 线性 / 85-95% 加速 / 95-100% 重度）
+- 拆单惩罚：(N_warehouses - 1) × split_penalty_unit
+- 归一化后加权排序，输出 Top-N 推荐方案
+- OMS 代码为 cost 提供的是**输入数据源**（距离、映射数据），而非计算逻辑
 
 ---
 
@@ -110,6 +121,6 @@ OMS 代码为 cartonization 提供的是**输入数据源**，而非计算逻辑
 | oms_query | 5 | 0 | 0 | — |
 | order_analysis | 7 | 0 | 0 | — |
 | warehouse_allocation | 18 | 2 | 0 | — |
-| shipping_rate | 5 | 1 | 0 | — |
-| eta | 0 | 0 | 2 | ETA 计算逻辑 |
-| cost | 0 | 0 | 2 | 成本计算逻辑 |
+| shipping_rate | 5 | 1 | 0 | — (已有独立 Python 实现 v2.0) |
+| eta | 0 | 0 | 2 | — (已有独立 Python 实现，内置美国默认 transit time 表) |
+| cost | 0 | 0 | 2 | — (已有独立 Python 实现，Cost_total + Score 公式) |

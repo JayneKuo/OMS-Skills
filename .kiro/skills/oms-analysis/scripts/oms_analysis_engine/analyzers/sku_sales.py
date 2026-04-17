@@ -1,6 +1,6 @@
-"""SKU 销售分析"""
+"""SKU 销售分析 — 含销售额"""
 from __future__ import annotations
-from collections import Counter
+from collections import defaultdict
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
 from oms_analysis_engine.models.result import AnalysisResult
@@ -8,7 +8,7 @@ from oms_analysis_engine.models.result import AnalysisResult
 
 class SkuSalesAnalyzer(BaseAnalyzer):
     name = "SKU 销售分析"
-    version = "1.0.0"
+    version = "2.0.0"
     intent = "sku_sales"
     required_data = ["batch_orders"]
 
@@ -17,47 +17,91 @@ class SkuSalesAnalyzer(BaseAnalyzer):
         if not orders:
             return self._make_result(summary="无订单数据")
 
-        sku_qty = Counter()
+        sku_data: dict[str, dict] = defaultdict(lambda: {"qty": 0, "revenue": 0.0, "order_count": 0})
+
         for o in orders:
             items = o.get("itemLines") or o.get("items") or []
-            for item in items:
-                sku = item.get("sku", "")
-                qty = item.get("qty", 0) or item.get("quantity", 0)
-                if sku:
-                    sku_qty[sku] += qty
+            order_amount = float(o.get("totalAmount") or o.get("total") or 0)
 
-        if not sku_qty:
+            if items:
+                for item in items:
+                    sku = item.get("sku", "")
+                    qty = int(item.get("qty", 0) or item.get("quantity", 0) or 0)
+                    # 尝试取行级金额，没有就按订单均摊
+                    line_amt = item.get("amount") or item.get("lineTotal") or item.get("price", 0)
+                    if line_amt:
+                        revenue = float(line_amt) * qty if float(line_amt) < 1000 else float(line_amt)
+                    elif order_amount and qty:
+                        revenue = order_amount  # 单 SKU 订单直接用订单金额
+                    else:
+                        revenue = 0
+                    if sku:
+                        sku_data[sku]["qty"] += qty
+                        sku_data[sku]["revenue"] += revenue
+                        sku_data[sku]["order_count"] += 1
+            elif o.get("product"):
+                # 没有 itemLines 但有 product 字段（列表接口）
+                sku = o["product"]
+                qty = int(o.get("qty", 1) or 1)
+                sku_data[sku]["qty"] += qty
+                sku_data[sku]["revenue"] += order_amount
+                sku_data[sku]["order_count"] += 1
+
+        if not sku_data:
             return self._make_result(summary="无 SKU 销售数据")
 
-        total_qty = sum(sku_qty.values())
-        ranked = sku_qty.most_common()
+        total_qty = sum(d["qty"] for d in sku_data.values())
+        total_revenue = sum(d["revenue"] for d in sku_data.values())
+
+        # 按销量排名
+        ranked = sorted(sku_data.items(), key=lambda x: x[1]["qty"], reverse=True)
         n = len(ranked)
         top_20_idx = max(1, n // 5)
         bottom_20_idx = max(1, n - n // 5)
 
         sku_list = []
-        for i, (sku, qty) in enumerate(ranked):
-            pct = (qty / total_qty * 100) if total_qty > 0 else 0
+        for i, (sku, d) in enumerate(ranked):
+            qty_pct = (d["qty"] / total_qty * 100) if total_qty > 0 else 0
+            rev_pct = (d["revenue"] / total_revenue * 100) if total_revenue > 0 else 0
             if i < top_20_idx:
                 tag = "热销"
             elif i >= bottom_20_idx:
                 tag = "滞销"
             else:
                 tag = "正常"
-            sku_list.append({"sku": sku, "quantity": qty, "percentage": round(pct, 1), "tag": tag})
+            sku_list.append({
+                "sku": sku,
+                "quantity": d["qty"],
+                "qty_percentage": round(qty_pct, 1),
+                "revenue": round(d["revenue"], 2),
+                "revenue_percentage": round(rev_pct, 1),
+                "order_count": d["order_count"],
+                "tag": tag,
+            })
 
         evidences = []
         hot = [s for s in sku_list if s["tag"] == "热销"]
         cold = [s for s in sku_list if s["tag"] == "滞销"]
         if hot:
-            evidences.append(self._build_evidence("statistic", f"热销 SKU {len(hot)} 个，占总销量 {sum(s['percentage'] for s in hot):.0f}%"))
+            hot_rev = sum(s["revenue"] for s in hot)
+            evidences.append(self._build_evidence(
+                "statistic",
+                f"热销 SKU {len(hot)} 个，贡献销售额 ${hot_rev:,.2f}（占 {hot_rev/total_revenue*100:.0f}%）" if total_revenue > 0
+                else f"热销 SKU {len(hot)} 个，占总销量 {sum(s['qty_percentage'] for s in hot):.0f}%",
+            ))
 
         return self._make_result(
             success=True,
-            summary=f"共 {n} 个 SKU，{len(hot)} 个热销，{len(cold)} 个滞销",
+            summary=f"共 {n} 个 SKU，总销量 {total_qty} 件，总销售额 ${total_revenue:,.2f}",
             evidences=evidences,
             confidence=self._assess_confidence(evidences),
             data_completeness=self._assess_data_completeness(context, self.required_data),
-            metrics={"total_skus": n, "total_quantity": total_qty, "hot_count": len(hot), "cold_count": len(cold)},
+            metrics={
+                "total_skus": n,
+                "total_quantity": total_qty,
+                "total_revenue": round(total_revenue, 2),
+                "hot_count": len(hot),
+                "cold_count": len(cold),
+            },
             details={"sku_ranking": sku_list[:30]},
         )

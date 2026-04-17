@@ -1,0 +1,36 @@
+- generic [ref=e3]:
+  - generic [ref=e7]:
+    - generic [ref=e9]:
+      - button "Password Login" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+      - button "Verification Code Login" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - img [ref=e23]
+          - generic [ref=e28]: ITEM
+        - heading "Sign in to IAM" [level=2] [ref=e30]
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]: Username / Email
+          - textbox "Enter your username or email" [ref=e35]
+        - generic [ref=e36]:
+          - generic [ref=e37]: Password
+          - generic [ref=e38]:
+            - textbox "Enter your password" [ref=e39]
+            - button "Show password" [ref=e40] [cursor=pointer]:
+              - img [ref=e41]
+          - link "Forgot Password?" [ref=e45] [cursor=pointer]:
+            - /url: "#"
+        - button "Sign In" [disabled] [ref=e47]:
+          - generic [ref=e48]: Sign In
+        - button "Login with SSO" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: Login with SSO
+        - generic [ref=e52]:
+          - text: Don't have an account?
+          - link "Sign Up" [ref=e53] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e54]: "Technical Service Provider: Public Platform Team of Item"
+    - paragraph [ref=e56]: Copyright © Item IAM 2026
+  - img [ref=e59] [cursor=pointer]

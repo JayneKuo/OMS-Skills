@@ -29,6 +29,7 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(_SKILLS_DIR))
 # 添加引擎包路径
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-query", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-analysis", "scripts"))
+sys.path.insert(0, os.path.join(_SKILLS_DIR, "warehouse-allocation", "scripts"))
 sys.path.insert(0, _PROJECT_ROOT)
 
 from mcp.server.fastmcp import FastMCP
@@ -441,6 +442,68 @@ def oms_analysis(
     if init_errors:
         result["_init_errors"] = init_errors
     return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+# ══════════════════════════════════════════════════════════
+# Tool: warehouse_allocate — 寻仓推荐
+# ══════════════════════════════════════════════════════════
+
+@mcp.tool()
+def warehouse_allocate(
+    order_no: str | None = None,
+    merchant_no: str = "LAN0000002",
+    sku_list: str | None = None,
+    country: str = "US",
+    state: str | None = None,
+    allow_split: bool = True,
+) -> str:
+    """寻仓推荐。根据订单商品、库存、仓库能力，推荐最优发货仓。
+
+    支持两种模式：
+    1. 按订单号推荐（自动获取订单数据）
+    2. 直接传入 SKU 列表 + 收货地址
+
+    Args:
+        order_no: 订单号（模式1，自动获取订单数据）
+        merchant_no: 商户号，默认 LAN0000002
+        sku_list: SKU 列表 JSON（模式2），格式 [{"sku":"ABC","quantity":2}]
+        country: 收货国家，默认 US
+        state: 收货州（如 CA、TX、NY）
+        allow_split: 是否允许拆单，默认 true
+    """
+    from allocation_engine.engine import WarehouseAllocationEngine
+    from allocation_engine.data_loader import DataLoader
+    from allocation_engine.models import AllocationRequest, OrderItem, Address
+
+    # 初始化
+    try:
+        from oms_query_engine.engine_v2 import OMSQueryEngine
+        oms_engine = OMSQueryEngine()
+        loader = DataLoader(oms_engine=oms_engine)
+    except Exception:
+        loader = DataLoader()
+
+    engine = WarehouseAllocationEngine(data_loader=loader)
+
+    # 构建请求
+    items = None
+    address = None
+    if sku_list:
+        raw = json.loads(sku_list)
+        items = [OrderItem(sku=i["sku"], quantity=i.get("quantity", 1)) for i in raw]
+    if country:
+        address = Address(country=country, state=state)
+
+    request = AllocationRequest(
+        order_no=order_no,
+        merchant_no=merchant_no,
+        items=items,
+        shipping_address=address,
+        allow_split=allow_split,
+    )
+
+    result = engine.allocate(request)
+    return json.dumps(result.model_dump(), ensure_ascii=False, indent=2)
 
 
 # ══════════════════════════════════════════════════════════

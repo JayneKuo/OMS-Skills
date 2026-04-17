@@ -586,35 +586,37 @@
 
 ## 六、导航链接规范
 
-当回复涉及 OMS 系统页面时，使用 `[链接文本](路径)` 格式。
+当回复涉及 OMS 系统页面时，使用完整 URL 格式 `[链接文本](完整URL)`，确保前端可直接渲染为可点击链接。
 
-| 页面 | 路径 | 使用场景 |
+Base URL: `https://omsv2-staging.item.com`（staging 环境，生产环境需替换）
 
-|------|------|----------|
+| 页面 | 完整 URL | 使用场景 |
 
-| 仪表板 | `/dashboard` | 数据概览、销售趋势 |
+|------|----------|----------|
 
-| 订单管理 | `/orders` | 订单列表、筛选 |
+| 仪表板 | `https://omsv2-staging.item.com/dashboard` | 数据概览、销售趋势 |
 
-| 订单详情 | `/orders/{order_id}` | 具体订单查看 |
+| 订单管理 | `https://omsv2-staging.item.com/orders` | 订单列表、筛选 |
 
-| 退货管理 | `/returns` | 退货相关 |
+| 订单详情 | `https://omsv2-staging.item.com/orders/{order_id}` | 具体订单查看 |
 
-| 采购管理 | `/purchase` | 采购相关 |
+| 退货管理 | `https://omsv2-staging.item.com/returns` | 退货相关 |
 
-| 物流管理 | `/logistics` | 物流跟踪 |
+| 采购管理 | `https://omsv2-staging.item.com/purchase` | 采购相关 |
 
-| 库存管理 | `/inventory` | 库存查询、预警 |
+| 物流管理 | `https://omsv2-staging.item.com/logistics` | 物流跟踪 |
 
-| 商品管理 | `/product` | 产品和变体 |
+| 库存管理 | `https://omsv2-staging.item.com/inventory` | 库存查询、预警 |
 
-| 事件管理 | `/events` | 异常事件、日志 |
+| 商品管理 | `https://omsv2-staging.item.com/product` | 产品和变体 |
 
-| 客户管理 | `/customer-management` | 客户信息、细分 |
+| 事件管理 | `https://omsv2-staging.item.com/events` | 异常事件、日志 |
 
-| 自动化 | `/automation` | 工作流、规则 |
+| 客户管理 | `https://omsv2-staging.item.com/customer-management` | 客户信息、细分 |
 
-| AI 异常处理 | `/orders/exception-ai` | AI 辅助异常处理 |
+| 自动化 | `https://omsv2-staging.item.com/automation` | 工作流、规则 |
+
+| AI 异常处理 | `https://omsv2-staging.item.com/orders/exception-ai` | AI 辅助异常处理 |
 
 链接使用原则：
 
@@ -622,6 +624,9 @@
 - 分析结论附带相关管理页面链接
 - 推荐建议附带可执行操作的页面链接
 - 一条回复中链接不超过 5 个，避免信息过载
+- 必须使用完整 URL（含 base URL），不使用相对路径，确保前端可直接渲染为 `<a>` 标签
+- 前端 AI 对话组件需解析 markdown 链接语法 `[文本](URL)` 并渲染为可点击元素
+- 在 Kiro / IDE 环境下省略链接（因为无法跳转）
 
 ---
 
