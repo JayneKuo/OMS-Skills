@@ -1,0 +1,23 @@
+{
+  "description": "OMS 业务本体知识索引。按类型拆分，agent 按需读取对应文件。",
+  "files": {
+    "System.json": "1 items",
+    "Project.json": "3 items",
+    "BusinessObject.json": "49 items",
+    "State.json": "60 items",
+    "BusinessProcess.json": "47 items",
+    "Rule.json": "21 items",
+    "Module.json": "22 items",
+    "APIEndpoint.json": "435 items",
+    "Relationships.json": "1028 relationships"
+  },
+  "usage": {
+    "业务概念/对象": "BusinessObject.json",
+    "业务流程": "BusinessProcess.json",
+    "状态/状态机": "State.json",
+    "规则": "Rule.json",
+    "模块/架构": "Module.json + Project.json + System.json",
+    "API接口": "APIEndpoint.json",
+    "关联关系": "Relationships.json（查某对象关联了哪些流程/规则/状态）"
+  }
+}

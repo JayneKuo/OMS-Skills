@@ -1,0 +1,351 @@
+[
+  {
+    "name": "New",
+    "description": "Initial state when a sales order is first created or imported into the system.",
+    "content": "Entry conditions: order successfully created via API import, manual import, or re-import after cancel. Executable actions: validate order data, apply hold rules, trigger auto-dispatch. Allowed next states: Pending, OnHold, Exception.",
+    "aliases": "新建,待处理,新订单,待派单"
+  },
+  {
+    "name": "Pending",
+    "description": "Order is validated and awaiting dispatch to a warehouse.",
+    "content": "Entry conditions: order passes initial validation and no hold rules triggered. Executable actions: auto-dispatch, manual dispatch, cancel. Allowed next states: Allocated, OnHold, Cancelled, Exception."
+  },
+  {
+    "name": "OnHold",
+    "description": "Order is temporarily held due to a triggered hold rule or manual intervention.",
+    "content": "Entry conditions: hold rule matched or operator manually holds. Executable actions: review hold reason, release hold, cancel. Allowed next states: Pending, Allocated, Cancelled.",
+    "aliases": "拦截,暂停,被hold,挂起,冻结"
+  },
+  {
+    "name": "Allocated",
+    "description": "Order has been dispatched and assigned to a specific warehouse for fulfillment.",
+    "content": "Entry conditions: dispatch process successfully assigns a warehouse. Executable actions: deallocate, push to WMS, cancel. Allowed next states: Processing, Deallocated, Cancelled.",
+    "aliases": "已分仓,已分配仓库,仓库已接单"
+  },
+  {
+    "name": "Processing",
+    "description": "Order is being picked, packed, or prepared in the warehouse.",
+    "content": "Entry conditions: WMS accepts the shipping request. Executable actions: update shipment info, report exceptions. Allowed next states: Shipped, ShortShipped, Exception, Cancelled.",
+    "aliases": "处理中,备货中,仓库处理中"
+  },
+  {
+    "name": "Shipped",
+    "description": "All items in the order have been shipped from the warehouse.",
+    "content": "Entry conditions: WMS confirms full shipment with tracking number. Executable actions: track delivery, handle returns. Allowed next states: Closed.",
+    "aliases": "已发货,已出库,shipped"
+  },
+  {
+    "name": "Cancelled",
+    "description": "Order has been cancelled and will not be fulfilled.",
+    "content": "Entry conditions: customer cancellation, operator manual cancel, or timeout cancel. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "已取消,已撤销,cancelled"
+  },
+  {
+    "name": "Exception",
+    "description": "Order encountered an error during processing that requires manual intervention.",
+    "content": "Entry conditions: dispatch failure, WMS rejection, inventory shortage, address validation failure, or system error. Executable actions: retry dispatch, manual fix, cancel. Allowed next states: Pending, Allocated, Cancelled.",
+    "aliases": "异常,卡单,处理异常,exception"
+  },
+  {
+    "name": "PO Created",
+    "description": "Initial state when a purchase order is first created in the system.",
+    "content": "Entry conditions: PO successfully created from PR, DI, POS, WMS, or HTML source. Executable actions: push to warehouse, cancel. Allowed next states: Push To Warehouse, PO Cancelled.",
+    "aliases": "PO已创建,采购单已创建"
+  },
+  {
+    "name": "Push To Warehouse",
+    "description": "Purchase order has been sent to the designated warehouse for inbound processing.",
+    "content": "Entry conditions: PO successfully pushed to WMS. Executable actions: await WMS status callback, cancel. Allowed next states: PO Processing, Push To Warehouse Fail, PO Cancelled."
+  },
+  {
+    "name": "Push To Warehouse Fail",
+    "description": "Purchase order failed to be accepted by the warehouse system.",
+    "content": "Entry conditions: WMS rejects or fails to process the PO push. Executable actions: retry push, cancel. Allowed next states: Push To Warehouse, PO Cancelled.",
+    "aliases": "推仓失败,WMS拒单,推单失败"
+  },
+  {
+    "name": "PO Processing",
+    "description": "Purchase order is being received and processed at the warehouse.",
+    "content": "Entry conditions: WMS confirms PO is in progress. Executable actions: receive goods, report exceptions. Allowed next states: PO Closed, PO Exception, PO Canceling.",
+    "aliases": "PO处理中,采购单处理中"
+  },
+  {
+    "name": "PO Closed",
+    "description": "Purchase order has been fully received and closed.",
+    "content": "Entry conditions: all expected goods received or force-closed. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "PO已关闭,采购单完成"
+  },
+  {
+    "name": "PO Cancelled",
+    "description": "Purchase order has been cancelled before completion.",
+    "content": "Entry conditions: operator cancels or system timeout. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "PO已取消,采购单已取消"
+  },
+  {
+    "name": "PO Canceling",
+    "description": "Purchase order cancellation is in progress, awaiting warehouse confirmation.",
+    "content": "Entry conditions: cancel request sent to WMS for a PO in processing state. Executable actions: await WMS cancel confirmation. Allowed next states: PO Cancelled, PO Exception.",
+    "aliases": "PO取消中"
+  },
+  {
+    "name": "PO Exception",
+    "description": "Purchase order encountered an error requiring manual intervention.",
+    "content": "Entry conditions: WMS reports exception, receipt mismatch, or system error. Executable actions: manual fix, retry, cancel. Allowed next states: PO Processing, PO Cancelled.",
+    "aliases": "PO异常,采购单异常"
+  },
+  {
+    "name": "DO New",
+    "description": "Initial state when a delivery order is first created.",
+    "content": "Entry conditions: DO created from fulfilled shipping request or manual creation. Executable actions: dispatch pickup, cancel. Allowed next states: DO PickupDispatched, DO Cancelled."
+  },
+  {
+    "name": "DO PickupDispatched",
+    "description": "Pickup has been dispatched for the delivery order.",
+    "content": "Entry conditions: carrier pickup scheduled. Executable actions: track pickup status. Allowed next states: DO OutForPickup, DO Cancelled."
+  },
+  {
+    "name": "DO LineHaul",
+    "description": "Goods are in transit on the linehaul leg between origin and destination hub.",
+    "content": "Entry conditions: pickup completed and goods handed to linehaul carrier. Executable actions: track transit. Allowed next states: DO PendingDelivery, DO Cancelled."
+  },
+  {
+    "name": "DO PendingDelivery",
+    "description": "Goods have arrived at destination hub and are awaiting last-mile delivery.",
+    "content": "Entry conditions: linehaul completed. Executable actions: schedule delivery. Allowed next states: DO OutForDelivery, DO Cancelled.",
+    "aliases": "待发货,待配送,准备发货"
+  },
+  {
+    "name": "DO Delivered",
+    "description": "Goods have been successfully delivered to the consignee.",
+    "content": "Entry conditions: carrier confirms delivery with POD. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "已送达,已妥投,妥投成功"
+  },
+  {
+    "name": "DO DeliveryFailed",
+    "description": "Delivery attempt failed due to consignee refusal, address issue, or carrier problem.",
+    "content": "Entry conditions: carrier reports delivery failure. Executable actions: reschedule, return to shipper. Allowed next states: DO PendingDelivery, DO ReturnToShipper.",
+    "aliases": "妥投失败,派送失败,拒收,配送失败"
+  },
+  {
+    "name": "DO Cancelled",
+    "description": "Delivery order has been cancelled.",
+    "content": "Entry conditions: operator cancels or upstream order cancelled. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "DO已取消,发货单取消"
+  },
+  {
+    "name": "WO Created",
+    "description": "Initial state when a work order is first created.",
+    "content": "Entry conditions: WO created via API callback or manual import. Executable actions: dispatch to warehouse. Allowed next states: WO Dispatched, WO Cancelled."
+  },
+  {
+    "name": "WO Dispatched",
+    "description": "Work order has been dispatched to a warehouse for execution.",
+    "content": "Entry conditions: dispatch process assigns warehouse. Executable actions: await WMS processing. Allowed next states: WO Processing, WO Cancelled."
+  },
+  {
+    "name": "WO Processing",
+    "description": "Work order is being executed at the warehouse.",
+    "content": "Entry conditions: WMS accepts and begins processing. Executable actions: update status, report exceptions. Allowed next states: WO Closed, WO Exception, WO Cancelled."
+  },
+  {
+    "name": "WO Closed",
+    "description": "Work order has been completed and closed.",
+    "content": "Entry conditions: all tasks completed or force-closed on expiration. Executable actions: none (terminal state). Allowed next states: none."
+  },
+  {
+    "name": "WO Cancelled",
+    "description": "Work order has been cancelled.",
+    "content": "Entry conditions: operator cancels or upstream trigger cancelled. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "工单已取消"
+  },
+  {
+    "name": "WO Exception",
+    "description": "Work order encountered an error requiring manual intervention.",
+    "content": "Entry conditions: WMS reports exception or processing failure. Executable actions: manual fix, retry, cancel. Allowed next states: WO Processing, WO Cancelled.",
+    "aliases": "工单异常"
+  },
+  {
+    "name": "Quote New",
+    "description": "Initial state when a sales quote order is created.",
+    "content": "Entry conditions: quote created by operator or channel. Executable actions: edit quote, convert to sales order, cancel. Allowed next states: Quote Converted, Quote Canceled."
+  },
+  {
+    "name": "Quote Converted",
+    "description": "Sales quote has been converted into a confirmed sales order.",
+    "content": "Entry conditions: operator or system converts quote to SO. Executable actions: none (terminal state). Allowed next states: none."
+  },
+  {
+    "name": "Quote Canceled",
+    "description": "Sales quote has been canceled without conversion.",
+    "content": "Entry conditions: operator cancels or quote expires. Executable actions: none (terminal state). Allowed next states: none.",
+    "aliases": "报价单取消"
+  },
+  {
+    "name": "Shipment New",
+    "description": "Initial state when an outbound shipment record is created.",
+    "content": "Entry conditions: shipment created from dispatch result. Executable actions: process shipment, void. Allowed next states: Shipment Processing, Shipment Void.",
+    "aliases": "运单新建"
+  },
+  {
+    "name": "Shipment Processing",
+    "description": "Shipment is being processed at the warehouse for label generation and packing.",
+    "content": "Entry conditions: WMS begins processing. Executable actions: generate label, pack, ship. Allowed next states: Shipment Closed, Shipment Exception.",
+    "aliases": "运单处理中"
+  },
+  {
+    "name": "Shipment Closed",
+    "description": "Shipment has been completed and shipped.",
+    "content": "Entry conditions: carrier pickup confirmed. Executable actions: none (terminal). Allowed next states: none.",
+    "aliases": "运单已关闭,运单完成"
+  },
+  {
+    "name": "Shipment Void",
+    "description": "Shipment has been voided before processing.",
+    "content": "Entry conditions: operator voids or upstream cancellation. Executable actions: none (terminal). Allowed next states: none.",
+    "aliases": "运单作废"
+  },
+  {
+    "name": "Shipment Exception",
+    "description": "Shipment encountered an error during processing.",
+    "content": "Entry conditions: label generation failure, packing error, carrier rejection. Executable actions: retry, void, force close. Allowed next states: Shipment Processing, Shipment Void, Shipment Force Close.",
+    "aliases": "运单异常"
+  },
+  {
+    "name": "Reopen",
+    "description": "Order is transitioning from Exception or OnHold back to an active fulfillment state. System is re-evaluating dispatch eligibility.",
+    "content": "Intermediate state between Exception and Dispatched. Corresponds to OrderStatusEnum.REOPEN (code 11). During this state the system re-runs dispatch rule evaluation.",
+    "aliases": "重开中,重新处理,恢复中"
+  },
+  {
+    "name": "Inventory Available",
+    "description": "Available stock that has not yet been reserved for any order. Can be allocated to new incoming orders.",
+    "content": "Represents open_quantity or available_qty in WMS. Transitions to Inventory Reserved when allocation runs. Transitions to Inventory Committed when shipment is confirmed.",
+    "aliases": "可用库存,可分配库存,空闲库存"
+  },
+  {
+    "name": "Inventory Reserved",
+    "description": "Stock that has been allocated to a specific order and cannot be assigned to other orders.",
+    "content": "Corresponds to locked_qty or reserved_qty in the OMS/WMS inventory model. Transitions from Available after Allocate Inventory process runs. Transitions to Deducted after shipment deduction (Deduct Inventory On Shipment).",
+    "aliases": "已锁库存,预占库存,冻结库存,reserved"
+  },
+  {
+    "name": "Inventory Deducted",
+    "description": "Stock quantity reduced from system record after goods are confirmed as shipped by WMS.",
+    "content": "Final state in the inventory lifecycle for a fulfilled order. Triggered by Deduct Inventory On Shipment process when shipment event arrives from WMS. Deduction is recorded as an Inventory Adjustment entry.",
+    "aliases": "已扣减库存,出库库存,扣减完成"
+  },
+  {
+    "name": "Warehouse Received",
+    "description": "WMS has accepted the Shipping Request and acknowledged the order; warehouse operations have begun.",
+    "content": "Entry conditions: WMS sends acceptance callback after receiving Shipping Request. Next states: Committed, Exception. Source enum: OrderStatusEnum.WAREHOUSE_RECEIVED. Precedes the detailed WMS sub-states (Committed, Picked, Packed, Loaded) that mirror WMS workflow milestones.",
+    "aliases": "仓库已接收,WMS已受理,入仓确认"
+  },
+  {
+    "name": "Committed",
+    "description": "WMS has internally committed resources and started the pick task for this order.",
+    "content": "Entry conditions: WMS dispatches the pick task internally. Next states: Picked, Exception. Source enum: OrderStatusEnum.COMMITTED. Emitted via DISPATCH_COMMITED event from WMS callback.",
+    "aliases": "已提交,仓库提交,WMS提交"
+  },
+  {
+    "name": "Picked",
+    "description": "Warehouse workers have completed picking all items for the order from shelf locations.",
+    "content": "Entry conditions: all SKUs in the order have been picked and verified. Next states: Packed, Exception. Source enum: OrderStatusEnum.PICKED. Emitted via DISPATCH_PICKED event.",
+    "aliases": "已拣货,拣货完成,picking完成"
+  },
+  {
+    "name": "Packed",
+    "description": "All items have been packed into shipping packages and labeled.",
+    "content": "Entry conditions: items sealed in boxes, carrier label printed and affixed. Next states: Loaded, Exception. Source enum: OrderStatusEnum.PACKED. Emitted via DISPATCH_PACKED event.",
+    "aliases": "已打包,打包完成,装箱完成"
+  },
+  {
+    "name": "Loaded",
+    "description": "Packages have been loaded onto a carrier vehicle and are ready for departure.",
+    "content": "Entry conditions: packages staged at outbound dock and loaded onto carrier truck. Next states: Shipped (on WMS ship confirmation), Short Shipped (if fewer items loaded than ordered). Source enum: OrderStatusEnum.LOADED. Emitted via DISPATCH_LOADED event.",
+    "aliases": "已装车,装载完成,待出发"
+  },
+  {
+    "name": "Short Shipped",
+    "description": "The order was shipped but with fewer items than originally ordered; quantity discrepancy noted at dispatch.",
+    "content": "Entry conditions: WMS confirms shipment with quantity less than total order quantity. Next states: Shipped (supplementary completes). Source enum: OrderStatusEnum.SHORT_SHIPPED. Distinct from Partially Shipped (multi-line partial fulfillment across separate dispatches). Cancel is blocked once in this state.",
+    "aliases": "少发,短发,少件发货,short ship"
+  },
+  {
+    "name": "SO Canceling",
+    "description": "A cancellation request has been sent to WMS and is pending WMS confirmation; the order cannot be modified during this period.",
+    "content": "Entry conditions: operator triggers cancel on an order in Allocated or Warehouse Processing state; OMS sends cancel request to WMS. Next states: Cancelled (on WMS confirm), Allocated or Warehouse Processing (on WMS rejection). Source enum: OrderStatusEnum.CANCELING. Three-step cancel flow: Apply Cancel -> Initiate Cancel -> Confirm/Reject Cancel via OrderCancelOperationTypeEnum.",
+    "aliases": "取消中,撤单中,取消确认中,canceling"
+  },
+  {
+    "name": "SO Deallocated",
+    "description": "The warehouse assignment for this order has been removed and allocated inventory has been released back to the open pool.",
+    "content": "Entry conditions: operator manually deallocates or WMS rejects the Shipping Request. Next states: Pending (re-dispatch queued). Source enum: OrderStatusEnum.DEALLOCATE. Triggers re-evaluation of dispatch routing rules. Distinct from Cancelled - the order remains active and will be re-dispatched.",
+    "aliases": "已解除分仓,取消分配,撤销分仓,deallocated"
+  },
+  {
+    "name": "DO OutForPickup",
+    "description": "The carrier vehicle is en route to the warehouse to collect the package.",
+    "content": "Entry conditions: carrier dispatched and confirmed en route. Next states: DO PickupCompleted, DO Cancelled. Source enum: DeliveryOrderStatusEnum.OutForPickup (20).",
+    "aliases": "取件途中,待取件,承运商揽收中"
+  },
+  {
+    "name": "DO PickupCompleted",
+    "description": "The carrier has physically collected the package from the warehouse and completed the first scan.",
+    "content": "Entry conditions: carrier scans package at pickup, offloads from warehouse dock. Next states: DO Pending Linehaul (standard), DO Directly Pickup Offload (short-haul). Source enum: DeliveryOrderStatusEnum.PickupCompleted (22). This is the trigger for the first carrier tracking event visible to the end customer.",
+    "aliases": "取件完成,揽收完成,首次扫描完成"
+  },
+  {
+    "name": "DO OutForDelivery",
+    "description": "The last-mile delivery driver has departed with the package and is en route to the recipient address.",
+    "content": "Entry conditions: delivery driver scans package at local hub and departs for delivery. Next states: DO Delivered, DO DeliveryFailed, DO Consignee Refusal, DO Delivered With Exception, DO Partial Delivered. Source enum: DeliveryOrderStatusEnum.OutForDelivery (42).",
+    "aliases": "派送中,配送途中,出发派件"
+  },
+  {
+    "name": "DO ReturnToShipper",
+    "description": "The package is being returned to the origin warehouse after exhausted delivery attempts or consignee refusal.",
+    "content": "Entry conditions: multiple delivery failures exceed retry limit (governed by Delivery Failure Retry Rule) or consignee refused delivery. Next states: terminal in DO lifecycle; triggers Update Sales Order on Return To Shipper process. Source enum: DeliveryOrderStatusEnum.ReturnToShipper (55). Inventory updated on physical receipt at warehouse.",
+    "aliases": "退回发件方,RTS,退仓,退货回仓"
+  },
+  {
+    "name": "DO Pending Linehaul",
+    "description": "Package has been offloaded from the pickup vehicle and is awaiting the linehaul truck departure.",
+    "content": "Entry conditions: package offloaded at hub after pickup; not yet loaded onto linehaul truck. Next states: DO LineHaul. Source enum: DeliveryOrderStatusEnum.PendingLinehaul (26).",
+    "aliases": "等待干线,待干线发车,干线集货中"
+  },
+  {
+    "name": "DO Directly Pickup Offload",
+    "description": "Package was offloaded directly at the pickup facility without entering the standard linehaul queue.",
+    "content": "Entry conditions: delivery destination is within local hub coverage; no linehaul required. Next states: DO PendingDelivery or DO OutForDelivery. Source enum: DeliveryOrderStatusEnum.DirectlyPickupOffload (23).",
+    "aliases": "直接卸货,就地转运,短途直发"
+  },
+  {
+    "name": "DO Partial Delivered",
+    "description": "Some items within a multi-item delivery order have been successfully delivered while others remain undelivered.",
+    "content": "Entry conditions: multi-item DO with split delivery; carrier confirms delivery of subset. Next states: DO Delivered (completion), DO DeliveryFailed (remaining items fail). Source enum: DeliveryOrderStatusEnum.PartialDelivered (44).",
+    "aliases": "部分交付,部分签收,分批交付"
+  },
+  {
+    "name": "DO Delivered With Exception",
+    "description": "Delivery was completed but the carrier or recipient reported an exception such as visible damage or incorrect items.",
+    "content": "Entry conditions: carrier delivers but notes an exception on the delivery record (package damaged, open, or incorrect). Next states: terminal for DO; triggers Return Order or Exchange Order creation. Source enum: DeliveryOrderStatusEnum.DeliveredWithException (50).",
+    "aliases": "异常签收,带异常交付,签收有异常"
+  },
+  {
+    "name": "DO Consignee Refusal",
+    "description": "The recipient explicitly refused to accept the delivery at the door.",
+    "content": "Entry conditions: carrier arrives at delivery address; consignee declines to accept package. Next states: DO ReturnToShipper (standard), DO PendingDelivery (if rescheduled). Source enum: DeliveryOrderStatusEnum.ConsigneeRefusal (52).",
+    "aliases": "拒签,拒收,收件人拒绝"
+  },
+  {
+    "name": "DO Incomplete",
+    "description": "Delivery attempt resulted in an unresolved or indeterminate status with no clear confirmation of success or failure.",
+    "content": "Entry conditions: carrier reports delivery as incomplete without specific resolution (left at door without signature, access denied, or carrier unable to confirm outcome). Next states: DO Parcel Lost (on SLA breach + manual declaration), DO PendingDelivery (on reschedule). Source enum: DeliveryOrderStatusEnum.Incomplete (54).",
+    "aliases": "不完整交付,未确认交付,配送结果未知"
+  },
+  {
+    "name": "DO Parcel Lost",
+    "description": "The package has been declared lost; no dedicated system enum - this status is determined by operators when DO remains in Incomplete beyond carrier SLA thresholds.",
+    "content": "Entry conditions: DO stays in Incomplete state beyond the carrier SLA investigation window without resolution; operator manually declares parcel lost per Lost Parcel Declaration Rule. Next states: terminal. Note: OMS has no LOST enum value; this state is a semantic overlay on Incomplete enforced by operational procedure. Carrier claim and resolution happen outside OMS.",
+    "aliases": "丢件,包裹丢失,包裹遗失,lost parcel"
+  }
+]

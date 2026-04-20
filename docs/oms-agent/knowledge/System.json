@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Linker OMS",
+    "description": "Cross-border e-commerce order management system covering order lifecycle, fulfillment, logistics, inventory, and compliance.",
+    "content": "System goals: centralize multi-channel order management, automate order routing and dispatch, provide end-to-end supply chain visibility. Covered domains: sales order, purchase order, shipping request, fulfillment, inventory, product master, logistics, customs compliance. External boundaries: integrates with WMS, TMS, EDI, carrier APIs, e-commerce platforms. Global constraints: multi-tenant, multi-merchant architecture with role-based access control.",
+    "aliases": "OMS,订单管理系统,订单系统"
+  }
+]

@@ -1,0 +1,295 @@
+[
+  {
+    "name": "Sales Order",
+    "description": "A customer purchase order received from sales channels, representing the core transactional unit in the OMS.",
+    "content": "Business definition: an order placed by an end customer through an e-commerce channel or manually imported, containing line items, shipping address, billing address, and fulfillment instructions. Key identifying elements: order number, channel order number, merchant ID. Lifecycle: Created -> Pending/OnHold -> Allocated -> Processing -> Shipped -> Closed/Cancelled. Semantic distinction: differs from Shipping Request (WMS-facing) and Delivery Order (logistics-facing).",
+    "aliases": "销售订单,SO,客户订单,出库单,主订单"
+  },
+  {
+    "name": "Order Line Item",
+    "description": "A single product line within a sales order, representing a specific SKU and its ordered quantity.",
+    "content": "Business definition: one row of a sales order specifying the SKU, quantity, unit price, and fulfillment status. Key identifying elements: parent order number, SKU code, line sequence. Lifecycle: inherits from parent sales order but may have independent partial fulfillment status.",
+    "aliases": "订单明细,订单行,行项目,商品行,SKU行"
+  },
+  {
+    "name": "Shipping Request",
+    "description": "A fulfillment instruction sent to WMS after order dispatch, requesting warehouse picking and packing.",
+    "content": "Business definition: the outbound instruction generated when a sales order is dispatched to a specific warehouse. Carries item details, shipping address, and carrier assignment. Key identifying elements: shipping request number, associated order number, warehouse ID. Lifecycle: Created -> Sent to WMS -> Accepted/Rejected -> Fulfilled/Cancelled.",
+    "aliases": "发货请求,SR,运单请求,配送请求,物流请求"
+  },
+  {
+    "name": "Dispatch Record",
+    "description": "A record of warehouse allocation decision for a sales order or sub-order.",
+    "content": "Business definition: captures which warehouse a sales order was assigned to, the dispatch rule applied, and the dispatch outcome. Key identifying elements: dispatch number, order number, warehouse ID. Lifecycle: Created on dispatch attempt, updated on success/failure/retry.",
+    "aliases": "派单记录,拆单记录,分仓记录,分配记录"
+  },
+  {
+    "name": "Purchase Order",
+    "description": "An inbound procurement order sent to a warehouse for goods receipt, representing supplier-side inventory replenishment.",
+    "content": "Business definition: an order instructing a warehouse to expect and receive inbound goods from a supplier or transfer origin. Key identifying elements: PO number, vendor ID, warehouse ID, merchant ID. Lifecycle: PO Created -> Push To Warehouse -> Processing -> PO Closed / PO Cancelled / PO Exception. Sources: created from Purchase Request, DI import, POS, WMS callback, or HTML upload. Semantic distinction: supplier-facing inbound order, differs from Sales Order (customer-facing outbound).",
+    "aliases": "采购单,PO,补货单,进货单"
+  },
+  {
+    "name": "Purchase Order Line Item",
+    "description": "A single SKU line within a purchase order specifying the expected inbound quantity and product details.",
+    "content": "Business definition: one row of a purchase order specifying SKU, expected quantity, unit cost, and serial number tracking. Key identifying elements: parent PO number, SKU code, line sequence. Lifecycle: inherits from parent PO. Supports SN-level tracking for serialized products.",
+    "aliases": "采购明细,采购行,PO行项目"
+  },
+  {
+    "name": "Purchase Order Receipt",
+    "description": "A goods receipt record confirming actual quantities received at the warehouse against a purchase order.",
+    "content": "Business definition: captures what was actually received at the warehouse including quantities, packages, pallets, and serial numbers. Key identifying elements: receipt number, parent PO number, warehouse ID. Lifecycle: New -> Closed. Supports partial receipt and over-receipt scenarios based on PO rules.",
+    "aliases": "收货单,PO入库单,采购到货,入库记录"
+  },
+  {
+    "name": "Purchase Request",
+    "description": "An internal procurement requisition that initiates the purchase order creation workflow.",
+    "content": "Business definition: a request submitted by an operator or system to procure goods, containing product list and vendor file attachments. Key identifying elements: PR number, merchant ID, submitter. Lifecycle: Not Submitted -> Submitted. Once submitted, triggers PO creation. Semantic distinction: internal requisition that precedes and triggers Purchase Order.",
+    "aliases": "采购申请,PR,补货申请,补货需求"
+  },
+  {
+    "name": "Delivery Order",
+    "description": "A logistics-facing transport order managing the pickup, linehaul, and last-mile delivery of goods to the consignee.",
+    "content": "Business definition: a transport instruction created after warehouse fulfillment, tracking the full logistics journey from pickup to delivery. Key identifying elements: DO number, carrier, BOL number, tracking number. Lifecycle: New -> PickupDispatched -> OutForPickup -> PickupCompleted -> PendingLinehaul -> LineHaul -> PendingDelivery -> OutForDelivery -> Delivered / DeliveryFailed / Cancelled. Sub-entities: BOL, packages, pallets, shipments, logistics changes, OSD records. Semantic distinction: logistics-facing, differs from Shipping Request (WMS-facing) and Sales Order (customer-facing).",
+    "aliases": "发货单,DO,配送单,快递单,出库单"
+  },
+  {
+    "name": "Delivery Order Shipment",
+    "description": "A shipment record within a delivery order representing a physical consignment with tracking and carrier details.",
+    "content": "Business definition: a physical shipment unit within a delivery order, carrying BOL, tracking number, carrier assignment, POD (proof of delivery), and file attachments. Key identifying elements: shipment ID, parent DO number, tracking number. Lifecycle: created with DO, updated on carrier callbacks.",
+    "aliases": "发货包裹,包裹,配送包"
+  },
+  {
+    "name": "Work Order",
+    "description": "An internal operational instruction for warehouse or fulfillment tasks such as returns processing, consolidation, or special handling.",
+    "content": "Business definition: a task-oriented order created for warehouse operations beyond standard sales order fulfillment. Key identifying elements: WO number, reference number, service type, warehouse ID. Lifecycle: Created -> Dispatched -> Processing -> Closed / Cancelled / Exception. Contains packages with items, customer info, and billing info. Sources: created via API callback or manual import. Supports force-close on expiration.",
+    "aliases": "工作单,WO,作业单,库内作业单"
+  },
+  {
+    "name": "Work Order Package",
+    "description": "A package unit within a work order containing specific items to be processed.",
+    "content": "Business definition: a physical package within a work order specifying items, quantities, and processing instructions. Key identifying elements: package ID, parent WO number. Lifecycle: inherits from parent work order.",
+    "aliases": "工作包,WO包,作业包"
+  },
+  {
+    "name": "Sales Quote Order",
+    "description": "A preliminary sales quotation that may be converted into a confirmed sales order.",
+    "content": "Business definition: a quote provided to a customer or channel before order confirmation, containing proposed products, pricing, and terms. Key identifying elements: quote order number, merchant ID. Lifecycle: New -> Converted / Canceled. Managed by OTM module. Semantic distinction: pre-order quotation, differs from Sales Order (confirmed transaction).",
+    "aliases": "报价单,询价单,销售报价"
+  },
+  {
+    "name": "Inventory",
+    "description": "Stock quantity record tracking available, allocated, on-hand, and other inventory positions for a SKU at a specific warehouse.",
+    "content": "Business definition: a multi-dimensional inventory record per SKU per warehouse, tracking positions including on_hand, open_order, locked, allocated, incoming, hold, damaged. Key identifying elements: SKU, warehouse ID, merchant ID. Lifecycle: created on first stock event, continuously updated by order events (create/split/cancel), WMS events (ship/receive/adjust), and sync events. Semantic distinction: OMS inventory is a projection of WMS physical stock, reconciled periodically.",
+    "aliases": "库存,库存数量,货品库存,在库量"
+  },
+  {
+    "name": "Inventory Adjustment",
+    "description": "A record of manual or system-triggered inventory quantity correction.",
+    "content": "Business definition: captures inventory adjustments such as stock take corrections, hold/unhold, damage reporting, and manual adjustments. Key identifying elements: adjustment ID, SKU, warehouse ID, adjustment type. Lifecycle: created on adjustment event, applied immediately to inventory positions.",
+    "aliases": "库存调整,调库,库存更正,盘点调整,库存修正"
+  },
+  {
+    "name": "Item Master",
+    "description": "The master product record containing SKU definitions, UOM, pricing, and product attributes.",
+    "content": "Business definition: the authoritative product record in the system, defining SKU codes, product names, unit of measure, pricing tiers, AKA aliases, and kitting components. Key identifying elements: SKU code, merchant ID. Lifecycle: Created -> Active / Inactive. Supports kit items with component breakdown. Semantic distinction: master data record, differs from Order Line Item (transactional) and Inventory (stock position).",
+    "aliases": "商品主数据,货品主数据,商品档案,货品信息,SKU档案"
+  },
+  {
+    "name": "Product Mapping",
+    "description": "A mapping record that translates external channel product identifiers to internal OMS SKU codes.",
+    "content": "Business definition: maps channel-specific product names, SKUs, or identifiers to the canonical OMS item master SKU. Key identifying elements: channel code, external product ID, internal SKU. Lifecycle: created during channel onboarding, updated on product changes. Used during order import to resolve external product references.",
+    "aliases": "商品映射,货品对应关系,SKU映射"
+  },
+  {
+    "name": "Facility",
+    "description": "A warehouse or distribution center registered in the system for order fulfillment and inventory storage.",
+    "content": "Business definition: a physical location (warehouse, DC, 3PL facility) that can receive, store, and ship goods. Key identifying elements: facility code, facility name, address, contact info. Lifecycle: Created -> Active / Inactive. Contains zipcode coverage ranges for dispatch routing. Semantic distinction: physical location master data, referenced by dispatch rules and inventory records.",
+    "aliases": "仓库,仓,履约中心,配送中心,FC"
+  },
+  {
+    "name": "Warehouse Zipcode Range",
+    "description": "A zipcode coverage range assigned to a warehouse for geographic dispatch routing.",
+    "content": "Business definition: defines which zipcodes a warehouse can serve, used by the zipcode dispatch rule to filter eligible warehouses. Key identifying elements: warehouse ID, zipcode range start/end. Lifecycle: configured during warehouse setup, updated as coverage changes.",
+    "aliases": "仓库邮编范围,邮编区间,邮编配置"
+  },
+  {
+    "name": "Condition Mapping",
+    "description": "A configurable multi-field mapping rule that transforms shipping-related fields based on matching conditions.",
+    "content": "Business definition: a conditional mapping that evaluates order fields (product name, carrier, ship method, freight term, shipment type, address) and transforms them to target values. Key identifying elements: mapping ID, merchant ID, mapping fields. Lifecycle: created during merchant configuration, evaluated during order dispatch. Supports shipping address and billing address condition matching.",
+    "aliases": "条件映射,多条件规则,条件路由"
+  },
+  {
+    "name": "One-to-One Mapping",
+    "description": "A direct value translation mapping between external and internal field values for products, carriers, shipping methods, and other reference data.",
+    "content": "Business definition: a simple key-value mapping that translates external values to internal OMS values. Types: Product Name, SKU, UOM, Ship Method, Carrier, Delivery Service, Freight Term, Shipment Type, SKU-to-UOM, Retailer, and reverse carrier mapping. Key identifying elements: mapping type, source value, target value, merchant ID. Lifecycle: created during channel/carrier onboarding.",
+    "aliases": "一对一映射,1对1规则,直接映射"
+  },
+  {
+    "name": "Dispatch Log",
+    "description": "An audit record capturing the details and outcome of each order dispatch attempt.",
+    "content": "Business definition: records each dispatch attempt including the rules evaluated, warehouses considered, allocation result, and any errors. Key identifying elements: log ID, order number, dispatch attempt timestamp. Lifecycle: created on each dispatch attempt. Stored in both MySQL and Elasticsearch for query and analytics.",
+    "aliases": "派单日志,分配日志,dispatch日志"
+  },
+  {
+    "name": "SKU Warehouse Assignment",
+    "description": "A configuration record assigning specific SKUs to designated warehouses for fulfillment.",
+    "content": "Business definition: specifies that a particular SKU should be fulfilled from a designated warehouse, overriding default dispatch routing. Key identifying elements: SKU, warehouse ID, merchant ID. Lifecycle: configured by operator, evaluated during dispatch.",
+    "aliases": "SKU仓库绑定,SKU分仓配置,商品仓库映射,货品仓配置"
+  },
+  {
+    "name": "SKU Filter Rule",
+    "description": "A filter configuration that restricts which SKUs can be processed by specific dispatch or hold rules.",
+    "content": "Business definition: defines SKU-level filters used by hold rules and dispatch rules to include or exclude specific products. Key identifying elements: filter ID, SKU pattern, associated rule. Lifecycle: configured by operator.",
+    "aliases": "SKU过滤,商品过滤规则,货品筛选"
+  },
+  {
+    "name": "Rate Shopping Request",
+    "description": "A freight rate comparison request that queries carrier pricing APIs to find the optimal shipping rate for an order.",
+    "content": "Business definition: a request to compare shipping rates across multiple carriers and service levels for a given shipment. Key identifying elements: request ID, order number, origin/destination addresses, package dimensions. Lifecycle: Created -> Success (direct use or needs review) / Failed (rule mismatch, no suitable quote, API error). Contains address info, body parameters, and line items. Result codes: success-direct-use, success-need-review, fail-rule-not-match, fail-no-suitable-quote, API error.",
+    "aliases": "运费询价,比价请求,运费计算,运费查询"
+  },
+  {
+    "name": "Channel Integration",
+    "description": "A configured connection to an external e-commerce channel or marketplace for order import and status synchronization.",
+    "content": "Business definition: represents a registered sales channel (e.g., Amazon, Shopify, EDI partner) that sends orders to OMS and receives fulfillment updates. Key identifying elements: channel code, channel name, merchant ID, connection status. Lifecycle: Configured -> Connected / Disconnected. Supports special channel configurations for custom processing logic.",
+    "aliases": "渠道集成,销售渠道,平台对接,电商渠道"
+  },
+  {
+    "name": "Webhook Event",
+    "description": "An outbound event notification sent to external systems when significant order lifecycle events occur.",
+    "content": "Business definition: a system-generated event message pushed to registered webhook endpoints when order status changes, shipments occur, or exceptions arise. Key identifying elements: event ID, event type (produce/consume), target URL, payload. Lifecycle: Created -> Sent -> Acknowledged / Failed. Logged for audit and retry.",
+    "aliases": "webhook,回调事件,事件通知,消息回调"
+  },
+  {
+    "name": "Email Notification Setting",
+    "description": "A configurable email notification rule that determines when and to whom order-related emails are sent.",
+    "content": "Business definition: defines email notification triggers, recipient lists, and templates for order events such as creation failures, dispatch failures, shipment confirmations, and exceptions. Key identifying elements: setting ID, merchant ID, notification category, email contacts. Lifecycle: configured by operator, evaluated on each matching event.",
+    "aliases": "邮件通知配置,邮件设置,邮件提醒"
+  },
+  {
+    "name": "Notification Category",
+    "description": "A classification of notification types used to organize and route order event notifications.",
+    "content": "Business definition: categorizes notifications by business event type (e.g., Order Created, Dispatch Failed, Shipment Confirmed, Exception) to enable selective subscription and routing. Key identifying elements: category ID, category name, event type mapping.",
+    "aliases": "通知类型,消息分类,通知分组"
+  },
+  {
+    "name": "Order Log",
+    "description": "A structured audit log entry recording a specific event in the order lifecycle with event type and sub-type classification.",
+    "content": "Business definition: captures every significant order event with structured classification. Event types: Created, Dispatched, Deallocated, Updated, Cancelled, AfterSale, DCReturned, Transit, Hold, Release, Note, Tagging, Exception, CreatedFailed, ShipmentFailed. Key identifying elements: log ID, order number, event type, event sub-type, timestamp. Lifecycle: created on each order event, immutable.",
+    "aliases": "订单日志,操作记录,订单历史,操作日志"
+  },
+  {
+    "name": "Order Timeline",
+    "description": "A visual timeline node representing a milestone in the order processing journey.",
+    "content": "Business definition: a timeline entry displayed on the order detail page showing processing milestones with status indicators. Key identifying elements: timeline ID, order number, node name, status (success/fail/pending). Lifecycle: created and updated as order progresses through stages. Configurable per merchant via timeline config.",
+    "aliases": "订单时间线,订单轨迹,时间轴"
+  },
+  {
+    "name": "Container Tracking Record",
+    "description": "A tracking record for shipping containers used in cross-border logistics and consolidation shipments.",
+    "content": "Business definition: tracks the status of physical shipping containers from origin to destination, used for consolidated shipments in cross-border logistics. Key identifying elements: container ID, order reference, tracking status. Lifecycle: Pending -> Success / Failed. Supports reopen for re-tracking.",
+    "aliases": "集装箱跟踪,柜子追踪,集柜追踪"
+  },
+  {
+    "name": "Customs Document",
+    "description": "A customs compliance document required for cross-border shipments including CBP forms and duty declarations.",
+    "content": "Business definition: represents customs-related documents required for international trade compliance. Types: CBP Form 3461 (Entry/Immediate Delivery), CBP Form 7512 (Transportation Entry), E-214 (Application for Foreign Trade Zone), AMS/ISF filings. Key identifying elements: document number, document type, shipment reference, filing status. Lifecycle: Draft -> Filed -> Accepted / Rejected. Managed primarily through frontend UI with backend data storage.",
+    "aliases": "报关单,海关文件,清关单,关税单据"
+  },
+  {
+    "name": "Customs Duty",
+    "description": "A duty and tax calculation record for cross-border shipments subject to import tariffs.",
+    "content": "Business definition: captures duty amounts, tax calculations, and tariff classifications for imported goods. Key identifying elements: duty ID, shipment reference, HTS code, duty amount, tax amount. Lifecycle: calculated on shipment, updated on customs clearance."
+  },
+  {
+    "name": "Shipping Account",
+    "description": "A registered carrier account used for shipping label generation and freight billing.",
+    "content": "Business definition: a carrier account configured for a merchant, containing credentials and billing information for shipping operations. Key identifying elements: account ID, carrier code, merchant ID, account number. Lifecycle: Created -> Active / Inactive. Used by rate shopping and shipment label generation.",
+    "aliases": "物流账号,快递账号,运账号"
+  },
+  {
+    "name": "Carrier Service",
+    "description": "A specific shipping service level offered by a carrier, such as ground, express, or freight.",
+    "content": "Business definition: defines a carrier service option with delivery speed, cost tier, and service constraints. Key identifying elements: carrier code, service code, service name. Lifecycle: configured during carrier onboarding. Referenced by dispatch routing and rate shopping.",
+    "aliases": "快递服务,承运商服务,物流服务,快递公司"
+  },
+  {
+    "name": "Merchant",
+    "description": "A registered business entity operating within the OMS platform under a specific tenant.",
+    "content": "Business definition: a business entity (title holder, retailer, supplier, brand, manufacturer) that owns orders, products, and configurations within the multi-tenant OMS. Key identifying elements: merchant number, merchant name, merchant type, tenant ID. Types: Title, Retailer, Supplier, Brand, Merchant, Manufacturer. Lifecycle: Created -> Active / Inactive. All business objects are scoped to a merchant context.",
+    "aliases": "商户,租户,客户,merchant"
+  },
+  {
+    "name": "Return Order",
+    "description": "A customer return request tracking the return of goods from consignee back to warehouse.",
+    "content": "Business definition: an order created when a customer initiates a return, tracking the reverse logistics from customer to warehouse. Key identifying elements: return order number, original sales order reference, return reason. Lifecycle: Created -> Processing -> Received -> Closed / Cancelled. Contains return line items with SKU and quantity.",
+    "aliases": "退货单,退单,RMA,退货订单"
+  },
+  {
+    "name": "Return Order Line Item",
+    "description": "A single product line within a return order specifying the SKU and quantity being returned.",
+    "content": "Business definition: one row of a return order specifying the returned SKU, quantity, return reason, and condition. Key identifying elements: parent return order number, SKU, line sequence. Lifecycle: inherits from parent return order.",
+    "aliases": "退货明细,退货行,退货商品行"
+  },
+  {
+    "name": "Exchange Order",
+    "description": "An order handling product exchanges where returned items are replaced with new items.",
+    "content": "Business definition: a combined return-and-reorder transaction where the customer returns one or more items and receives replacements. Key identifying elements: exchange order number, original order reference, return items, replacement items. Lifecycle: Created -> Return Received -> Replacement Shipped -> Closed.",
+    "aliases": "换货单,交换订单,换货"
+  },
+  {
+    "name": "Order Update Record",
+    "description": "A record tracking field-level changes applied to a sales order during its lifecycle.",
+    "content": "Business definition: captures each update operation on a sales order including the changed fields, old values, new values, and the update strategy applied based on order status. Key identifying elements: record ID, order number, update type, timestamp. Lifecycle: created on each order update. Supports SKU change tracking with change type classification.",
+    "aliases": "订单更新记录,变更记录,订单修改记录"
+  },
+  {
+    "name": "Order Merge Window",
+    "description": "A time-based merge window that consolidates multiple sales orders into a single fulfillment batch.",
+    "content": "Business definition: a configurable time window during which multiple sales orders from the same customer/destination can be merged into a single shipment to reduce shipping costs. Key identifying elements: merge window ID, order references, merge status. Lifecycle: Waiting -> Merged. Contains merge cancel records for tracking.",
+    "aliases": "合单窗口,合单时间窗,合单时间"
+  },
+  {
+    "name": "Shipment",
+    "description": "An outbound small-parcel shipment record with carrier label, tracking, and package details.",
+    "content": "Business definition: represents a physical outbound shipment (typically small parcel) with carrier label, tracking number, and package contents. Key identifying elements: shipment number, tracking number, carrier, service level. Lifecycle: New -> Processing -> Closed / Void / Exception / Force Close. Contains line items, packages, pallets, and extended data. Semantic distinction: outbound parcel shipment, differs from Delivery Order (logistics transport) and Shipping Request (WMS instruction).",
+    "aliases": "出货记录,运单,包裹,物流单"
+  },
+  {
+    "name": "Operations Report",
+    "description": "A supply chain visibility report providing operational metrics and exception monitoring.",
+    "content": "Business definition: system-generated reports for supply chain monitoring. Types: Orders Not Sent to WMS (pending dispatch), Orders Not Shipped (fulfillment delays), Orders Waiting Confirm (pending confirmation). Key identifying elements: report type, date range, merchant scope. Used by the Supply Chain Control Tower dashboard for operational visibility.",
+    "aliases": "运营报表,业务报告,统计报表"
+  },
+  {
+    "name": "Brand",
+    "description": "A product brand registered in the system for product categorization and filtering.",
+    "content": "Business definition: a brand entity used to categorize products in the item master. Key identifying elements: brand ID, brand name, merchant ID. Lifecycle: Created -> Active / Inactive.",
+    "aliases": "品牌,brand"
+  },
+  {
+    "name": "Category",
+    "description": "A product category used for hierarchical product classification.",
+    "content": "Business definition: a category entity used to organize products in a hierarchical taxonomy. Key identifying elements: category ID, category name, parent category. Lifecycle: Created -> Active / Inactive. Supports multi-level hierarchy.",
+    "aliases": "品类,商品分类,类目"
+  },
+  {
+    "name": "Fulfillment Mode",
+    "description": "A configurable fulfillment strategy that determines how orders are processed and routed for a merchant.",
+    "content": "Business definition: defines the fulfillment approach for a merchant including designated warehouse assignments, product-warehouse mappings, and special handling rules. Key identifying elements: mode ID, merchant ID, configuration type. Lifecycle: configured by operator, applied during dispatch.",
+    "aliases": "履约模式,配送方式,发货模式"
+  },
+  {
+    "name": "Cancel Request",
+    "description": "Workflow document tracking the three-stage cancellation lifecycle for a Sales Order: Apply, Initiate, then Confirm or Reject.",
+    "content": "Business definition: when a Sales Order in Allocated or Warehouse Processing state needs to be cancelled, the system creates a Cancel Request and coordinates with WMS. Stages: (1) Apply Cancel - operator initiates; (2) Initiate Cancel - OMS sends cancel to WMS; (3) Confirm Cancel - WMS acknowledges; or Reject Cancel - WMS refuses. Source enum: OrderCancelOperationTypeEnum (APPLY_CANCEL=1, INITIATE_CANCEL=2, CONFIRM_CANCEL=3, REJECT_CANCEL=4, CANCEL_ORDER=5, DEALLOCATED=6). On confirmation: SO to Cancelled, inventory released. On rejection: SO reverts to previous active state.",
+    "aliases": "取消请求,撤单请求,取消工单"
+  },
+  {
+    "name": "Delivery Service Level",
+    "description": "Configurable delivery service tier defining the scope of carrier service provided to the end customer.",
+    "content": "Business definition: specifies what the carrier does upon reaching the delivery address. Tiers (DeliveryServiceLevelTypeEnum): CURBSIDE_DELIVERY (1) - items left at curb; THRESHOLD (2) - items brought to door threshold; ROOM_OF_CHOICE (3) - items placed in specified room; WHITE_GLOVE (4) - full-service delivery with setup; WHITE_GLOVE_ASSEMBLY (5) - delivery plus item assembly. Impacts carrier selection during rate shopping, pricing, and SLA expectations.",
+    "aliases": "配送服务等级,服务级别,送货服务类型,白手套服务"
+  }
+]

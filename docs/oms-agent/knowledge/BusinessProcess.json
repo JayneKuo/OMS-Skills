@@ -1,0 +1,271 @@
+[
+  {
+    "name": "Create Sales Order",
+    "description": "Creates a new sales order in the system from channel API, manual import, or re-import after cancellation.",
+    "content": "Trigger: API callback from channel integration, manual Excel upload, or re-import action. Target: Sales Order. Preconditions: valid merchant context, required fields present. Business rules: validate product existence, validate address format, check inventory availability. Artifacts produced: Sales Order record, Order Line Items. State change: -> New. Failure: creation failed notification.",
+    "aliases": "创建销售订单,下单,接单,新建订单,建单"
+  },
+  {
+    "name": "Dispatch Sales Order",
+    "description": "Assigns a sales order to a warehouse based on routing rules, inventory, and geographic proximity.",
+    "content": "Trigger: auto-dispatch after order creation or manual dispatch by operator. Target: Sales Order, Dispatch Record. Preconditions: order in Pending or OnHold (released) state. Business rules: evaluate routing rules (zipcode match, country match, inventory check, custom rules). Artifacts produced: Dispatch Record, Shipping Request on success. State change: Pending -> Allocated or -> Exception.",
+    "aliases": "派单,订单分派,分配仓库,路由订单,仓库分配"
+  },
+  {
+    "name": "Hold Sales Order",
+    "description": "Places a sales order on hold due to a triggered hold rule or manual operator action.",
+    "content": "Trigger: hold rule engine match during order processing, or manual hold by operator. Target: Sales Order. Preconditions: order exists and is not in terminal state. Business rules: evaluate hold rules (high-value threshold, restricted SKU, prohibited destination). State change: current state -> OnHold.",
+    "aliases": "拦单,挂起,冻结订单,暂停订单,hold单"
+  },
+  {
+    "name": "Update Sales Order",
+    "description": "Modifies sales order fields such as product lines, address, contact info, or customer notes.",
+    "content": "Trigger: channel update callback, manual edit by operator. Target: Sales Order, Order Line Item. Preconditions: order exists and is in an updatable state. Business rules: validate field changes against order status. Sub-types: ProductAdd, ProductRemove, ProductQtyChange, ProductReplace, AddressChange, ContactInfoChange, CustomerNoteChange."
+  },
+  {
+    "name": "Cancel Sales Order",
+    "description": "Cancels a sales order, stopping all fulfillment activities.",
+    "content": "Trigger: customer cancellation via channel, manual cancel by operator, or system timeout. Target: Sales Order. Preconditions: order not yet fully shipped. Business rules: if allocated must request WMS cancellation first. Sub-types: CancelByCustomer, ManualCancel, TimeoutCancel. State change: current state -> Cancelled.",
+    "aliases": "取消订单,撤单,取消,cancel"
+  },
+  {
+    "name": "Deallocate Sales Order",
+    "description": "Removes warehouse allocation from a dispatched order, returning it to pending state for re-dispatch.",
+    "content": "Trigger: manual deallocate by operator, or warehouse rejection. Target: Sales Order, Dispatch Record. Preconditions: order is in Allocated state. Sub-types: ManualDeallocate, WarehouseCancel. State change: Allocated -> Pending.",
+    "aliases": "反分配,取消分仓,取消派单,deallocate,退回"
+  },
+  {
+    "name": "Ship Sales Order",
+    "description": "Records shipment confirmation from WMS, updating the order with tracking information.",
+    "content": "Trigger: WMS shipment callback with tracking number and carrier info. Target: Sales Order, Shipping Request. Preconditions: order in Processing state. Business rules: validate tracking number, calculate if full or partial shipment. State change: Processing -> Shipped or ShortShipped.",
+    "aliases": "发货,出货确认,订单发货,出库确认"
+  },
+  {
+    "name": "Create Purchase Order",
+    "description": "Creates a new purchase order from various sources including purchase request, DI import, POS, WMS callback, or HTML upload.",
+    "content": "Trigger: PR submission, DI/EDI import, POS integration, WMS callback, or HTML upload. Target: Purchase Order, PO Line Items. Preconditions: valid merchant context, source data validated. Business rules: LiteFlow pipeline validates parameters, checks item creation rules, loads PO rules (auto-create receipt, FG staging, generate sales order). Artifacts produced: Purchase Order record, PO Line Items. State change: -> PO Created. Strategy pattern selects creation logic by source type.",
+    "aliases": "创建采购单,下采购单,生成PO,新建PO"
+  },
+  {
+    "name": "Push Purchase Order To Warehouse",
+    "description": "Sends a created purchase order to the designated warehouse management system for inbound processing.",
+    "content": "Trigger: auto-dispatch after PO creation or manual push. Target: Purchase Order. Preconditions: PO in Created state, warehouse assigned. Business rules: evaluate dispatch routing rules for warehouse selection. State change: PO Created -> Push To Warehouse or -> Push To Warehouse Fail.",
+    "aliases": "推PO到仓,PO推仓,推仓,推单到WMS"
+  },
+  {
+    "name": "Receive Purchase Order Goods",
+    "description": "Records goods receipt at the warehouse, creating receipt records with actual quantities, packages, and pallets.",
+    "content": "Trigger: WMS receipt callback via Kafka consumer. Target: Purchase Order, PO Receipt. Preconditions: PO in Processing state. Business rules: validate receipt quantities against PO, check allow-over-receipt rule, create receipt record with packages and pallets. Artifacts produced: PO Receipt record. State change: PO Processing -> PO Closed (if fully received).",
+    "aliases": "采购收货,PO入库,到货,收货"
+  },
+  {
+    "name": "Cancel Purchase Order",
+    "description": "Cancels a purchase order, with different strategies based on current PO status.",
+    "content": "Trigger: operator manual cancel or system event. Target: Purchase Order. Preconditions: PO not yet fully received. Business rules: strategy pattern per status — Created: direct cancel; Dispatched: request WMS cancel; Processing: enter Canceling state and await WMS confirmation; Closed/Cancelled: reject. State change: current state -> PO Canceling -> PO Cancelled.",
+    "aliases": "取消采购单,撤销PO"
+  },
+  {
+    "name": "Create Delivery Order",
+    "description": "Creates a delivery order for logistics transport after warehouse fulfillment is confirmed.",
+    "content": "Trigger: fulfillment completion callback or manual creation. Target: Delivery Order, DO Shipment. Preconditions: goods ready for transport. Business rules: assign carrier, generate BOL, create shipment records. Artifacts produced: Delivery Order, DO Shipments, BOL. State change: -> DO New.",
+    "aliases": "创建发货单,生成DO,新建DO"
+  },
+  {
+    "name": "Track Delivery Order",
+    "description": "Updates delivery order status based on carrier tracking callbacks through the logistics lifecycle.",
+    "content": "Trigger: carrier status callback via TMS integration. Target: Delivery Order. Preconditions: DO exists and is not in terminal state. Business rules: map carrier status to DO status, record logistics changes, update trip status. State change: progressive through pickup -> linehaul -> delivery states.",
+    "aliases": "物流跟踪,快递追踪,运单跟踪,轨迹查询"
+  },
+  {
+    "name": "Cancel Delivery Order",
+    "description": "Cancels a delivery order, stopping logistics activities.",
+    "content": "Trigger: upstream order cancellation or operator manual cancel. Target: Delivery Order. Preconditions: DO not yet delivered. Business rules: notify carrier of cancellation. State change: current state -> DO Cancelled.",
+    "aliases": "取消发货单,撤销DO"
+  },
+  {
+    "name": "Create Work Order",
+    "description": "Creates a work order for warehouse operational tasks via API callback or manual import.",
+    "content": "Trigger: Kafka message from external system or manual creation. Target: Work Order, WO Packages. Preconditions: valid merchant context, service type specified. Business rules: validate work order data, create packages and items, assign order key. Artifacts produced: Work Order record, WO Packages. State change: -> WO Created.",
+    "aliases": "创建工单,生成工单,新建WO"
+  },
+  {
+    "name": "Dispatch Work Order",
+    "description": "Dispatches a work order to a warehouse for execution using routing rules.",
+    "content": "Trigger: auto-dispatch after WO creation or manual dispatch. Target: Work Order. Preconditions: WO in Created state. Business rules: evaluate dispatch routing rules via OAS module. State change: WO Created -> WO Dispatched.",
+    "aliases": "派工单,分配工单,WO派单"
+  },
+  {
+    "name": "Close Work Order",
+    "description": "Closes a work order upon completion of all tasks or force-close on expiration.",
+    "content": "Trigger: WMS completion callback or scheduled expiration job. Target: Work Order. Preconditions: WO in Processing state or expired. Business rules: validate completion, handle force-close for expired WOs. State change: WO Processing -> WO Closed.",
+    "aliases": "关闭工单,完成工单,WO关闭"
+  },
+  {
+    "name": "Create Sales Quote Order",
+    "description": "Creates a sales quotation for a customer before order confirmation.",
+    "content": "Trigger: operator creates quote or channel integration. Target: Sales Quote Order. Preconditions: valid merchant context. Business rules: validate product availability and pricing. Artifacts produced: Sales Quote Order record. State change: -> Quote New."
+  },
+  {
+    "name": "Convert Sales Quote Order",
+    "description": "Converts an approved sales quote into a confirmed sales order.",
+    "content": "Trigger: operator approval or customer confirmation. Target: Sales Quote Order, Sales Order. Preconditions: quote in New state. Business rules: validate quote is still valid, create corresponding Sales Order. State change: Quote New -> Quote Converted. Produces: Sales Order.",
+    "aliases": "报价单转订单,转单,报价转单"
+  },
+  {
+    "name": "Allocate Inventory",
+    "description": "Reserves inventory for a sales order by transitioning stock from open_order to locked position during dispatch.",
+    "content": "Trigger: order dispatch process assigns warehouse. Target: Inventory. Preconditions: sufficient open_order quantity for SKU at warehouse. Business rules: decrement open_order, increment locked. State change: inventory position updated. Failure: insufficient inventory triggers exception or backup dispatch strategy.",
+    "aliases": "库存分配,锁库存,预占库存,库存锁定"
+  },
+  {
+    "name": "Deduct Inventory On Shipment",
+    "description": "Reduces on-hand inventory when WMS confirms goods have been shipped.",
+    "content": "Trigger: WMS ship confirmation callback. Target: Inventory. Preconditions: allocated inventory exists. Business rules: decrement on_hand by shipped quantity, release allocated position. State change: inventory position updated.",
+    "aliases": "出库扣减,库存扣减,扣库存,发货扣减"
+  },
+  {
+    "name": "Receive Inventory",
+    "description": "Increases on-hand inventory when goods are received at the warehouse from purchase orders or transfers.",
+    "content": "Trigger: WMS receive confirmation callback. Target: Inventory. Preconditions: incoming or expected quantity exists. Business rules: increment on_hand, decrement incoming. State change: inventory position updated.",
+    "aliases": "入库,货品入库,库存接收,收货入库"
+  },
+  {
+    "name": "Adjust Inventory",
+    "description": "Manually or automatically corrects inventory positions through stock take, hold, unhold, or damage adjustments.",
+    "content": "Trigger: WMS adjustment callback, stock take result, or manual operator action. Target: Inventory, Inventory Adjustment. Preconditions: inventory record exists. Business rules: apply adjustment by type (hold, unhold, damaged, manual). Artifacts produced: Inventory Adjustment record. State change: inventory position updated.",
+    "aliases": "库存调整,调库,盘点调库,库存修正"
+  },
+  {
+    "name": "Sync Inventory From WMS",
+    "description": "Synchronizes OMS inventory positions with WMS physical stock through periodic or event-driven sync.",
+    "content": "Trigger: WMS sync callback or scheduled reconciliation. Target: Inventory. Preconditions: WMS inventory data available. Business rules: overwrite WMS-sourced fields, detect and flag reconciliation differences. State change: inventory positions aligned with WMS.",
+    "aliases": "库存同步,WMS同步,拉库存,库存拉取"
+  },
+  {
+    "name": "Create Item Master",
+    "description": "Creates a new product master record with SKU, UOM, pricing, and attribute definitions.",
+    "content": "Trigger: operator manual creation, channel product sync, or auto-create during PO processing. Target: Item Master. Preconditions: SKU does not already exist for merchant. Business rules: validate SKU uniqueness, set initial status to Active. Artifacts produced: Item Master record."
+  },
+  {
+    "name": "Map Product",
+    "description": "Creates or updates a mapping between external channel product identifiers and internal OMS SKU codes.",
+    "content": "Trigger: channel onboarding, product sync, or manual configuration. Target: Product Mapping. Preconditions: internal SKU exists in Item Master. Business rules: validate mapping uniqueness per channel. Artifacts produced: Product Mapping record."
+  },
+  {
+    "name": "Execute Shipping Mapping",
+    "description": "Evaluates and applies condition mappings and one-to-one mappings to transform shipping-related fields during order dispatch.",
+    "content": "Trigger: order dispatch process before warehouse allocation. Target: Sales Order (shipping fields). Preconditions: mappings configured for merchant. Business rules: evaluate condition mappings first, then apply one-to-one mappings for carrier, ship method, freight term, delivery service, shipment type. State change: order shipping fields transformed.",
+    "aliases": "运费映射,物流映射,配送映射"
+  },
+  {
+    "name": "Evaluate Dispatch Rules",
+    "description": "Evaluates the full dispatch rule chain including filters, allocation strategies, backup strategies, and delivery generation rules.",
+    "content": "Trigger: dispatch request from OPC for any order type. Target: Dispatch Log. Preconditions: dispatch rules configured for merchant. Business rules: sequential evaluation — (1) filter by zipcode/country, (2) allocate by strategy (no-split, minimal-split, specify-warehouse, custom, closest, SKU-specify), (3) apply backup strategy on failure, (4) generate delivery results. Artifacts produced: Dispatch Log. State change: order allocated or exception.",
+    "aliases": "派单规则评估,规则计算,分仓计算,规则匹配"
+  },
+  {
+    "name": "Execute Rate Shopping",
+    "description": "Queries carrier pricing APIs to compare shipping rates and select the optimal carrier and service for an order.",
+    "content": "Trigger: order dispatch process or manual rate shopping request. Target: Rate Shopping Request, Sales Order. Preconditions: shipping account configured, carrier services available. Business rules: build rate request with address and item details, call carrier APIs, evaluate results (success-direct-use, success-need-review, fail). Artifacts produced: Rate Shopping Request record. State change: order carrier/service assignment updated on success.",
+    "aliases": "运费比价,询价,选运费,运费计算"
+  },
+  {
+    "name": "Import Order From Channel",
+    "description": "Receives and imports sales orders from external e-commerce channels via API callbacks or EDI integration.",
+    "content": "Trigger: channel API callback, EDI message, or manual import. Target: Sales Order, Channel Integration. Preconditions: channel integration configured and connected. Business rules: validate channel data, map external product IDs via product mapping, create sales order. Artifacts produced: Sales Order, Order Log entry. State change: Sales Order -> New.",
+    "aliases": "渠道导单,拉单,同步订单,导入订单,从渠道拉单"
+  },
+  {
+    "name": "Send Webhook Event",
+    "description": "Dispatches outbound webhook notifications to registered external endpoints when order events occur.",
+    "content": "Trigger: order lifecycle event (status change, shipment, exception). Target: Webhook Event. Preconditions: webhook endpoint registered. Business rules: serialize event payload, send HTTP POST, log result, retry on failure. Artifacts produced: Webhook Event Log entry."
+  },
+  {
+    "name": "Send Email Notification",
+    "description": "Sends email notifications to configured recipients when matching order events occur.",
+    "content": "Trigger: order event matching a notification category. Target: Email Notification Setting. Preconditions: email settings configured for merchant and category. Business rules: match event to notification category, resolve recipient list, render email template, send. Artifacts produced: email delivery record."
+  },
+  {
+    "name": "Log Order Event",
+    "description": "Records a structured audit log entry for every significant order lifecycle event.",
+    "content": "Trigger: any order lifecycle event. Target: Order Log, Order Timeline. Preconditions: order exists. Business rules: classify event by type and sub-type, create log entry, update timeline node status. Artifacts produced: Order Log entry, Order Timeline update."
+  },
+  {
+    "name": "File Customs Document",
+    "description": "Creates and submits customs compliance documents for cross-border shipments.",
+    "content": "Trigger: cross-border shipment requires customs filing. Target: Customs Document. Preconditions: shipment data available, customs configuration set. Business rules: generate appropriate form type (3461, 7512, E-214, AMS/ISF), validate required fields, submit filing. Artifacts produced: Customs Document record. State change: Draft -> Filed."
+  },
+  {
+    "name": "Calculate Customs Duty",
+    "description": "Calculates import duties and taxes for cross-border shipments based on tariff classifications.",
+    "content": "Trigger: customs document filing or manual calculation. Target: Customs Duty. Preconditions: HTS codes assigned, shipment value known. Business rules: apply tariff rates by HTS code, calculate duty and tax amounts. Artifacts produced: Customs Duty record."
+  },
+  {
+    "name": "Create Return Order",
+    "description": "Creates a return order when a customer initiates a product return.",
+    "content": "Trigger: customer return request via channel or manual creation. Target: Return Order, Return Line Items. Preconditions: original sales order exists and was shipped. Business rules: validate return eligibility, create return order with line items. Artifacts produced: Return Order record."
+  },
+  {
+    "name": "Receive Return Goods",
+    "description": "Records receipt of returned goods at the warehouse and updates inventory.",
+    "content": "Trigger: WMS return receipt callback. Target: Return Order, Inventory. Preconditions: return order exists. Business rules: validate returned quantities, update inventory (on_hand or hold), close return order. State change: Return Order -> Received -> Closed."
+  },
+  {
+    "name": "Create Exchange Order",
+    "description": "Creates an exchange order combining a return and a replacement shipment.",
+    "content": "Trigger: customer exchange request. Target: Exchange Order. Preconditions: original order exists. Business rules: create return for original items, create replacement sales order for new items. Artifacts produced: Exchange Order, linked Return Order and Sales Order."
+  },
+  {
+    "name": "Merge Orders",
+    "description": "Consolidates multiple sales orders within a merge window into a single fulfillment batch.",
+    "content": "Trigger: merge window timer expires or manual merge trigger. Target: Order Merge Window, Sales Orders. Preconditions: multiple orders in merge window with compatible destinations. Business rules: validate merge eligibility, consolidate line items, create merged dispatch. State change: Order Merge Window Waiting -> Merged.",
+    "aliases": "合单,订单合并,并单"
+  },
+  {
+    "name": "Create Shipment",
+    "description": "Creates an outbound shipment record with carrier label and package details after dispatch.",
+    "content": "Trigger: order dispatch result or WMS shipment callback. Target: Shipment. Preconditions: order dispatched to warehouse. Business rules: assign carrier and service, generate tracking number, create package records. State change: -> Shipment New.",
+    "aliases": "创建运单,生成运单,新建运单"
+  },
+  {
+    "name": "Generate Operations Report",
+    "description": "Generates supply chain visibility reports for operational monitoring and exception detection.",
+    "content": "Trigger: scheduled job or manual request. Target: Operations Report. Preconditions: order data available. Business rules: aggregate orders by report type (not sent to WMS, not shipped, waiting confirm), calculate metrics. Artifacts produced: Operations Report."
+  },
+  {
+    "name": "Reopen Sales Order",
+    "description": "Allows operators or automated systems to reopen a sales order stuck in Exception or manually closed state, resetting it to a dispatchable state.",
+    "content": "Trigger: operator manually triggers reopen via API, or system auto-triggers after exception resolution. Precondition: order must be in Exception or OnHold state. Action: creates a ReopenOrderContainer record, resets order status to New/Open, and re-triggers dispatch pipeline. Post-condition: order status transitions from Exception → Reopen → Dispatched. Implemented by: ReopenOrderContainerServiceImpl, SalesOrderServiceImpl.reopenOrder(). Key business rule: only orders with resolvable exceptions (e.g., inventory restocked) can be reopened.",
+    "aliases": "重开订单,异常恢复,重新派单,reopen"
+  },
+  {
+    "name": "Release Hold On Sales Order",
+    "description": "Removes the OnHold status from a sales order, allowing it to continue through the fulfillment flow.",
+    "content": "Trigger: operator calls release hold API or hold rule condition resolves automatically. Implemented by: OrderHoldService.releaseHold(). Action: updates order status from OnHold → previous active state (typically Dispatched or New). API: POST /order-hold/release. Related states: OnHold → Released → Dispatched.",
+    "aliases": "解除拦截,放单,释放,解冻,取消hold"
+  },
+  {
+    "name": "Generate Delivery Order",
+    "description": "When a shipping request is approved and a carrier is selected via rate shopping, this process generates the delivery order in the WMS or carrier system.",
+    "content": "Trigger: Shipping Request reaches confirmed state after carrier selection. Input: Shipping Request with rate shopping result and carrier assignment. Action: creates Delivery Order, assigns carrier tracking number, pushes to WMS. Output: Delivery Order in PendingDelivery state. Flow: Ship Sales Order → Generate Delivery Order → Track Delivery Order.",
+    "aliases": "生成发货单,DO生成,发货单创建"
+  },
+  {
+    "name": "Update Sales Order on Return To Shipper",
+    "description": "Updates Sales Order status when the corresponding Delivery Order enters ReturnToShipper state.",
+    "content": "Trigger: DO state transitions to ReturnToShipper (55) via TMS callback. Target: originating Sales Order. State change: SO transitions to return-initiated state (RETURN_STARTED). Process steps: (1) receive TMS ReturnToShipper callback; (2) locate originating SO via DO-SR-SO linkage; (3) update SO status; (4) log Order Timeline Event; (5) send Order Notification to operator; (6) optionally trigger Return Order creation. Note: inventory is NOT automatically updated - only updated when physical goods are received at warehouse and WMS sends receipt callback.",
+    "aliases": "RTS触发SO更新,退回发件方订单更新,DO退仓同步SO"
+  },
+  {
+    "name": "Re-dispatch Backlog Orders",
+    "description": "Re-evaluates and re-dispatches Sales Orders stuck in Exception state after inventory has been restocked.",
+    "content": "Trigger: manual operator action or scheduled batch job; initiated after inventory restocking is confirmed (WMS Callback Log shows receipt callback). Input: list of Exception-state Sales Orders for the restocked SKU/warehouse. Process steps: (1) identify Exception SOs awaiting this inventory; (2) apply Backlog Re-dispatch Priority Rule (FIFO by order creation time); (3) re-run Dispatch Sales Order for each SO; (4) if dispatch succeeds: SO to Allocated; if fails: SO remains Exception. No automatic trigger exists in base system.",
+    "aliases": "积压订单重派,缺货订单释放,库存补充后重发"
+  },
+  {
+    "name": "Monitor Tracking Updates",
+    "description": "Scheduled monitoring process that detects Delivery Orders with stale tracking and flags them for investigation.",
+    "content": "Trigger: scheduled batch job or event-driven check. Input: Delivery Order Tracking Log entries. Process steps: (1) query DOs in active transit states (LineHaul, PendingDelivery, OutForDelivery); (2) check last update timestamp in Delivery Order Tracking Log; (3) if elapsed time exceeds Tracking Update Timeout Rule threshold: flag DO for operator review; (4) generate Order Notification. Note: OMS receives tracking via DELIVERY_TRACKING webhook event (carrier-push). No native auto-detection in base system - this represents a recommended operational capability.",
+    "aliases": "轨迹监控,物流更新监控,追踪超时检测"
+  }
+]

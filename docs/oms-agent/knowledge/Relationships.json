@@ -1,0 +1,6170 @@
+[
+  {
+    "type": "composition",
+    "from": "Linker OMS",
+    "to": "Order Processing Center",
+    "relation_name": "contains project"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Sales Order Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Order Dispatch Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "Sales Order",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "Dispatch Record",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "Create Sales Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "Update Sales Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "Cancel Sales Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "Dispatch Sales Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "composition",
+    "from": "Sales Order",
+    "to": "Order Line Item",
+    "relation_name": "contains line items"
+  },
+  {
+    "type": "flow",
+    "from": "Sales Order",
+    "to": "Shipping Request",
+    "relation_name": "generates shipping request"
+  },
+  {
+    "type": "dependency",
+    "from": "Sales Order",
+    "to": "Dispatch Record",
+    "relation_name": "produces dispatch record"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "New",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Pending",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "OnHold",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Allocated",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Processing",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Shipped",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Cancelled",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Exception",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "action",
+    "from": "Create Sales Order",
+    "to": "Sales Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Dispatch Sales Order",
+    "to": "Sales Order",
+    "relation_name": "dispatches"
+  },
+  {
+    "type": "action",
+    "from": "Hold Sales Order",
+    "to": "Sales Order",
+    "relation_name": "holds"
+  },
+  {
+    "type": "action",
+    "from": "Update Sales Order",
+    "to": "Sales Order",
+    "relation_name": "updates"
+  },
+  {
+    "type": "action",
+    "from": "Cancel Sales Order",
+    "to": "Sales Order",
+    "relation_name": "cancels"
+  },
+  {
+    "type": "action",
+    "from": "Deallocate Sales Order",
+    "to": "Sales Order",
+    "relation_name": "deallocates"
+  },
+  {
+    "type": "action",
+    "from": "Ship Sales Order",
+    "to": "Sales Order",
+    "relation_name": "ships"
+  },
+  {
+    "type": "flow",
+    "from": "Create Sales Order",
+    "to": "New",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Dispatch Sales Order",
+    "to": "Allocated",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Hold Sales Order",
+    "to": "OnHold",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Cancel Sales Order",
+    "to": "Cancelled",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Ship Sales Order",
+    "to": "Shipped",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "dependency",
+    "from": "Hold Sales Order",
+    "to": "Order Hold Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Dispatch Sales Order",
+    "to": "Order Dispatch Routing Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Cancel Sales Order",
+    "to": "Order Cancel Validation Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "flow",
+    "from": "Create Sales Order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Dispatch Sales Order",
+    "to": "Ship Sales Order",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Deallocate Sales Order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers re-dispatch"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Hold Rule",
+    "to": "Sales Order",
+    "relation_name": "constrains"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Dispatch Routing Rule",
+    "to": "Sales Order",
+    "relation_name": "constrains dispatch of"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Cancel Validation Rule",
+    "to": "Sales Order",
+    "relation_name": "validates cancellation of"
+  },
+  {
+    "type": "composition",
+    "from": "Linker OMS",
+    "to": "Order Transaction Management",
+    "relation_name": "contains project"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Purchase Order Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Delivery Order Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Work Order Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Transaction Management",
+    "to": "Sales Quote Order Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "Purchase Order",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "Create Purchase Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "Push Purchase Order To Warehouse",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "Receive Purchase Order Goods",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "Cancel Purchase Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "Delivery Order",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "Create Delivery Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "Track Delivery Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "Cancel Delivery Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "Work Order",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "Create Work Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "Dispatch Work Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "Close Work Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "Sales Quote Order",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "Create Sales Quote Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "Convert Sales Quote Order",
+    "relation_name": "implements"
+  },
+  {
+    "type": "composition",
+    "from": "Purchase Order",
+    "to": "Purchase Order Line Item",
+    "relation_name": "contains line items"
+  },
+  {
+    "type": "flow",
+    "from": "Purchase Order",
+    "to": "Purchase Order Receipt",
+    "relation_name": "generates receipt"
+  },
+  {
+    "type": "flow",
+    "from": "Purchase Request",
+    "to": "Purchase Order",
+    "relation_name": "triggers PO creation"
+  },
+  {
+    "type": "composition",
+    "from": "Delivery Order",
+    "to": "Delivery Order Shipment",
+    "relation_name": "contains shipment"
+  },
+  {
+    "type": "composition",
+    "from": "Work Order",
+    "to": "Work Order Package",
+    "relation_name": "contains package"
+  },
+  {
+    "type": "flow",
+    "from": "Sales Quote Order",
+    "to": "Sales Order",
+    "relation_name": "converts to sales order"
+  },
+  {
+    "type": "flow",
+    "from": "Sales Order",
+    "to": "Delivery Order",
+    "relation_name": "generates delivery order"
+  },
+  {
+    "type": "flow",
+    "from": "Shipping Request",
+    "to": "Delivery Order",
+    "relation_name": "triggers delivery order"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Created",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "Push To Warehouse",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "Push To Warehouse Fail",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Processing",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Closed",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Cancelled",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Canceling",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Purchase Order",
+    "to": "PO Exception",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO New",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO PickupDispatched",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO LineHaul",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO PendingDelivery",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Delivered",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO DeliveryFailed",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Cancelled",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Created",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Dispatched",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Processing",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Closed",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Cancelled",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Work Order",
+    "to": "WO Exception",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Quote Order",
+    "to": "Quote New",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Quote Order",
+    "to": "Quote Converted",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Quote Order",
+    "to": "Quote Canceled",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "action",
+    "from": "Create Purchase Order",
+    "to": "Purchase Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Push Purchase Order To Warehouse",
+    "to": "Purchase Order",
+    "relation_name": "pushes to warehouse"
+  },
+  {
+    "type": "action",
+    "from": "Receive Purchase Order Goods",
+    "to": "Purchase Order",
+    "relation_name": "receives goods for"
+  },
+  {
+    "type": "action",
+    "from": "Receive Purchase Order Goods",
+    "to": "Purchase Order Receipt",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Cancel Purchase Order",
+    "to": "Purchase Order",
+    "relation_name": "cancels"
+  },
+  {
+    "type": "action",
+    "from": "Create Delivery Order",
+    "to": "Delivery Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Track Delivery Order",
+    "to": "Delivery Order",
+    "relation_name": "updates tracking for"
+  },
+  {
+    "type": "action",
+    "from": "Cancel Delivery Order",
+    "to": "Delivery Order",
+    "relation_name": "cancels"
+  },
+  {
+    "type": "action",
+    "from": "Create Work Order",
+    "to": "Work Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Dispatch Work Order",
+    "to": "Work Order",
+    "relation_name": "dispatches"
+  },
+  {
+    "type": "action",
+    "from": "Close Work Order",
+    "to": "Work Order",
+    "relation_name": "closes"
+  },
+  {
+    "type": "action",
+    "from": "Create Sales Quote Order",
+    "to": "Sales Quote Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Convert Sales Quote Order",
+    "to": "Sales Quote Order",
+    "relation_name": "converts"
+  },
+  {
+    "type": "action",
+    "from": "Convert Sales Quote Order",
+    "to": "Sales Order",
+    "relation_name": "creates sales order from"
+  },
+  {
+    "type": "flow",
+    "from": "Create Purchase Order",
+    "to": "PO Created",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Push Purchase Order To Warehouse",
+    "to": "Push To Warehouse",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Receive Purchase Order Goods",
+    "to": "PO Closed",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Cancel Purchase Order",
+    "to": "PO Cancelled",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Delivery Order",
+    "to": "DO New",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Track Delivery Order",
+    "to": "DO Delivered",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Cancel Delivery Order",
+    "to": "DO Cancelled",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Work Order",
+    "to": "WO Created",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Dispatch Work Order",
+    "to": "WO Dispatched",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Close Work Order",
+    "to": "WO Closed",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Sales Quote Order",
+    "to": "Quote New",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Convert Sales Quote Order",
+    "to": "Quote Converted",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Purchase Order",
+    "to": "Push Purchase Order To Warehouse",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Push Purchase Order To Warehouse",
+    "to": "Receive Purchase Order Goods",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Work Order",
+    "to": "Dispatch Work Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Dispatch Work Order",
+    "to": "Close Work Order",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Create Sales Quote Order",
+    "to": "Convert Sales Quote Order",
+    "relation_name": "may lead to"
+  },
+  {
+    "type": "dependency",
+    "from": "Push Purchase Order To Warehouse",
+    "to": "Purchase Order Dispatch Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Create Purchase Order",
+    "to": "Purchase Order Processing Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Dispatch Work Order",
+    "to": "Work Order Dispatch Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "constraint",
+    "from": "Purchase Order Processing Rule",
+    "to": "Purchase Order",
+    "relation_name": "constrains processing of"
+  },
+  {
+    "type": "constraint",
+    "from": "Purchase Order Dispatch Rule",
+    "to": "Purchase Order",
+    "relation_name": "constrains dispatch of"
+  },
+  {
+    "type": "constraint",
+    "from": "Work Order Dispatch Rule",
+    "to": "Work Order",
+    "relation_name": "constrains dispatch of"
+  },
+  {
+    "type": "composition",
+    "from": "Linker OMS",
+    "to": "Order Allocation Service",
+    "relation_name": "contains project"
+  },
+  {
+    "type": "composition",
+    "from": "Order Allocation Service",
+    "to": "OAS Dispatch Engine Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Allocation Service",
+    "to": "OAS Mapping Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Inventory Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Item Master Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Facility Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "Dispatch Log",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "Condition Mapping",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "One-to-One Mapping",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "Execute Shipping Mapping",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Inventory",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Allocate Inventory",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Deduct Inventory On Shipment",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Receive Inventory",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Adjust Inventory",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "Sync Inventory From WMS",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "Item Master",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "Product Mapping",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "SKU Filter Rule",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "Create Item Master",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "Map Product",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "Facility",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "manages"
+  },
+  {
+    "type": "composition",
+    "from": "Facility",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "has zipcode coverage"
+  },
+  {
+    "type": "dependency",
+    "from": "Inventory",
+    "to": "Facility",
+    "relation_name": "stored at"
+  },
+  {
+    "type": "dependency",
+    "from": "Inventory",
+    "to": "Item Master",
+    "relation_name": "tracks stock for"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Adjustment",
+    "to": "Inventory",
+    "relation_name": "adjusts"
+  },
+  {
+    "type": "mapping",
+    "from": "Product Mapping",
+    "to": "Item Master",
+    "relation_name": "maps to"
+  },
+  {
+    "type": "dependency",
+    "from": "SKU Warehouse Assignment",
+    "to": "Facility",
+    "relation_name": "assigns SKU to"
+  },
+  {
+    "type": "dependency",
+    "from": "SKU Warehouse Assignment",
+    "to": "Item Master",
+    "relation_name": "designates warehouse for"
+  },
+  {
+    "type": "dependency",
+    "from": "SKU Filter Rule",
+    "to": "Item Master",
+    "relation_name": "filters"
+  },
+  {
+    "type": "dependency",
+    "from": "Sales Order",
+    "to": "Inventory",
+    "relation_name": "reserves inventory"
+  },
+  {
+    "type": "flow",
+    "from": "Purchase Order",
+    "to": "Inventory",
+    "relation_name": "replenishes inventory"
+  },
+  {
+    "type": "action",
+    "from": "Allocate Inventory",
+    "to": "Inventory",
+    "relation_name": "reserves"
+  },
+  {
+    "type": "action",
+    "from": "Deduct Inventory On Shipment",
+    "to": "Inventory",
+    "relation_name": "deducts"
+  },
+  {
+    "type": "action",
+    "from": "Receive Inventory",
+    "to": "Inventory",
+    "relation_name": "increases"
+  },
+  {
+    "type": "action",
+    "from": "Adjust Inventory",
+    "to": "Inventory",
+    "relation_name": "adjusts"
+  },
+  {
+    "type": "action",
+    "from": "Adjust Inventory",
+    "to": "Inventory Adjustment",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Sync Inventory From WMS",
+    "to": "Inventory",
+    "relation_name": "synchronizes"
+  },
+  {
+    "type": "action",
+    "from": "Create Item Master",
+    "to": "Item Master",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Map Product",
+    "to": "Product Mapping",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Execute Shipping Mapping",
+    "to": "Sales Order",
+    "relation_name": "transforms fields of"
+  },
+  {
+    "type": "action",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Sales Order",
+    "relation_name": "evaluates for"
+  },
+  {
+    "type": "action",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Purchase Order",
+    "relation_name": "evaluates for"
+  },
+  {
+    "type": "action",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Work Order",
+    "relation_name": "evaluates for"
+  },
+  {
+    "type": "action",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Dispatch Log",
+    "relation_name": "produces"
+  },
+  {
+    "type": "dependency",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Zipcode Dispatch Filter Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Country Dispatch Filter Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Single Warehouse Fulfillment Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Evaluate Dispatch Rules",
+    "to": "Split Fulfillment Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Sync Inventory From WMS",
+    "to": "Inventory Sync Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "action",
+    "from": "Execute Shipping Mapping",
+    "to": "Condition Mapping",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "action",
+    "from": "Execute Shipping Mapping",
+    "to": "One-to-One Mapping",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "constraint",
+    "from": "Zipcode Dispatch Filter Rule",
+    "to": "Sales Order",
+    "relation_name": "filters warehouses for"
+  },
+  {
+    "type": "constraint",
+    "from": "Country Dispatch Filter Rule",
+    "to": "Sales Order",
+    "relation_name": "filters warehouses for"
+  },
+  {
+    "type": "constraint",
+    "from": "Single Warehouse Fulfillment Rule",
+    "to": "Sales Order",
+    "relation_name": "constrains fulfillment of"
+  },
+  {
+    "type": "constraint",
+    "from": "Split Fulfillment Rule",
+    "to": "Sales Order",
+    "relation_name": "allows split fulfillment of"
+  },
+  {
+    "type": "constraint",
+    "from": "Inventory Sync Rule",
+    "to": "Inventory",
+    "relation_name": "governs sync of"
+  },
+  {
+    "type": "flow",
+    "from": "Execute Shipping Mapping",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "precedes"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Rate Shopping Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Channel Integration Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Webhook Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Notification Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Order Log Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Customs Compliance Module",
+    "relation_name": "contains module"
+  },
+  {
+    "type": "action",
+    "from": "Rate Shopping Module",
+    "to": "Rate Shopping Request",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Rate Shopping Module",
+    "to": "Execute Rate Shopping",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Channel Integration Module",
+    "to": "Channel Integration",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Channel Integration Module",
+    "to": "Import Order From Channel",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Webhook Module",
+    "to": "Webhook Event",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Webhook Module",
+    "to": "Send Webhook Event",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Notification Module",
+    "to": "Email Notification Setting",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Notification Module",
+    "to": "Notification Category",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Notification Module",
+    "to": "Send Email Notification",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Order Log Module",
+    "to": "Order Log",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Order Log Module",
+    "to": "Order Timeline",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Order Log Module",
+    "to": "Log Order Event",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Customs Compliance Module",
+    "to": "Customs Document",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Customs Compliance Module",
+    "to": "Customs Duty",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Customs Compliance Module",
+    "to": "File Customs Document",
+    "relation_name": "implements"
+  },
+  {
+    "type": "action",
+    "from": "Customs Compliance Module",
+    "to": "Calculate Customs Duty",
+    "relation_name": "implements"
+  },
+  {
+    "type": "composition",
+    "from": "Email Notification Setting",
+    "to": "Notification Category",
+    "relation_name": "categorized by"
+  },
+  {
+    "type": "dependency",
+    "from": "Rate Shopping Request",
+    "to": "Shipping Account",
+    "relation_name": "uses"
+  },
+  {
+    "type": "dependency",
+    "from": "Rate Shopping Request",
+    "to": "Carrier Service",
+    "relation_name": "compares"
+  },
+  {
+    "type": "flow",
+    "from": "Channel Integration",
+    "to": "Sales Order",
+    "relation_name": "imports orders to"
+  },
+  {
+    "type": "mapping",
+    "from": "Sales Order",
+    "to": "Order Log",
+    "relation_name": "logged in"
+  },
+  {
+    "type": "mapping",
+    "from": "Sales Order",
+    "to": "Order Timeline",
+    "relation_name": "visualized in"
+  },
+  {
+    "type": "mapping",
+    "from": "Sales Order",
+    "to": "Webhook Event",
+    "relation_name": "notified via"
+  },
+  {
+    "type": "flow",
+    "from": "Delivery Order",
+    "to": "Customs Document",
+    "relation_name": "requires customs for"
+  },
+  {
+    "type": "dependency",
+    "from": "Customs Document",
+    "to": "Customs Duty",
+    "relation_name": "incurs"
+  },
+  {
+    "type": "dependency",
+    "from": "Container Tracking Record",
+    "to": "Delivery Order",
+    "relation_name": "tracks shipment of"
+  },
+  {
+    "type": "action",
+    "from": "Execute Rate Shopping",
+    "to": "Rate Shopping Request",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Execute Rate Shopping",
+    "to": "Sales Order",
+    "relation_name": "assigns carrier to"
+  },
+  {
+    "type": "action",
+    "from": "Import Order From Channel",
+    "to": "Channel Integration",
+    "relation_name": "imports from"
+  },
+  {
+    "type": "action",
+    "from": "Import Order From Channel",
+    "to": "Sales Order",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Send Webhook Event",
+    "to": "Webhook Event",
+    "relation_name": "dispatches"
+  },
+  {
+    "type": "action",
+    "from": "Send Email Notification",
+    "to": "Email Notification Setting",
+    "relation_name": "sends based on"
+  },
+  {
+    "type": "action",
+    "from": "Log Order Event",
+    "to": "Order Log",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Log Order Event",
+    "to": "Order Timeline",
+    "relation_name": "updates"
+  },
+  {
+    "type": "action",
+    "from": "File Customs Document",
+    "to": "Customs Document",
+    "relation_name": "creates"
+  },
+  {
+    "type": "action",
+    "from": "Calculate Customs Duty",
+    "to": "Customs Duty",
+    "relation_name": "calculates"
+  },
+  {
+    "type": "dependency",
+    "from": "Execute Rate Shopping",
+    "to": "Rate Shopping Selection Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Send Webhook Event",
+    "to": "Webhook Event Routing Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "dependency",
+    "from": "Send Email Notification",
+    "to": "Email Notification Trigger Rule",
+    "relation_name": "evaluates"
+  },
+  {
+    "type": "constraint",
+    "from": "Rate Shopping Selection Rule",
+    "to": "Rate Shopping Request",
+    "relation_name": "constrains rate selection for"
+  },
+  {
+    "type": "constraint",
+    "from": "Webhook Event Routing Rule",
+    "to": "Webhook Event",
+    "relation_name": "routes events for"
+  },
+  {
+    "type": "constraint",
+    "from": "Email Notification Trigger Rule",
+    "to": "Email Notification Setting",
+    "relation_name": "triggers notification for"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Merchant Module",
+    "relation_name": "contains Merchant Module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Return Order Module",
+    "relation_name": "contains Return Order Module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Shipment Module",
+    "relation_name": "contains Shipment Module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Operations Report Module",
+    "relation_name": "contains Operations Report Module"
+  },
+  {
+    "type": "composition",
+    "from": "Order Processing Center",
+    "to": "Order Merge Module",
+    "relation_name": "contains Order Merge Module"
+  },
+  {
+    "type": "action",
+    "from": "Merchant Module",
+    "to": "Merchant",
+    "relation_name": "manages Merchant"
+  },
+  {
+    "type": "action",
+    "from": "Merchant Module",
+    "to": "Brand",
+    "relation_name": "manages Brand"
+  },
+  {
+    "type": "action",
+    "from": "Merchant Module",
+    "to": "Category",
+    "relation_name": "manages Category"
+  },
+  {
+    "type": "action",
+    "from": "Merchant Module",
+    "to": "Fulfillment Mode",
+    "relation_name": "manages Fulfillment Mode"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Return Order",
+    "relation_name": "manages Return Order"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Return Order Line Item",
+    "relation_name": "manages Return Order Line Item"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Exchange Order",
+    "relation_name": "manages Exchange Order"
+  },
+  {
+    "type": "action",
+    "from": "Shipment Module",
+    "to": "Shipment",
+    "relation_name": "manages Shipment"
+  },
+  {
+    "type": "action",
+    "from": "Operations Report Module",
+    "to": "Operations Report",
+    "relation_name": "manages Operations Report"
+  },
+  {
+    "type": "action",
+    "from": "Order Merge Module",
+    "to": "Order Merge Window",
+    "relation_name": "manages Order Merge Window"
+  },
+  {
+    "type": "action",
+    "from": "Order Merge Module",
+    "to": "Order Update Record",
+    "relation_name": "manages Order Update Record"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Create Return Order",
+    "relation_name": "implements Create Return Order"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Receive Return Goods",
+    "relation_name": "implements Receive Return Goods"
+  },
+  {
+    "type": "action",
+    "from": "Return Order Module",
+    "to": "Create Exchange Order",
+    "relation_name": "implements Create Exchange Order"
+  },
+  {
+    "type": "action",
+    "from": "Shipment Module",
+    "to": "Create Shipment",
+    "relation_name": "implements Create Shipment"
+  },
+  {
+    "type": "action",
+    "from": "Operations Report Module",
+    "to": "Generate Operations Report",
+    "relation_name": "implements Generate Operations Report"
+  },
+  {
+    "type": "action",
+    "from": "Order Merge Module",
+    "to": "Merge Orders",
+    "relation_name": "implements Merge Orders"
+  },
+  {
+    "type": "composition",
+    "from": "Return Order",
+    "to": "Return Order Line Item",
+    "relation_name": "contains Return Order Line Item"
+  },
+  {
+    "type": "dependency",
+    "from": "Return Order",
+    "to": "Sales Order",
+    "relation_name": "references original Sales Order"
+  },
+  {
+    "type": "dependency",
+    "from": "Return Order Line Item",
+    "to": "Order Line Item",
+    "relation_name": "references Order Line Item"
+  },
+  {
+    "type": "dependency",
+    "from": "Exchange Order",
+    "to": "Sales Order",
+    "relation_name": "originates from Sales Order"
+  },
+  {
+    "type": "dependency",
+    "from": "Exchange Order",
+    "to": "Return Order",
+    "relation_name": "linked to Return Order"
+  },
+  {
+    "type": "dependency",
+    "from": "Order Update Record",
+    "to": "Sales Order",
+    "relation_name": "tracks changes on Sales Order"
+  },
+  {
+    "type": "dependency",
+    "from": "Order Merge Window",
+    "to": "Sales Order",
+    "relation_name": "consolidates Sales Orders"
+  },
+  {
+    "type": "dependency",
+    "from": "Shipment",
+    "to": "Shipping Request",
+    "relation_name": "fulfills Shipping Request"
+  },
+  {
+    "type": "dependency",
+    "from": "Shipment",
+    "to": "Delivery Order",
+    "relation_name": "ships Delivery Order"
+  },
+  {
+    "type": "dependency",
+    "from": "Operations Report",
+    "to": "Sales Order",
+    "relation_name": "aggregates Sales Order data"
+  },
+  {
+    "type": "dependency",
+    "from": "Operations Report",
+    "to": "Shipping Request",
+    "relation_name": "monitors Shipping Request data"
+  },
+  {
+    "type": "ownership",
+    "from": "Merchant",
+    "to": "Item Master",
+    "relation_name": "owns Item Master"
+  },
+  {
+    "type": "ownership",
+    "from": "Merchant",
+    "to": "Brand",
+    "relation_name": "owns Brand"
+  },
+  {
+    "type": "ownership",
+    "from": "Merchant",
+    "to": "Category",
+    "relation_name": "owns Category"
+  },
+  {
+    "type": "ownership",
+    "from": "Merchant",
+    "to": "Fulfillment Mode",
+    "relation_name": "owns Fulfillment Mode"
+  },
+  {
+    "type": "mapping",
+    "from": "Brand",
+    "to": "Item Master",
+    "relation_name": "categorizes Item Master"
+  },
+  {
+    "type": "mapping",
+    "from": "Category",
+    "to": "Item Master",
+    "relation_name": "classifies Item Master"
+  },
+  {
+    "type": "dependency",
+    "from": "Fulfillment Mode",
+    "to": "Facility",
+    "relation_name": "assigns Facility"
+  },
+  {
+    "type": "ownership",
+    "from": "Shipment",
+    "to": "Shipment New",
+    "relation_name": "has state Shipment New"
+  },
+  {
+    "type": "ownership",
+    "from": "Shipment",
+    "to": "Shipment Processing",
+    "relation_name": "has state Shipment Processing"
+  },
+  {
+    "type": "ownership",
+    "from": "Shipment",
+    "to": "Shipment Closed",
+    "relation_name": "has state Shipment Closed"
+  },
+  {
+    "type": "ownership",
+    "from": "Shipment",
+    "to": "Shipment Void",
+    "relation_name": "has state Shipment Void"
+  },
+  {
+    "type": "ownership",
+    "from": "Shipment",
+    "to": "Shipment Exception",
+    "relation_name": "has state Shipment Exception"
+  },
+  {
+    "type": "action",
+    "from": "Create Return Order",
+    "to": "Return Order",
+    "relation_name": "creates Return Order"
+  },
+  {
+    "type": "action",
+    "from": "Create Return Order",
+    "to": "Return Order Line Item",
+    "relation_name": "creates Return Order Line Item"
+  },
+  {
+    "type": "action",
+    "from": "Receive Return Goods",
+    "to": "Return Order",
+    "relation_name": "updates Return Order"
+  },
+  {
+    "type": "action",
+    "from": "Receive Return Goods",
+    "to": "Inventory",
+    "relation_name": "adjusts Inventory"
+  },
+  {
+    "type": "action",
+    "from": "Create Exchange Order",
+    "to": "Exchange Order",
+    "relation_name": "creates Exchange Order"
+  },
+  {
+    "type": "action",
+    "from": "Create Exchange Order",
+    "to": "Return Order",
+    "relation_name": "creates linked Return Order"
+  },
+  {
+    "type": "action",
+    "from": "Merge Orders",
+    "to": "Order Merge Window",
+    "relation_name": "merges via Order Merge Window"
+  },
+  {
+    "type": "action",
+    "from": "Merge Orders",
+    "to": "Sales Order",
+    "relation_name": "consolidates Sales Order"
+  },
+  {
+    "type": "action",
+    "from": "Create Shipment",
+    "to": "Shipment",
+    "relation_name": "creates Shipment"
+  },
+  {
+    "type": "action",
+    "from": "Generate Operations Report",
+    "to": "Operations Report",
+    "relation_name": "generates Operations Report"
+  },
+  {
+    "type": "dependency",
+    "from": "Create Return Order",
+    "to": "Return Eligibility Rule",
+    "relation_name": "validates Return Eligibility Rule"
+  },
+  {
+    "type": "dependency",
+    "from": "Merge Orders",
+    "to": "Order Merge Rule",
+    "relation_name": "evaluates Order Merge Rule"
+  },
+  {
+    "type": "flow",
+    "from": "Create Shipment",
+    "to": "Shipment New",
+    "relation_name": "initiates Shipment New"
+  },
+  {
+    "type": "flow",
+    "from": "Create Shipment",
+    "to": "Shipment Processing",
+    "relation_name": "progresses to Shipment Processing"
+  },
+  {
+    "type": "flow",
+    "from": "Create Shipment",
+    "to": "Shipment Closed",
+    "relation_name": "completes to Shipment Closed"
+  },
+  {
+    "type": "flow",
+    "from": "Create Shipment",
+    "to": "Shipment Void",
+    "relation_name": "may void to Shipment Void"
+  },
+  {
+    "type": "flow",
+    "from": "Create Shipment",
+    "to": "Shipment Exception",
+    "relation_name": "may encounter Shipment Exception"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Merge Rule",
+    "to": "Sales Order",
+    "relation_name": "constrains Sales Order merging"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Merge Rule",
+    "to": "Order Merge Window",
+    "relation_name": "constrains Order Merge Window"
+  },
+  {
+    "type": "constraint",
+    "from": "Return Eligibility Rule",
+    "to": "Return Order",
+    "relation_name": "constrains Return Order creation"
+  },
+  {
+    "type": "query",
+    "from": "GET /oas/multi-conditions/mapping/option-list",
+    "to": "Condition Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /oas/multi-conditions/mapping/option-list",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /oas/multi-conditions/mapping/conditions",
+    "to": "Condition Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /oas/multi-conditions/mapping/conditions",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /oas/multi-conditions/mapping/id",
+    "to": "Condition Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /oas/multi-conditions/mapping/id",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /oas/multi-conditions/mapping",
+    "to": "Condition Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /oas/multi-conditions/mapping",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /oas/multi-conditions/mapping",
+    "to": "Condition Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "DELETE /oas/multi-conditions/mapping",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /oas/multi-conditions/mapping/execute",
+    "to": "Condition Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /oas/multi-conditions/mapping/execute",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /dispatch-log/{eventId}",
+    "to": "Dispatch Log",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /dispatch-log/{eventId}",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "GET /dispatch-log/{eventId}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /mapping/multiple/rule",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /mapping/multiple/rule",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /mapping/multiple/rule",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "PUT /mapping/multiple/rule",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /mapping/multiple/rule/{id}",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "DELETE /mapping/multiple/rule/{id}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /mapping/multiple/rule/page",
+    "to": "One-to-One Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /mapping/multiple/rule/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /mapping/single/option-list",
+    "to": "One-to-One Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /mapping/single/option-list",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /mapping/single/add-or-update",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /mapping/single/add-or-update",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /mapping/single",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /mapping/single",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /mapping/single/id",
+    "to": "One-to-One Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /mapping/single/id",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /mapping/single",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "DELETE /mapping/single",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /mapping/single/import",
+    "to": "One-to-One Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /mapping/single/import",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /dispatch/sales-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/sales-order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "POST /dispatch/sales-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /dispatch/purchase-order",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/purchase-order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "POST /dispatch/purchase-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /dispatch/delivery-order",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/delivery-order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "POST /dispatch/delivery-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /dispatch/work-order",
+    "to": "Work Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/work-order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "POST /dispatch/work-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /dispatch/local-menu-sales-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/local-menu-sales-order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "OAS Dispatch Engine Module",
+    "to": "POST /dispatch/local-menu-sales-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "POST /rpc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "GET /rpc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "OAS Mapping Module",
+    "to": "DELETE /rpc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /admin/send/order/dispatch",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /admin/send/order/dispatch",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /routing/re-dispatch-do",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /routing/re-dispatch-so",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/inventory",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /public-api/inventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/inventory/fetch-realtime",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /public-api/inventory/fetch-realtime",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/inventory/sync",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /public-api/inventory/sync",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/inventory/inventory-page",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /public-api/inventory/inventory-page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/inventory/create",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /public-api/inventory/create",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/channel-product/audit",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/channel-product",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/purchase-orders",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /public-api/purchase-orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/purchase-orders",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /public-api/purchase-orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/purchase-orders/cancel",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /public-api/purchase-orders/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /public-api/purchase-orders/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/purchase-orders/detail",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /public-api/purchase-orders/detail",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/purchase-orders/receipt",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /public-api/purchase-orders/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/purchase-orders/receipt",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /public-api/purchase-orders/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/purchase-orders/receipt",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /public-api/purchase-orders/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/purchase-orders/page",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /public-api/purchase-orders/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/purchase-orders/receipt/{referenceNo}",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /public-api/purchase-orders/receipt/{referenceNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/purchase-orders/list",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /public-api/purchase-orders/list",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/purchase-orders/update/status",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /public-api/purchase-orders/update/status",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/batch-create",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/batch-create",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/async-create",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/async-create",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/v2-import",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/v2-import",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/sales-orders/v2-import/query",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /public-api/sales-orders/v2-import/query",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /public-api/sales-orders/v2-import/{merchantNo}",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "DELETE /public-api/sales-orders/v2-import/{merchantNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/parse-file",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/parse-file",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/sales-orders",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /public-api/sales-orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/partial-update",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/partial-update",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/sales-orders/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /public-api/sales-orders/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/cancel",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /public-api/sales-orders/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/cancel-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /public-api/sales-orders/cancel-order",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/cancel-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/sales-orders/{orderNo}/allow-modify",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /public-api/sales-orders/{orderNo}/allow-modify",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/sales-orders/{orderNo}/raw-data",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /public-api/sales-orders/{orderNo}/raw-data",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/{orderNo}/reopen",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/{orderNo}/reopen",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/{orderNo}/reopen-on-hold-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /public-api/sales-orders/{orderNo}/reopen-on-hold-order",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/{orderNo}/reopen-on-hold-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /public-api/sales-orders/dispatch-results",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /public-api/sales-orders/dispatch-results",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /public-api/sales-orders/dispatches/{dispatchNo}/status",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /public-api/sales-orders/dispatches/{dispatchNo}/status",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /public-api/sales-orders/dispatches/{dispatchNo}/status",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /public-api/sales-orders/import-orders",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /public-api/sales-orders/import-orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "GET /public-api/shipments",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /public-api/shipments",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "POST /public-api/shipments",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/{crmCustomerCode}/list",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/{customerCode}",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /channel/{customerCode}/status",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/{customerCode}/detail/{channelNo}",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /channel/{customerCode}/{channelNo}",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/flow/from-template",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /channel/flow/batch-online",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /channel/flow/batch-offline",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/flow/batch-execute/sync",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/flow/batch-execute/async",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow/list",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /channel/flow/batch-setting",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/integration/list",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/integration/{connectorCode}",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/integration/{connectorCode}/build-auth-url",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /channel/integration/test",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/json",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/platform/{platformName}/category/{categoryName}/flow",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/platforms",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/platform/{platformName}/categories",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/platform/{platformName}/category/{categoryName}/flow-names",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/validate",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/flow-config/search",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /channel/di-integrations/config",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /channel/createBatchWarehouseSpecialChannel",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /email-notification-settings/page",
+    "to": "Email Notification Setting",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /email-notification-settings",
+    "to": "Email Notification Setting",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /email-notification-settings",
+    "to": "Email Notification Setting",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /email-notification-settings/{id}",
+    "to": "Email Notification Setting",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /email-notification-settings/status",
+    "to": "Email Notification Setting",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /email-notification-settings/merchantNo",
+    "to": "Email Notification Setting",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /email-notification-settings/send-notification",
+    "to": "Email Notification Setting",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /facility/v2/page",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /facility/v2/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /facility/v2/refresh-all",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /facility/v2/refresh-all",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /facility/v2/update-facility-sort",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /facility/v2/update-facility-sort",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /facility/v2/update-warehouse-version",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /facility/v2/update-warehouse-version",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /facility/v2/fetch-single-facility",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /facility/v2/fetch-single-facility",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /facility/v2/fetch-all-facility",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /facility/v2/fetch-all-facility",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /facility/v2",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /facility/v2",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /facility/v2/{id}",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /facility/v2/{id}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /facility/v2",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "PUT /facility/v2",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /facility/v2/delete",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /facility/v2/delete",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-zipcode/{id}",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-zipcode/{id}",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /warehouse-zipcode/{id}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-zipcode/page",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-zipcode/page",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /warehouse-zipcode/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /warehouse-zipcode/create",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /warehouse-zipcode/create",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /warehouse-zipcode/create",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /warehouse-zipcode/update",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /warehouse-zipcode/update",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "PUT /warehouse-zipcode/update",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /warehouse-zipcode/{id}",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /warehouse-zipcode/{id}",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "DELETE /warehouse-zipcode/{id}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /warehouse-zipcode/deleteAll",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /warehouse-zipcode/deleteAll",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "DELETE /warehouse-zipcode/deleteAll",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /warehouse-zipcode/import",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /warehouse-zipcode/import",
+    "to": "Facility",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /warehouse-zipcode/import",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/adjustments",
+    "to": "Inventory Adjustment",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/adjustments",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /inventory/adjustments",
+    "to": "Adjust Inventory",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/adjustments",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /inventory/adjustments",
+    "to": "Inventory Adjustment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /inventory/adjustments",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /inventory/adjustments",
+    "to": "Adjust Inventory",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "PUT /inventory/adjustments",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/adjustments",
+    "to": "Inventory Adjustment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/adjustments",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /inventory/adjustments",
+    "to": "Adjust Inventory",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/adjustments",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/adjustments/inventories/{merchantId}",
+    "to": "Inventory Adjustment",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/adjustments/inventories/{merchantId}",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /inventory/adjustments/inventories/{merchantId}",
+    "to": "Adjust Inventory",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/adjustments/inventories/{merchantId}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/query",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/query",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/sync",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/sync",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/list",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/list",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/listByIds",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/listByIds",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/movement-history",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/movement-history",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/export",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/export",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /item/items",
+    "to": "Item Master",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /item/items",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /item/list-with-default",
+    "to": "Item Master",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /item/list-with-default",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /item/product",
+    "to": "Item Master",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /item/product",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /item/product-with-default",
+    "to": "Item Master",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /item/product-with-default",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /item/aka-search",
+    "to": "Item Master",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "POST /item/aka-search",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /product-mapping/product-mappings",
+    "to": "Product Mapping",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /product-mapping/product-mappings",
+    "to": "Map Product",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /product-mapping/product-mappings",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /product-mapping",
+    "to": "Product Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /product-mapping",
+    "to": "Map Product",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "POST /product-mapping",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /product-mapping",
+    "to": "Product Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /product-mapping",
+    "to": "Map Product",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "PUT /product-mapping",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /product-mapping/{id}",
+    "to": "Product Mapping",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /product-mapping/{id}",
+    "to": "Map Product",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "DELETE /product-mapping/{id}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "GET /shipping-service-mapping/shipping-service-mappings",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "POST /shipping-service-mapping",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /shipping-service-mapping",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /shipping-service-mapping/{id}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /routing/v2/custom-rule/channel",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /routing/v2/customRule/shipService",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/cancel",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /delivery-order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/page",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/orderNo/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/orderNo/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/referenceNo/{referenceNo}",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/referenceNo/{referenceNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/edi",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/edi",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/edi/carrier",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/edi/carrier",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /delivery-order",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "PUT /delivery-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /delivery-order",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "DELETE /delivery-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/osd",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/osd",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/osd",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/osd",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/tracking",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/tracking",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/buildDeliveryOrderPackageInfo",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/buildDeliveryOrderPackageInfo",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/excel/import",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/excel/import",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/excel/download",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/excel/download",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/acc",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/acc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /order-hold/hold",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "POST /order-hold/release",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /order-update-record/channel/{channelNo}",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /order-update-record/data-channel/{dataChannel}",
+    "to": "Channel Integration",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /purchase-order/setting/email",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /purchase-order/setting/email",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/setting/email",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/setting/email",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/setting/vendor/category",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/setting/vendor/category",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /purchase-order/setting/vendor/category",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "DELETE /purchase-order/setting/vendor/category",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/setting/vendor/category",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/setting/vendor/category",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /purchase-order",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /purchase-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/page",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/detail",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/detail",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/notes",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/notes",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/sn",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/sn",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-order/receipt",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase-order/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/cancel",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /purchase-order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/issue",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/issue",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/excel/template",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/excel/template",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/excel/sku/sn",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/excel/sku/sn",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-order/pdf/upload",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase-order/pdf/upload",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /hold-rule-data/create",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /hold-rule-data/{id}",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /hold-rule-data/{id}",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /hold-rule-data/{id}/status",
+    "to": "Hold Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sale-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sale-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sale-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /sale-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sale-order/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sale-order/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sale-order",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sale-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sale-order/cancel",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /sale-order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sale-order/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sale-order/allow-modify/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /sale-order/allow-modify/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sale-order/raw/data/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sale-order/raw/data/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sale-order/reopen/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sale-order/reopen/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sale-order/shipping/requests/page",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /sale-order/shipping/requests/page",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sale-order/shipping/requests/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sale-order/shipping/requests/{dispatchNo}",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /sale-order/shipping/requests/{dispatchNo}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sale-order/shipping/requests/{dispatchNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /order/excel/export",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /order/excel/export",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /order/excel/import/{merchantNo}",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /order/excel/import/{merchantNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /ship-method-rule",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /ship-method-rule",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /ship-method-rule/{id}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /ship-method-rule/{id}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /ship-method-rule/list",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /work-order/page",
+    "to": "Work Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "POST /work-order/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /work-order",
+    "to": "Work Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "POST /work-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /work-order",
+    "to": "Work Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "PUT /work-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /work-order/{orderNo}",
+    "to": "Work Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Work Order Module",
+    "to": "GET /work-order/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "GET /dispatch/dispatches",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "GET /dispatch/dispatches",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /dispatch/hand/item/{orderNo}",
+    "to": "Item Master",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /dispatch/hand/item/{orderNo}",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Item Master Module",
+    "to": "GET /dispatch/hand/item/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "GET /dispatch/hand/check/{orderNo}",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "GET /dispatch/hand/check/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/hand",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /dispatch/hand",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "GET /dispatch/recover/query/{orderNo}",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "GET /dispatch/recover/query/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/recover/dispatch",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /dispatch/recover/dispatch",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /dispatch/recover/dispatch/part",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /dispatch/recover/dispatch/part",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /shipment/ship-order",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "POST /shipment",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /shipment/shipments",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /shipment/page",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /shipment/detail",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /shipment",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/export",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/saveOrUpdate",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/submit/{prNo}",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/vendor/files",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/queryPage",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-request/query/detail",
+    "to": "Purchase Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase-request/createPO",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-request/createPO/query",
+    "to": "Purchase Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/carrier-service",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/carrier-service",
+    "to": "Carrier Service",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /rate-shopping/carrier-service",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/carrier-service",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/carrier-service",
+    "to": "Carrier Service",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /rate-shopping/carrier-service",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /rate-shopping/carrier-service/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /rate-shopping/carrier-service/{id}",
+    "to": "Carrier Service",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /rate-shopping/carrier-service/{id}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/list/carrier-names/{merchantNo}",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/list/carrier-names/{merchantNo}",
+    "to": "Carrier Service",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/carrier-service/list/carrier-names/{merchantNo}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/list/{merchantNo}",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/list/{merchantNo}",
+    "to": "Carrier Service",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/carrier-service/list/{merchantNo}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/page",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/page",
+    "to": "Carrier Service",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/carrier-service/page",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/carrier-service/{id}",
+    "to": "Carrier Service",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/carrier-service/{id}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/rate-shopping",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /rate-shopping/rate-shopping",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/rate-shopping",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /rate-shopping/rate-shopping",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/rate-shopping/list",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /rate-shopping/rate-shopping/list",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /rate-shopping/rate-shopping/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /rate-shopping/rate-shopping/{id}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/rate-shopping/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/rate-shopping/{id}",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/rate-shopping/page",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/rate-shopping/page",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/rate-shopping/drag-sort",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /rate-shopping/rate-shopping/drag-sort",
+    "to": "Execute Rate Shopping",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/shipping-account",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /rate-shopping/shipping-account",
+    "to": "Shipping Account",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "POST /rate-shopping/shipping-account",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/shipping-account",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /rate-shopping/shipping-account",
+    "to": "Shipping Account",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /rate-shopping/shipping-account",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /rate-shopping/shipping-account/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /rate-shopping/shipping-account/{id}",
+    "to": "Shipping Account",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "DELETE /rate-shopping/shipping-account/{id}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/shipping-account/page",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/shipping-account/page",
+    "to": "Shipping Account",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/shipping-account/page",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/shipping-account/{id}",
+    "to": "Rate Shopping Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /rate-shopping/shipping-account/{id}",
+    "to": "Shipping Account",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "GET /rate-shopping/shipping-account/{id}",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/inventories",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/inventories",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /inventory",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "PUT /inventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /inventory/sync",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "PUT /inventory/sync",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory/manual-sync",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory/manual-sync",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /filter-item/page",
+    "to": "SKU Filter Rule",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /filter-item/sku",
+    "to": "SKU Filter Rule",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /filter-item/{id}",
+    "to": "SKU Filter Rule",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /filter-item/sku",
+    "to": "SKU Filter Rule",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /filter-item/excel",
+    "to": "SKU Filter Rule",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sku-warehouse",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sku-warehouse",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /sku-warehouse/{id}",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "query",
+    "from": "GET /sku-warehouse/{id}",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /sku-warehouse/page",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sku-warehouse/template",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sku-warehouse/excel",
+    "to": "SKU Warehouse Assignment",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "GET /order/dispatch",
+    "to": "Dispatch Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "GET /order/dispatch",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /inventory",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "DELETE /inventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/webhooks",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory/webhooks",
+    "to": "Webhook Event",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory/webhooks",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory-rpc/items",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory-rpc/items",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory-rpc",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory-rpc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory-rpc/createInventory",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory-rpc/createInventory",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /inventory-rpc/sync",
+    "to": "Inventory",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "POST /inventory-rpc/sync",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /inventory-rpc",
+    "to": "Inventory",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Inventory Module",
+    "to": "GET /inventory-rpc",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/by-order-no/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/by-order-no/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/by-reference-no/{referenceNo}",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/by-reference-no/{referenceNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/detail/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/detail/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /order/webhook/cancel",
+    "to": "Webhook Event",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /order/webhook/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "PUT /order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase/order",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase/order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /purchase/order",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /purchase/order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /purchase/order/cancel",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /purchase/order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /purchase/order/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase/order/detail",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase/order/detail",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /purchase/order/receipt",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "POST /purchase/order/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase/order/receipt",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase/order/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /purchase/order/receipt",
+    "to": "Purchase Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "PUT /purchase/order/receipt",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase/order/page",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase/order/page",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase/order/receipt/{referenceNo}",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase/order/receipt/{referenceNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase/order/referenceNo",
+    "to": "Purchase Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Purchase Order Module",
+    "to": "GET /purchase/order/referenceNo",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-request/po-no",
+    "to": "Purchase Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "query",
+    "from": "GET /purchase-request/pr",
+    "to": "Purchase Request",
+    "relation_name": "query"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /purchase-request/{orderNo}",
+    "to": "Purchase Request",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sales-order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /sales-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sales-order/{orderNo}",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sales-order/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sales-order/cancel",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /sales-order/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /sales-order/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /sales-order/order",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "PUT /sales-order/order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/sales-order/otm",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order/sales-order/otm",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sales-order",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sales-order",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/batch-search-by-channel",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/batch-search-by-channel",
+    "to": "Channel Integration",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order/batch-search-by-channel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /sales-order/msg",
+    "to": "Sales Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "GET /sales-order/msg",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/create-update",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order/create-update",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/partial-update",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order/partial-update",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /sales-order/async-create",
+    "to": "Sales Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Order Module",
+    "to": "POST /sales-order/async-create",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "POST /routing/reset-dispatch-rules",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "POST /routing/reset-dispatch-rules",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "action",
+    "from": "PUT /shipment",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /shipment",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "GET /ship-state",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "POST /ship-state/upload",
+    "to": "Ship Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-rpc/fetch-single-facility",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /warehouse-rpc/fetch-single-facility",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /warehouse-rpc/fetch-all-facility",
+    "to": "Facility",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "GET /warehouse-rpc/fetch-all-facility",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /warehouse-rpc/warehouse-zipcode",
+    "to": "Warehouse Zipcode Range",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Facility Module",
+    "to": "POST /warehouse-rpc/warehouse-zipcode",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/orders",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /delivery-order/orders/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "PUT /delivery-order/orders/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /delivery-order/orders",
+    "to": "Delivery Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "GET /delivery-order/orders",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "DELETE /delivery-order/orders/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "DELETE /delivery-order/orders/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/orders/{orderNo}/pay",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/orders/{orderNo}/pay",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/orders/{orderNo}/refund",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/orders/{orderNo}/refund",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /quote-order/quotes",
+    "to": "Sales Quote Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "POST /quote-order/quotes",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /quote-order/quotes/{quoteNo}",
+    "to": "Sales Quote Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "PUT /quote-order/quotes/{quoteNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /quote-order/quotes/{quoteNo}/cancel",
+    "to": "Sales Quote Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /quote-order/quotes/{quoteNo}/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "PUT /quote-order/quotes/{quoteNo}/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /quote-order/quotes/{quoteNo}/convert",
+    "to": "Sales Quote Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "POST /quote-order/quotes/{quoteNo}/convert",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /quote-order/quotes",
+    "to": "Sales Quote Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "GET /quote-order/quotes",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "query",
+    "from": "GET /quote-order/quotes/{quoteNo}",
+    "to": "Sales Quote Order",
+    "relation_name": "query"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "GET /quote-order/quotes/{quoteNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /quote-order/quotes/import/{merchantNo}",
+    "to": "Sales Quote Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Sales Quote Order Module",
+    "to": "POST /quote-order/quotes/import/{merchantNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /delivery-order/{orderNo}",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "PUT /delivery-order/{orderNo}",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "PUT /delivery-order/{orderNo}/cancel",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "PUT /delivery-order/{orderNo}/cancel",
+    "to": "Cancel Sales Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "PUT /delivery-order/{orderNo}/cancel",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/{orderNo}/pay",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/{orderNo}/pay",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "mutate",
+    "from": "POST /delivery-order/{orderNo}/refund",
+    "to": "Delivery Order",
+    "relation_name": "mutate"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "POST /delivery-order/{orderNo}/refund",
+    "relation_name": "exposes"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Hold Rule",
+    "to": "Hold Sales Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Hold Rule",
+    "to": "Release Hold On Sales Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Cancel Validation Rule",
+    "to": "Cancel Sales Order",
+    "relation_name": "validates"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Dispatch Routing Rule",
+    "to": "Dispatch Sales Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Dispatch Routing Rule",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Split Fulfillment Rule",
+    "to": "Dispatch Sales Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Single Warehouse Fulfillment Rule",
+    "to": "Dispatch Sales Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Country Dispatch Filter Rule",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "filters"
+  },
+  {
+    "type": "constraint",
+    "from": "Zipcode Dispatch Filter Rule",
+    "to": "Evaluate Dispatch Rules",
+    "relation_name": "filters"
+  },
+  {
+    "type": "constraint",
+    "from": "Rate Shopping Selection Rule",
+    "to": "Execute Rate Shopping",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Inventory Sync Rule",
+    "to": "Sync Inventory From WMS",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Return Eligibility Rule",
+    "to": "Cancel Sales Order",
+    "relation_name": "validates"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Merge Rule",
+    "to": "Merge Orders",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Purchase Order Dispatch Rule",
+    "to": "Create Purchase Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Work Order Dispatch Rule",
+    "to": "Dispatch Work Order",
+    "relation_name": "governs"
+  },
+  {
+    "type": "constraint",
+    "from": "Webhook Event Routing Rule",
+    "to": "Sync Inventory From WMS",
+    "relation_name": "routes"
+  },
+  {
+    "type": "flow",
+    "from": "Ship Sales Order",
+    "to": "Generate Delivery Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Generate Delivery Order",
+    "to": "Track Delivery Order",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Track Delivery Order",
+    "to": "Ship Sales Order",
+    "relation_name": "updates status of"
+  },
+  {
+    "type": "flow",
+    "from": "Shipping Request",
+    "to": "Generate Delivery Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "composition",
+    "from": "Dispatch Record",
+    "to": "Shipping Request",
+    "relation_name": "generates"
+  },
+  {
+    "type": "flow",
+    "from": "Dispatch Record",
+    "to": "Delivery Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Sync Inventory From WMS",
+    "to": "Allocate Inventory",
+    "relation_name": "enables"
+  },
+  {
+    "type": "flow",
+    "from": "Allocate Inventory",
+    "to": "Deduct Inventory On Shipment",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Deduct Inventory On Shipment",
+    "to": "Adjust Inventory",
+    "relation_name": "may trigger"
+  },
+  {
+    "type": "flow",
+    "from": "Receive Inventory",
+    "to": "Sync Inventory From WMS",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Allocate Inventory",
+    "to": "Inventory Reserved",
+    "relation_name": "results in"
+  },
+  {
+    "type": "flow",
+    "from": "Deduct Inventory On Shipment",
+    "to": "Inventory Deducted",
+    "relation_name": "results in"
+  },
+  {
+    "type": "flow",
+    "from": "Inventory Reserved",
+    "to": "Inventory Deducted",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Inventory Available",
+    "to": "Inventory Reserved",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "ownership",
+    "from": "Inventory",
+    "to": "Inventory Available",
+    "relation_name": "has state"
+  },
+  {
+    "type": "ownership",
+    "from": "Inventory",
+    "to": "Inventory Reserved",
+    "relation_name": "has state"
+  },
+  {
+    "type": "ownership",
+    "from": "Inventory",
+    "to": "Inventory Deducted",
+    "relation_name": "has state"
+  },
+  {
+    "type": "flow",
+    "from": "Reopen Sales Order",
+    "to": "Dispatch Sales Order",
+    "relation_name": "leads to"
+  },
+  {
+    "type": "flow",
+    "from": "Exception",
+    "to": "Reopen Sales Order",
+    "relation_name": "resolved via"
+  },
+  {
+    "type": "flow",
+    "from": "Exception",
+    "to": "Cancel Sales Order",
+    "relation_name": "may lead to"
+  },
+  {
+    "type": "flow",
+    "from": "Reopen Sales Order",
+    "to": "Reopen",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "OnHold",
+    "to": "Release Hold On Sales Order",
+    "relation_name": "resolved via"
+  },
+  {
+    "type": "flow",
+    "from": "PO Exception",
+    "to": "Cancel Purchase Order",
+    "relation_name": "may lead to"
+  },
+  {
+    "type": "flow",
+    "from": "Push To Warehouse Fail",
+    "to": "Create Purchase Order",
+    "relation_name": "retry via"
+  },
+  {
+    "type": "flow",
+    "from": "Shipment Exception",
+    "to": "Create Shipment",
+    "relation_name": "retry via"
+  },
+  {
+    "type": "flow",
+    "from": "Shipment Exception",
+    "to": "Cancel Sales Order",
+    "relation_name": "may lead to"
+  },
+  {
+    "type": "flow",
+    "from": "WO Exception",
+    "to": "Dispatch Work Order",
+    "relation_name": "retry via"
+  },
+  {
+    "type": "flow",
+    "from": "WO Exception",
+    "to": "Cancel Sales Order",
+    "relation_name": "may lead to"
+  },
+  {
+    "type": "flow",
+    "from": "Purchase Request",
+    "to": "Create Purchase Order",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "flow",
+    "from": "Create Purchase Order",
+    "to": "PO Created",
+    "relation_name": "results in"
+  },
+  {
+    "type": "flow",
+    "from": "Push Purchase Order To Warehouse",
+    "to": "PO Processing",
+    "relation_name": "results in"
+  },
+  {
+    "type": "flow",
+    "from": "Receive Purchase Order Goods",
+    "to": "PO Closed",
+    "relation_name": "results in"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Warehouse Received",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Committed",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Picked",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Packed",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Loaded",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "Short Shipped",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "SO Canceling",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Sales Order",
+    "to": "SO Deallocated",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "flow",
+    "from": "Processing",
+    "to": "Warehouse Received",
+    "relation_name": "transitions to on WMS acceptance"
+  },
+  {
+    "type": "flow",
+    "from": "Warehouse Received",
+    "to": "Committed",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Committed",
+    "to": "Picked",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Picked",
+    "to": "Packed",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Packed",
+    "to": "Loaded",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "Loaded",
+    "to": "Shipped",
+    "relation_name": "transitions to on full shipment"
+  },
+  {
+    "type": "flow",
+    "from": "Loaded",
+    "to": "Short Shipped",
+    "relation_name": "transitions to on quantity shortfall"
+  },
+  {
+    "type": "flow",
+    "from": "Allocated",
+    "to": "SO Canceling",
+    "relation_name": "transitions to on cancel request to WMS"
+  },
+  {
+    "type": "flow",
+    "from": "SO Canceling",
+    "to": "Cancelled",
+    "relation_name": "transitions to on WMS cancel confirmation"
+  },
+  {
+    "type": "flow",
+    "from": "SO Canceling",
+    "to": "Allocated",
+    "relation_name": "reverts to on WMS cancel rejection"
+  },
+  {
+    "type": "flow",
+    "from": "Allocated",
+    "to": "SO Deallocated",
+    "relation_name": "transitions to on operator deallocation"
+  },
+  {
+    "type": "flow",
+    "from": "SO Deallocated",
+    "to": "Pending",
+    "relation_name": "re-enters dispatch queue"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO OutForPickup",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO PickupCompleted",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO OutForDelivery",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO ReturnToShipper",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Pending Linehaul",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Directly Pickup Offload",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Partial Delivered",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Delivered With Exception",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Consignee Refusal",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Incomplete",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "ownership",
+    "from": "Delivery Order",
+    "to": "DO Parcel Lost",
+    "relation_name": "has lifecycle state"
+  },
+  {
+    "type": "flow",
+    "from": "DO PickupDispatched",
+    "to": "DO OutForPickup",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForPickup",
+    "to": "DO PickupCompleted",
+    "relation_name": "transitions to on carrier arrival and scan"
+  },
+  {
+    "type": "flow",
+    "from": "DO PickupCompleted",
+    "to": "DO Pending Linehaul",
+    "relation_name": "transitions to standard linehaul path"
+  },
+  {
+    "type": "flow",
+    "from": "DO PickupCompleted",
+    "to": "DO Directly Pickup Offload",
+    "relation_name": "transitions to short-haul direct path"
+  },
+  {
+    "type": "flow",
+    "from": "DO Pending Linehaul",
+    "to": "DO LineHaul",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "DO Directly Pickup Offload",
+    "to": "DO PendingDelivery",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "DO PendingDelivery",
+    "to": "DO OutForDelivery",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO Delivered",
+    "relation_name": "transitions to on successful delivery"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO DeliveryFailed",
+    "relation_name": "transitions to on failed delivery attempt"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO Consignee Refusal",
+    "relation_name": "transitions to on consignee refusal"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO Partial Delivered",
+    "relation_name": "transitions to on partial completion"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO Delivered With Exception",
+    "relation_name": "transitions to on delivery with issues"
+  },
+  {
+    "type": "flow",
+    "from": "DO OutForDelivery",
+    "to": "DO Incomplete",
+    "relation_name": "transitions to on unresolved outcome"
+  },
+  {
+    "type": "flow",
+    "from": "DO DeliveryFailed",
+    "to": "DO ReturnToShipper",
+    "relation_name": "transitions to on retry exhaustion"
+  },
+  {
+    "type": "flow",
+    "from": "DO DeliveryFailed",
+    "to": "DO PendingDelivery",
+    "relation_name": "transitions to on reschedule"
+  },
+  {
+    "type": "flow",
+    "from": "DO Consignee Refusal",
+    "to": "DO ReturnToShipper",
+    "relation_name": "transitions to"
+  },
+  {
+    "type": "flow",
+    "from": "DO Incomplete",
+    "to": "DO Parcel Lost",
+    "relation_name": "transitions to on SLA breach and manual declaration"
+  },
+  {
+    "type": "flow",
+    "from": "DO ReturnToShipper",
+    "to": "Update Sales Order on Return To Shipper",
+    "relation_name": "triggers"
+  },
+  {
+    "type": "action",
+    "from": "Update Sales Order on Return To Shipper",
+    "to": "Sales Order",
+    "relation_name": "updates status of"
+  },
+  {
+    "type": "constraint",
+    "from": "DO to SO Status Sync Rule",
+    "to": "Update Sales Order on Return To Shipper",
+    "relation_name": "governs"
+  },
+  {
+    "type": "dependency",
+    "from": "Update Sales Order on Return To Shipper",
+    "to": "DO to SO Status Sync Rule",
+    "relation_name": "depends on"
+  },
+  {
+    "type": "constraint",
+    "from": "Delivery Failure Retry Rule",
+    "to": "Track Delivery Order",
+    "relation_name": "governs retry escalation of"
+  },
+  {
+    "type": "constraint",
+    "from": "Tracking Update Timeout Rule",
+    "to": "Monitor Tracking Updates",
+    "relation_name": "governs"
+  },
+  {
+    "type": "dependency",
+    "from": "DO Incomplete",
+    "to": "Lost Parcel Declaration Rule",
+    "relation_name": "governed by"
+  },
+  {
+    "type": "constraint",
+    "from": "Backlog Re-dispatch Priority Rule",
+    "to": "Re-dispatch Backlog Orders",
+    "relation_name": "governs ordering of"
+  },
+  {
+    "type": "dependency",
+    "from": "Monitor Tracking Updates",
+    "to": "Tracking Update Timeout Rule",
+    "relation_name": "depends on"
+  },
+  {
+    "type": "action",
+    "from": "Re-dispatch Backlog Orders",
+    "to": "Sales Order",
+    "relation_name": "re-dispatches"
+  },
+  {
+    "type": "dependency",
+    "from": "Re-dispatch Backlog Orders",
+    "to": "Inventory",
+    "relation_name": "requires available inventory from"
+  },
+  {
+    "type": "action",
+    "from": "Cancel Sales Order",
+    "to": "Cancel Request",
+    "relation_name": "creates"
+  },
+  {
+    "type": "constraint",
+    "from": "Order Cancel Validation Rule",
+    "to": "Cancel Request",
+    "relation_name": "validates"
+  },
+  {
+    "type": "dependency",
+    "from": "Carrier Service",
+    "to": "Delivery Service Level",
+    "relation_name": "specifies service scope via"
+  },
+  {
+    "type": "action",
+    "from": "Delivery Order Module",
+    "to": "Update Sales Order on Return To Shipper",
+    "relation_name": "manages"
+  },
+  {
+    "type": "action",
+    "from": "Order Dispatch Module",
+    "to": "Re-dispatch Backlog Orders",
+    "relation_name": "manages"
+  }
+]

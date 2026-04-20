@@ -1,0 +1,123 @@
+[
+  {
+    "name": "Sales Order Module",
+    "description": "Implementation module handling sales order CRUD, status management, and event processing.",
+    "content": "Responsibilities: order creation, update, cancellation, query and export. Core capabilities: state machine driven status flow, strategy pattern for updates per status, event-driven architecture. Collaboration: depends on Dispatch Module for allocation, Shipment Module for tracking.",
+    "aliases": "销售订单模块,SO模块"
+  },
+  {
+    "name": "Order Dispatch Module",
+    "description": "Implementation module responsible for order routing and warehouse allocation.",
+    "content": "Responsibilities: evaluate dispatch rules, assign warehouse, create dispatch records, handle retry. Core capabilities: pluggable rule engine, zipcode-based routing, inventory-aware allocation. Collaboration: depends on Sales Order Module, Inventory service, Facility service.",
+    "aliases": "派单模块,分仓模块,dispatch模块"
+  },
+  {
+    "name": "Purchase Order Module",
+    "description": "Implementation module handling purchase order lifecycle from creation through receipt and closure.",
+    "content": "Responsibilities: PO creation (multi-source strategy pattern), push to warehouse, receipt processing, cancellation (status-based strategy), Excel import/export, PDF generation. Core capabilities: LiteFlow pipeline for creation, Kafka event-driven processing, strategy pattern for source-specific and status-specific logic. Collaboration: depends on Dispatch Module for warehouse routing, WMS integration for push and callbacks.",
+    "aliases": "采购单模块,PO模块"
+  },
+  {
+    "name": "Delivery Order Module",
+    "description": "Implementation module managing delivery order lifecycle and logistics tracking.",
+    "content": "Responsibilities: DO creation, carrier assignment, BOL management, shipment tracking, status updates from carrier callbacks, OSD (over/short/damage) handling. Core capabilities: rich sub-entity model (shipments, packages, pallets, BOLs), logistics change tracking, POD management. Collaboration: depends on TMS for carrier integration, Sales Order Module for upstream order context.",
+    "aliases": "发货单模块,DO模块"
+  },
+  {
+    "name": "Work Order Module",
+    "description": "Implementation module handling work order creation, dispatch, and lifecycle management.",
+    "content": "Responsibilities: WO creation, dispatch to warehouse, status tracking, force-close on expiration. Core capabilities: Kafka event-driven creation, scheduled job for expired WO cleanup, package and item management. Collaboration: depends on Dispatch Module for warehouse routing, WMS for execution callbacks.",
+    "aliases": "工单模块,WO模块"
+  },
+  {
+    "name": "Sales Quote Order Module",
+    "description": "Implementation module managing sales quotation lifecycle and conversion to sales orders.",
+    "content": "Responsibilities: quote creation, editing, conversion to sales order, cancellation, Excel export. Core capabilities: CRUD operations, quote-to-order conversion. Collaboration: depends on Sales Order Module for order creation on conversion. Part of OTM project.",
+    "aliases": "报价单模块"
+  },
+  {
+    "name": "OAS Dispatch Engine Module",
+    "description": "Core dispatch rule evaluation engine within OAS that processes routing rules for all order types.",
+    "content": "Responsibilities: evaluate dispatch rule chains (filter, allocate, backup, delivery generate), manage dispatch strategies, log dispatch results. Core capabilities: pluggable rule services (ZipCode, Country, NoSplit, Split, Distance, SKU-Warehouse, Custom, Rank), strategy pattern per order type. Collaboration: receives dispatch requests from OPC modules, queries Inventory and Facility services.",
+    "aliases": "OAS派单引擎,分配引擎,路由引擎"
+  },
+  {
+    "name": "OAS Mapping Module",
+    "description": "Mapping engine within OAS that manages condition mappings and one-to-one value translations.",
+    "content": "Responsibilities: manage condition mapping CRUD, manage one-to-one mapping CRUD, execute shipping mapping transformations during dispatch. Core capabilities: condition-based multi-field mapping evaluation, direct value translation for 10+ field types (Product, SKU, UOM, Carrier, Ship Method, etc.), forward and reverse mapping support. Collaboration: invoked by dispatch engine before warehouse allocation.",
+    "aliases": "OAS映射模块,运费映射模块"
+  },
+  {
+    "name": "Inventory Module",
+    "description": "Implementation module managing inventory positions, adjustments, and synchronization with WMS.",
+    "content": "Responsibilities: maintain multi-dimensional inventory positions (on_hand, open_order, locked, allocated, incoming, hold, damaged), process inventory events from orders and WMS, handle manual adjustments, reconcile with WMS. Core capabilities: event-driven inventory updates, multi-source event processing (OMS order events, WMS ship/receive/adjust events), periodic WMS sync. Collaboration: depends on WMS integration for physical stock data, serves Dispatch Engine for availability checks.",
+    "aliases": "库存模块"
+  },
+  {
+    "name": "Item Master Module",
+    "description": "Implementation module managing product master data including SKU definitions, UOM, pricing, and kitting.",
+    "content": "Responsibilities: item CRUD, product mapping management, SKU filter management, kit item component management. Core capabilities: multi-channel product mapping, UOM conversion, kit item decomposition. Collaboration: serves Order modules for product validation, serves Dispatch Engine for SKU-based routing.",
+    "aliases": "商品主数据模块,货品模块"
+  },
+  {
+    "name": "Facility Module",
+    "description": "Implementation module managing warehouse and distribution center master data including zipcode coverage.",
+    "content": "Responsibilities: facility CRUD, warehouse contact management, zipcode range configuration, warehouse distance calculation. Core capabilities: geographic coverage management, distance-based routing support. Collaboration: serves Dispatch Engine for warehouse filtering and distance calculation.",
+    "aliases": "仓库模块,facility模块"
+  },
+  {
+    "name": "Rate Shopping Module",
+    "description": "Implementation module handling carrier rate comparison and optimal shipping rate selection.",
+    "content": "Responsibilities: build rate shopping requests, call carrier pricing APIs, evaluate and rank results, assign carrier/service to orders. Core capabilities: multi-carrier rate comparison, address validation, package dimension calculation. Collaboration: depends on Shipping Account and Carrier Service configurations, serves Dispatch Module for carrier assignment."
+  },
+  {
+    "name": "Channel Integration Module",
+    "description": "Implementation module managing e-commerce channel connections and order import from external platforms.",
+    "content": "Responsibilities: channel connection management, order import via API callbacks and EDI, special channel configuration, product sync. Core capabilities: multi-channel support, EDI processing, channel-specific order transformation. Collaboration: depends on Product Mapping for SKU resolution, feeds Sales Order Module with imported orders."
+  },
+  {
+    "name": "Webhook Module",
+    "description": "Implementation module handling outbound event notifications to external systems via webhooks.",
+    "content": "Responsibilities: webhook endpoint registration, event serialization, HTTP dispatch, retry on failure, event logging. Core capabilities: event-driven dispatch, configurable retry policy, delivery tracking. Collaboration: triggered by all order processing modules on lifecycle events."
+  },
+  {
+    "name": "Notification Module",
+    "description": "Implementation module managing email notifications, notification categories, and alert configurations.",
+    "content": "Responsibilities: notification category management, email notification settings CRUD, email template rendering, email dispatch, alert email management. Core capabilities: category-based event routing, multi-recipient email delivery, PO-specific email settings. Collaboration: triggered by order events, depends on email service infrastructure."
+  },
+  {
+    "name": "Order Log Module",
+    "description": "Implementation module recording structured order lifecycle events and managing order timeline visualization.",
+    "content": "Responsibilities: order log creation with event type classification, order timeline node management, timeline configuration per merchant. Core capabilities: structured event logging with 15+ event types, visual timeline with status indicators, configurable timeline nodes. Collaboration: invoked by all order processing modules."
+  },
+  {
+    "name": "Customs Compliance Module",
+    "description": "Implementation module managing customs document filing and duty calculations for cross-border shipments.",
+    "content": "Responsibilities: customs document generation (3461, 7512, E-214, AMS/ISF), duty calculation, filing status tracking. Core capabilities: multi-form-type support, HTS-based tariff calculation, filing workflow. Collaboration: depends on Delivery Order for shipment data, serves compliance reporting. Primarily frontend-driven with backend data persistence."
+  },
+  {
+    "name": "Merchant Module",
+    "description": "Implementation module managing merchant registration, configuration, and multi-tenant context.",
+    "content": "Responsibilities: merchant CRUD, merchant type management (Title/Retailer/Supplier/Brand/Manufacturer), merchant status management, tenant context resolution. Core capabilities: multi-tenant isolation, merchant-scoped configuration. Collaboration: provides merchant context to all other modules."
+  },
+  {
+    "name": "Return Order Module",
+    "description": "Implementation module handling customer returns and exchange order processing.",
+    "content": "Responsibilities: return order creation, return receipt processing, exchange order management, inventory adjustment on return. Core capabilities: return eligibility validation, exchange order linking (return + replacement). Collaboration: depends on Sales Order Module for original order context, Inventory Module for stock updates."
+  },
+  {
+    "name": "Shipment Module",
+    "description": "Implementation module managing outbound small-parcel shipments with carrier label generation and tracking.",
+    "content": "Responsibilities: shipment creation, carrier label generation, package management, shipment status tracking, callback processing. Core capabilities: multi-carrier label support, shipment callback log, extended data management. Collaboration: depends on Dispatch Module for carrier assignment, serves Sales Order Module for shipment confirmation."
+  },
+  {
+    "name": "Operations Report Module",
+    "description": "Implementation module generating supply chain visibility reports for the control tower dashboard.",
+    "content": "Responsibilities: generate operational reports (not-sent-to-WMS, not-shipped, waiting-confirm), aggregate metrics, provide dashboard data. Core capabilities: scheduled report generation, exception detection, metric aggregation. Collaboration: queries Sales Order, Shipping Request, and Dispatch data."
+  },
+  {
+    "name": "Order Merge Module",
+    "description": "Implementation module handling order consolidation within configurable merge windows.",
+    "content": "Responsibilities: merge window management, order merge eligibility evaluation, merge execution, merge cancel tracking. Core capabilities: time-based merge windows, compatible order detection, merged dispatch generation. Collaboration: depends on Sales Order Module and Dispatch Module."
+  }
+]

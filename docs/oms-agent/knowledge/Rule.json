@@ -1,0 +1,128 @@
+[
+  {
+    "name": "Order Hold Rule",
+    "description": "Configurable rule engine that evaluates order attributes to determine if an order should be held for review.",
+    "content": "Rule objective: prevent risky or exceptional orders from automatic fulfillment. Decision conditions: configurable filters on order fields. Constrained objects: Sales Order. Post-hit action: set order to OnHold state, record matched rule ID.",
+    "aliases": "拦单规则,暂停规则,风控规则,hold规则,拦截规则"
+  },
+  {
+    "name": "Order Dispatch Routing Rule",
+    "description": "Rule set that determines which warehouse should fulfill a given order based on inventory, geography, and custom criteria.",
+    "content": "Rule objective: optimize warehouse selection for cost and delivery speed. Decision conditions: zipcode range match, country match, inventory availability, custom rules. Constrained objects: Sales Order. Post-hit action: assign warehouse, create dispatch record.",
+    "aliases": "派单路由规则,分仓规则,路由规则,仓库路由"
+  },
+  {
+    "name": "Order Cancel Validation Rule",
+    "description": "Validates whether a sales order is eligible for cancellation based on its current fulfillment state.",
+    "content": "Rule objective: prevent cancellation of orders already shipped or in irreversible stages. Decision conditions: check order status, check WMS progress. Constrained objects: Sales Order. Post-hit action: allow or reject cancellation.",
+    "aliases": "取消校验规则,撤单规则,取消验证"
+  },
+  {
+    "name": "Purchase Order Processing Rule",
+    "description": "Configurable rule set governing PO processing behavior including auto-receipt creation, FG staging, and sales order generation.",
+    "content": "Rule objective: control PO processing automation level. Decision conditions: rule flags per merchant — auto-create receipt, enable FG staging, generate FG receipt, generate sales order, auto-create final receipt on DC callback, auto-create item, allow over-receipt. Constrained objects: Purchase Order. Post-hit action: enable or disable specific PO processing behaviors.",
+    "aliases": "采购处理规则,PO规则,PO处理策略"
+  },
+  {
+    "name": "Purchase Order Dispatch Rule",
+    "description": "Routing rule that determines which warehouse should receive a purchase order for inbound processing.",
+    "content": "Rule objective: assign optimal warehouse for PO receipt. Decision conditions: vendor location, warehouse capacity, product category. Constrained objects: Purchase Order. Post-hit action: assign warehouse, push PO to WMS.",
+    "aliases": "采购派单规则,PO路由规则"
+  },
+  {
+    "name": "Work Order Dispatch Rule",
+    "description": "Routing rule that determines which warehouse should execute a work order.",
+    "content": "Rule objective: assign optimal warehouse for WO execution. Decision conditions: service type, warehouse capability, capacity. Constrained objects: Work Order. Post-hit action: assign warehouse, dispatch WO.",
+    "aliases": "工单派单规则,WO路由"
+  },
+  {
+    "name": "Zipcode Dispatch Filter Rule",
+    "description": "Filters eligible warehouses by matching the order destination zipcode against warehouse zipcode coverage ranges.",
+    "content": "Rule objective: narrow warehouse candidates to those serving the destination area. Decision conditions: order shipping zipcode falls within warehouse zipcode range. Constrained objects: Sales Order, Purchase Order. Post-hit action: include warehouse in candidate list.",
+    "aliases": "邮编过滤规则,邮编匹配,邮编路由"
+  },
+  {
+    "name": "Country Dispatch Filter Rule",
+    "description": "Filters eligible warehouses by matching the order destination country to keep fulfillment within the destination market.",
+    "content": "Rule objective: ensure fulfillment stays within the destination country/market. Decision conditions: order destination country matches warehouse country. Constrained objects: Sales Order. Post-hit action: include warehouse in candidate list.",
+    "aliases": "国家过滤规则,地区过滤,国家限制"
+  },
+  {
+    "name": "Single Warehouse Fulfillment Rule",
+    "description": "Requires all items in an order to be fulfilled from a single warehouse without splitting.",
+    "content": "Rule objective: prevent order splitting across multiple warehouses. Decision conditions: one warehouse must have sufficient inventory for all line items. Constrained objects: Sales Order. Post-hit action: allocate entire order to one warehouse or fail.",
+    "aliases": "单仓规则,不拆单规则,单仓履约"
+  },
+  {
+    "name": "Split Fulfillment Rule",
+    "description": "Allows order items to be split across multiple warehouses when no single warehouse can fulfill the entire order.",
+    "content": "Rule objective: maximize fulfillment rate by allowing multi-warehouse allocation. Decision conditions: evaluate inventory across warehouses, split items to minimize warehouse count. Constrained objects: Sales Order. Post-hit action: create multiple dispatch records per warehouse.",
+    "aliases": "拆单规则,分仓履约规则,多仓规则,拆单策略"
+  },
+  {
+    "name": "Inventory Sync Rule",
+    "description": "Configurable rule governing how and when OMS inventory is synchronized with WMS physical stock.",
+    "content": "Rule objective: maintain inventory accuracy between OMS and WMS. Decision conditions: sync frequency, sync scope (full/delta), reconciliation tolerance. Constrained objects: Inventory. Post-hit action: trigger sync process, flag discrepancies.",
+    "aliases": "库存同步规则,同步配置,同步策略"
+  },
+  {
+    "name": "Rate Shopping Selection Rule",
+    "description": "Rule governing carrier and service selection criteria during rate shopping evaluation.",
+    "content": "Rule objective: select optimal carrier/service based on cost, delivery speed, and service constraints. Decision conditions: compare rates across carriers, apply merchant preferences, check service availability. Constrained objects: Rate Shopping Request. Post-hit action: assign carrier and service to order.",
+    "aliases": "运费选择规则,比价规则,运费策略"
+  },
+  {
+    "name": "Webhook Event Routing Rule",
+    "description": "Rule determining which webhook endpoints receive which order event types.",
+    "content": "Rule objective: route order events to appropriate external webhook endpoints. Decision conditions: event type, merchant configuration, endpoint registration. Constrained objects: Webhook Event. Post-hit action: dispatch event to matching endpoints.",
+    "aliases": "webhook路由规则,回调路由,事件路由"
+  },
+  {
+    "name": "Email Notification Trigger Rule",
+    "description": "Rule determining when email notifications should be sent based on order event categories.",
+    "content": "Rule objective: trigger email notifications for configured order event categories. Decision conditions: event type matches notification category, merchant has email settings configured. Constrained objects: Email Notification Setting. Post-hit action: send email to configured recipients.",
+    "aliases": "邮件触发规则,通知规则,邮件策略"
+  },
+  {
+    "name": "Order Merge Rule",
+    "description": "Rule governing which orders can be merged and the merge window duration.",
+    "content": "Rule objective: consolidate compatible orders to reduce shipping costs. Decision conditions: same customer, same destination, within merge window timeframe, compatible order types. Constrained objects: Sales Order. Post-hit action: add order to merge window.",
+    "aliases": "合单规则,合并规则,并单规则"
+  },
+  {
+    "name": "Return Eligibility Rule",
+    "description": "Rule validating whether an order is eligible for return based on time window and item conditions.",
+    "content": "Rule objective: validate return eligibility. Decision conditions: within return window, items in returnable condition, order was shipped. Constrained objects: Return Order. Post-hit action: allow or reject return creation.",
+    "aliases": "退货资格规则,退货规则,退货校验"
+  },
+  {
+    "name": "DO to SO Status Sync Rule",
+    "description": "Governs how Delivery Order state changes propagate back to update the originating Sales Order status.",
+    "content": "Rule objective: keep SO status in sync with logistics reality. Key mappings: DO PickupCompleted - SO remains Shipped; DO DeliveryFailed - SO stays Shipped (logistics layer handles retry); DO ReturnToShipper - triggers Update Sales Order on Return To Shipper process (SO transitions to Return Started); DO Delivered - SO can transition to Closed. Implementation: WMS and TMS callbacks route through SalesOrderStatusConsumer, which evaluates this rule to determine SO state update.",
+    "aliases": "DO-SO状态同步规则,物流状态回传规则,配送状态同步"
+  },
+  {
+    "name": "Delivery Failure Retry Rule",
+    "description": "Defines the number of delivery attempts and conditions under which a failed delivery escalates to Return To Shipper.",
+    "content": "Rule objective: balance re-delivery attempts with RTS escalation. Logic: after each Delivery Failed event, system checks retry count; if below threshold, reschedule to Pending Delivery; if at maximum attempts or Consignee Refusal received, escalate to Return To Shipper. Note: specific retry count not hardcoded in OMS - governed by carrier agreement and configurable per merchant. Related states: DeliveryFailed (51), ConsigneeRefusal (52) to ReturnToShipper (55).",
+    "aliases": "配送失败重试规则,重派规则,RTS升级规则"
+  },
+  {
+    "name": "Tracking Update Timeout Rule",
+    "description": "Defines the threshold after which a Delivery Order with no carrier tracking update is flagged for investigation.",
+    "content": "Rule objective: detect stale tracking and trigger proactive exception handling. Mechanism: Monitor Tracking Updates process checks Delivery Order Tracking Log; if elapsed time since last entry exceeds configured threshold (carrier/service-specific), flags DO for operator review. Note: OMS receives tracking via DELIVERY_TRACKING webhook events (event-driven, not polled); no automatic alert in base system - this rule requires merchant-specific configuration or external monitoring.",
+    "aliases": "物流更新超时规则,追踪超时规则,轨迹停滞规则"
+  },
+  {
+    "name": "Lost Parcel Declaration Rule",
+    "description": "Defines the conditions under which an Incomplete delivery order is escalated to Parcel Lost status by operators.",
+    "content": "Rule objective: provide clear criteria for declaring a package lost. Conditions: (1) DO in Incomplete state; (2) carrier SLA investigation window has elapsed without resolution; (3) carrier has confirmed inability to locate package. Action: operator manually declares DO as Parcel Lost; carrier claim filed; replacement or refund initiated. Note: OMS has no automated LOST enum - this is a procedural rule enforced by the operations team.",
+    "aliases": "丢件声明规则,包裹丢失规则,lost parcel规则"
+  },
+  {
+    "name": "Backlog Re-dispatch Priority Rule",
+    "description": "Defines the ordering logic for re-dispatching Sales Orders stuck in Exception state after inventory is restocked.",
+    "content": "Rule objective: fairly process backlogged orders when new inventory arrives. Current implementation: no explicit priority queue in OMS; re-dispatch candidates are evaluated in order creation timestamp sequence (FIFO) when the re-dispatch trigger fires. Re-dispatch is NOT automatic - it requires manual trigger or a periodic batch job. After restocking, operator initiates re-dispatch; system applies standard dispatch routing rules to evaluate available inventory.",
+    "aliases": "积压订单重派优先规则,缺货积压规则,backlog重派规则"
+  }
+]

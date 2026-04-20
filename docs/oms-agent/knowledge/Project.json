@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Order Processing Center",
+    "description": "Core order processing engine responsible for sales order, purchase order, delivery order, and work order lifecycle management.",
+    "content": "Responsibilities: order creation, validation, dispatch, status management, cancellation, shipment tracking. Service boundaries: handles all order types from creation to terminal state. Upstream: receives orders from channel integrations and manual import. Downstream: pushes shipping requests to WMS, triggers logistics via TMS. Deployment: linker-module-oms-opc Spring Boot service.",
+    "aliases": "OPC,订单处理中心,订单主系统"
+  },
+  {
+    "name": "Order Transaction Management",
+    "description": "Transaction processing engine handling delivery orders, sales quote orders, and payment timeline management.",
+    "content": "Responsibilities: delivery order lifecycle, sales quotation, shipment transaction tracking, payment timeline. Service boundaries: manages logistics-facing and finance-facing order types. Upstream: receives dispatch results from OPC, carrier callbacks from TMS. Downstream: pushes delivery instructions to carriers, reports to finance. Deployment: linker-module-oms-otm Spring Boot service.",
+    "aliases": "OTM,交易管理,订单交易"
+  },
+  {
+    "name": "Order Allocation Service",
+    "description": "Routing and mapping engine responsible for order dispatch rule evaluation, warehouse allocation, and field mapping transformations.",
+    "content": "Responsibilities: evaluate dispatch routing rules for all order types (SO, PO, WO, DO), manage condition mappings and one-to-one mappings, execute shipping mapping transformations. Service boundaries: receives dispatch requests from OPC, returns warehouse assignment decisions. Upstream: OPC order dispatch triggers. Downstream: returns allocation results to OPC. Deployment: linker-module-oas Spring Boot service.",
+    "aliases": "OAS,订单分配服务,派单服务,分仓服务"
+  }
+]
