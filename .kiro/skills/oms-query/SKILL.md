@@ -4,9 +4,10 @@ description: >
   OMS 全域强查询工具。以订单为主入口，联动查询订单、商品、库存、仓库、分仓、规则、
   履约、发运、同步、日志、事件、集成中心配置等 OMS 核心对象。
   通过调用 OMS API 获取真实数据，归一化状态，状态感知增强查询，输出查询级解释。
+  支持 OMS 本体知识图谱检索，查询业务概念、流程、规则、状态、API 等知识。
   关键词：订单查询、oms query、订单状态、拆单结果、dispatch log、履约状态、
   shipment、库存、仓库、异常、Hold、暂停履约、规则命中、集成中心、连接器、
-  Deallocated、发运同步、仓执行状态。
+  Deallocated、发运同步、仓执行状态、知识查询、本体、业务概念、业务流程。
 license: MIT
 metadata:
   author: warehouse-allocation-team
@@ -363,7 +364,49 @@ Exception vs Hold 对应关系：
 
 ---
 
-## 十一、脚本使用（内部）
+## 十一、知识查询能力
+
+### 数据来源
+
+基于 `docs/oms-agent/OMS本体知识文件.json` 本体图谱，包含：
+- 5725 个节点：System(1)、Project(3)、Module(22)、BusinessObject(49)、BusinessProcess(47)、Rule(21)、State(60)、APIEndpoint(435)、SourceArtifact(5087)
+- 10837 条关系：composition、dependency、flow、action、mapping、constraint、ownership 等
+
+### 查询模式
+
+| 模式 | search_mode | 说明 | 示例 |
+|------|------------|------|------|
+| 名称搜索 | name | 按名称/别名模糊匹配 | query="订单"、"分仓"、"Hold" |
+| 类型列举 | type | 列出某类型的所有节点 | node_type="BusinessProcess" |
+| API 路径 | api_path | 按 API 路径关键词搜索 | query="sale-order"、"dispatch" |
+| 关系遍历 | related | 找与某节点关联的节点 | query="销售订单", relation_type="composition" |
+| 统计信息 | stats | 返回知识库概览 | — |
+
+### 对话策略
+
+| 用户问题 | 触发方式 |
+|---------|---------|
+| "什么是分仓" / "订单有哪些状态" | name 搜索 |
+| "OMS 有哪些业务流程" | type 列举 BusinessProcess |
+| "哪个 API 负责拆单" | api_path 搜索 "dispatch" |
+| "订单关联了哪些规则" | related 遍历，target=Rule |
+| "知识库有多少数据" | stats |
+
+### MCP Tool
+
+```
+oms_knowledge_query(
+    query="订单",
+    node_type="BusinessObject",   # 可选
+    search_mode="name",           # name/type/api_path/related/stats
+    relation_type="constraint",   # 可选，仅 related 模式
+    limit=20
+)
+```
+
+---
+
+## 十二、脚本使用（内部）
 
 ```bash
 # 按订单号查询（核心查询 + 追踪 + 时间线）

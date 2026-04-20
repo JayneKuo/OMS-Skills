@@ -22,6 +22,7 @@
         "oms_dispatch_log",
         "oms_shipment_tracking",
         "oms_analysis",
+        "oms_knowledge_query",
         "warehouse_allocate",
         "cartonize",
         "validate_cartonization"

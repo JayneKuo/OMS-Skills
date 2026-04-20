@@ -34,7 +34,8 @@ oms_query（统一 Skill 入口）
   │     ├── SyncProvider         → 发运同步/回传状态
   │     ├── EventProvider        → 时间线/日志/异常事件/拆单详情
   │     ├── IntegrationProvider  → 连接器/渠道/认证/能力/健康
-  │     └── BatchProvider        → 批量统计/列表查询
+  │     ├── BatchProvider        → 批量统计/列表查询
+  │     └── KnowledgeProvider    → OMS 本体知识图谱检索
   │
   └── 共享基础设施（复用现有）
         ├── OMSAPIClient

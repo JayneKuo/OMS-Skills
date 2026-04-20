@@ -384,6 +384,49 @@ def oms_shipment_tracking(order_no: str) -> str:
     return json.dumps({"order_no": order_no, **tracking}, ensure_ascii=False, indent=2)
 
 
+# ══════════════════════════════════════════════════════════
+# Tool: oms_knowledge_query — OMS 本体知识查询
+# ══════════════════════════════════════════════════════════
+
+@mcp.tool()
+def oms_knowledge_query(
+    query: str,
+    node_type: str | None = None,
+    search_mode: str = "name",
+    relation_type: str | None = None,
+    limit: int = 20,
+) -> str:
+    """查询 OMS 业务本体知识。
+
+    从 OMS 本体知识图谱中检索业务概念、流程、规则、状态、API 等知识。
+
+    搜索模式：
+    - name: 按名称/别名模糊搜索（默认）。如查"订单"、"分仓"、"Hold"
+    - type: 按类型列举。node_type 可选 BusinessObject/BusinessProcess/Rule/State/APIEndpoint/Module/SourceArtifact
+    - api_path: 按 API 路径关键词搜索。如查"sale-order"、"dispatch"
+    - related: 按关系遍历，找与某节点关联的其他节点。可用 node_type 过滤目标类型，relation_type 过滤关系类型
+    - stats: 返回知识库统计信息
+
+    Args:
+        query: 搜索关键词（如"订单"、"分仓流程"、"sale-order"）
+        node_type: 节点类型过滤，可选 BusinessObject/BusinessProcess/Rule/State/APIEndpoint/Module/SourceArtifact，也支持中文如"流程"、"规则"、"状态"
+        search_mode: 搜索模式，可选 name/type/api_path/related/stats
+        relation_type: 关系类型过滤（仅 related 模式），可选 composition/dependency/flow/action/mapping/constraint/ownership
+        limit: 返回数量上限，默认 20
+    """
+    from oms_query_engine.providers.knowledge import KnowledgeProvider
+
+    provider = KnowledgeProvider()
+    result = provider.search(
+        query=query,
+        node_type=node_type,
+        search_mode=search_mode,
+        relation_type=relation_type,
+        limit=limit,
+    )
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+
 def _extract_list(data) -> list:
     """从各种 API 返回格式中提取列表。"""
     if data is None:
