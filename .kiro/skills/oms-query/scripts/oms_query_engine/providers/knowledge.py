@@ -20,8 +20,8 @@ from oms_query_engine.models.query_plan import QueryContext
 # 知识文件默认路径（相对于项目根目录）
 _DEFAULT_KNOWLEDGE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    "..", "..", "..", "..", "..", "..",
-    "docs", "oms-agent", "OMS本体知识文件.json",
+    "..", "..", "..",
+    "docs", "OMS本体知识文件.json",
 )
 
 # 有效节点类型
