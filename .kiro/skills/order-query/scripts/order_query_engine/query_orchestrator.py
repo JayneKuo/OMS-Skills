@@ -6,7 +6,7 @@ import re
 
 from order_query_engine.api_client import OMSAPIClient
 from order_query_engine.cache import QueryCache
-from order_query_engine.errors import AuthenticationError, OrderNotFoundError
+from order_query_engine.errors import AuthenticationError, OrderNotFoundError, QueryError
 from order_query_engine.models import CoreQueryResult, ExtendedQueryResult
 
 # ── API 路径常量 ──────────────────────────────────────────
@@ -50,9 +50,15 @@ INTENT_API_MAP: dict[str, list[str]] = {
     "timeline":  ["order_timeline"],
 }
 
-ALL_EXTENDED_APIS = list({
-    api for apis in INTENT_API_MAP.values() for api in apis
-})
+
+
+def _require_merchant_no(merchant_no: str | None) -> str:
+    if merchant_no:
+        return merchant_no
+    raise QueryError(
+        error_type="missing_merchant",
+        message="Missing merchant number. Provide merchant_no or set CRM_MERCHANT_CODE / OMS_MERCHANT_NO in the agent session env.",
+    )
 
 
 class QueryOrchestrator:
@@ -81,8 +87,9 @@ class QueryOrchestrator:
     # ── 核心查询 ──────────────────────────────────────
 
     def execute_core(self, order_no: str,
-                     merchant_no: str = "LAN0000002") -> CoreQueryResult:
+                     merchant_no: str | None = None) -> CoreQueryResult:
         """执行核心查询：search + sale-order + orderLog。"""
+        merchant_no = _require_merchant_no(merchant_no)
         result = CoreQueryResult()
         called: list[str] = []
 
@@ -151,9 +158,10 @@ class QueryOrchestrator:
 
     def execute_extended(self, order_no: str, intents: list[str],
                          core_result: CoreQueryResult,
-                         merchant_no: str = "LAN0000002",
+                         merchant_no: str | None = None,
                          ) -> ExtendedQueryResult:
         """根据意图执行扩展查询，缓存命中时跳过 API 调用。"""
+        merchant_no = _require_merchant_no(merchant_no)
         ext = ExtendedQueryResult()
 
         # 确定需要调用的 API 集合

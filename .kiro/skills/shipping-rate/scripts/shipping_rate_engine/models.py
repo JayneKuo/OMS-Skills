@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 class MappingQueryRequest(BaseModel):
     """映射查询请求"""
-    merchant_no: str = "LAN0000002"
+    merchant_no: str
     mapping_types: list[str] | None = None  # CARRIER, SHIP_METHOD, DELIVERY_SERVICE, FREIGHT_TERM, SKU, UOM
     channel_no: str | None = None  # mappingKey 过滤
     include_condition_mappings: bool = True
@@ -29,7 +29,7 @@ class MappingQueryRequest(BaseModel):
 
 class MappingExecuteRequest(BaseModel):
     """映射执行请求"""
-    merchant_no: str = "LAN0000002"
+    merchant_no: str
     channel_no: str | None = None
     # 条件映射执行参数
     skus: list[str] | None = None
@@ -52,7 +52,7 @@ class RecommendRequest(BaseModel):
     4. [扩展点] 外部承运商 API / 比价服务
     """
     order_no: str | None = None
-    merchant_no: str = "LAN0000002"
+    merchant_no: str
     channel_no: str | None = None
     sku_list: list[dict[str, Any]] | None = None  # [{"sku": "ABC", "quantity": 2}]
     country: str = "US"

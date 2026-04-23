@@ -39,7 +39,7 @@ def _ms_since(start: float) -> int:
 class ShippingPlanWorkflow:
     """全链路物流方案推荐 workflow"""
 
-    def run(self, order_no: str, merchant_no: str = "LAN0000002",
+    def run(self, order_no: str, merchant_no: str,
             risk_level: str = "P75", carriers: list[str] | None = None) -> ShippingPlanResult:
         req = ShippingPlanRequest(
             order_no=order_no,

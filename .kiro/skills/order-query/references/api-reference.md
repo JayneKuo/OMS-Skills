@@ -4,29 +4,17 @@
 > - v3.0 (2026-04-08): 基于前端代码扫描整体重写；新增 OPC 模块完整 API；修正路径前缀和认证方式
 > - v1.0 (2026-04-07): 初始版本
 
-Base URL: `https://omsv2-staging.item.com`
+Base URL: `OMS_BASE_URL`
 
 ---
 
 ## 1. 认证
 
-### POST /api/linker-oms/opc/iam/token
-
-Password grant:
-```json
-{ "grantType": "password", "username": "lantester@item.com", "password": "LANLT" }
-```
-
-Authorization code grant:
-```json
-{ "grantType": "authorization_code", "iamCode": "{code}", "redirectUrl": "{redirect_uri}" }
-```
-
-响应: `{ "code": 0, "data": { "access_token": "...", "refresh_token": "...", "expires_in": 300 } }`
+由前端 / agent session 直接提供 token，不在 skill 内执行 password grant。
 
 后续所有请求需携带:
-- `Authorization: Bearer {access_token}`
-- `x-tenant-id: LT`
+- `Authorization: Bearer <session token>`
+- `x-tenant-id: <OMS_TENANT_ID>`
 
 ---
 

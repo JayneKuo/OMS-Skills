@@ -31,7 +31,10 @@ class InventoryProvider(BaseProvider):
 
     def query(self, context: QueryContext) -> ProviderResult:
         result = ProviderResult(provider_name=self.name)
-        merchant_no = context.merchant_no or "LAN0000002"
+        merchant_no = context.merchant_no
+        if not merchant_no:
+            result.errors.append("缺少 merchantNo")
+            return result
 
         # 1. 库存列表
         inv_items = []

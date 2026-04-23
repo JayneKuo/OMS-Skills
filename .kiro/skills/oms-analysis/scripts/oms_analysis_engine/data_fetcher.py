@@ -158,7 +158,7 @@ class DataFetcher:
         try:
             c = self._get_client()
             resp = c.get("/api/linker-oms/opc/app-api/orderLog/list",
-                         {"merchantNo": merchant_no or "LAN0000002", "omsOrderNo": identifier})
+                         {"merchantNo": merchant_no, "omsOrderNo": identifier})
             data = resp.get("data", resp)
             return _extract_list(data)
         except Exception:
@@ -168,7 +168,7 @@ class DataFetcher:
         try:
             c = self._get_client()
             resp = c.post("/api/linker-oms/opc/app-api/inventory/list",
-                          {"merchantNo": merchant_no or "LAN0000002"})
+                          {"merchantNo": merchant_no})
             return _extract_list(resp.get("data", resp))
         except Exception:
             return []
@@ -177,7 +177,7 @@ class DataFetcher:
         try:
             c = self._get_client()
             resp = c.post("/api/linker-oms/opc/app-api/facility/v2/page",
-                          {"merchantNo": merchant_no or "LAN0000002", "pageNo": 1, "pageSize": 100})
+                          {"merchantNo": merchant_no, "pageNo": 1, "pageSize": 100})
             return _extract_list(resp.get("data", resp))
         except Exception:
             return []
@@ -186,7 +186,7 @@ class DataFetcher:
         try:
             c = self._get_client()
             resp = c.get("/api/linker-oms/opc/app-api/routing/v2/rules",
-                         {"merchantNo": merchant_no or "LAN0000002"})
+                         {"merchantNo": merchant_no})
             return _extract_list(resp.get("data", resp))
         except Exception:
             return []
@@ -194,7 +194,7 @@ class DataFetcher:
     def _fetch_batch(self, merchant_no: str | None, filters: dict) -> list:
         """获取批量订单数据。从 sale-order/page API 获取，按关键状态分别采样。"""
         c = self._get_client()
-        mn = merchant_no or "LAN0000002"
+        mn = merchant_no
 
         all_orders = []
         # 先拉一页不带状态过滤的（获取最新订单）
@@ -288,7 +288,7 @@ class DataFetcher:
     def _fetch_status_counts(self, merchant_no: str | None) -> dict:
         """获取全局状态统计 + shipping request 状态统计。"""
         result = {}
-        mn = merchant_no or "LAN0000002"
+        mn = merchant_no
         try:
             c = self._get_client()
 
@@ -309,7 +309,7 @@ class DataFetcher:
         多页获取，每页 100（API 最大支持 100），最多 5 页。
         """
         c = self._get_client()
-        mn = merchant_no or "LAN0000002"
+        mn = merchant_no
         all_items: list = []
         page_size = 100
         max_pages = 5

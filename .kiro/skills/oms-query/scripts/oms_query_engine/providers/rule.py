@@ -44,7 +44,10 @@ class RuleProvider(BaseProvider):
 
     def query(self, context: QueryContext) -> ProviderResult:
         result = ProviderResult(provider_name=self.name)
-        merchant_no = context.merchant_no or "LAN0000002"
+        merchant_no = context.merchant_no
+        if not merchant_no:
+            result.errors.append("缺少 merchantNo")
+            return result
         params = {"merchantNo": merchant_no}
 
         rr = cr = hr = sw = None

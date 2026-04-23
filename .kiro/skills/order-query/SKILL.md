@@ -229,11 +229,10 @@ Exception vs Hold 对应关系：
 
 详见 `docs/oms-agent/07-测试环境配置.md`。
 
-- Base URL: `https://omsv2-staging.item.com`
-- Token: `POST /api/linker-oms/opc/iam/token`
-- Header: `Authorization: Bearer {token}` + `x-tenant-id: LT`
-- 账号: `lantester@item.com` / `LANLT`
-- 商户: `LAN0000002`
+- Base URL: `OMS_BASE_URL`
+- Auth Header: `Authorization: Bearer <session token>` + `x-tenant-id: <OMS_TENANT_ID>`
+- Merchant: `CRM_MERCHANT_CODE`（兼容 `OMS_MERCHANT_NO`）
+- 认证与运行时环境均由前端 / agent session 提供
 
 ---
 

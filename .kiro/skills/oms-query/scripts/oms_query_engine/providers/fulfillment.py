@@ -61,7 +61,10 @@ class FulfillmentProvider(BaseProvider):
 
         # 2. shipment page（获取仓内单号和包裹信息）
         try:
-            merchant_no = context.merchant_no or "LAN0000002"
+            merchant_no = context.merchant_no
+            if not merchant_no:
+                result.errors.append("缺少 merchantNo")
+                return result
             resp = self._fetch_get(
                 SHIPMENT_PAGE, f"shipment_page:{order_no}", QueryCache.TTL_ORDER,
                 params={"merchantNo": merchant_no, "orderNo": order_no, "pageNo": 1, "pageSize": 10},

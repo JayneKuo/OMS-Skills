@@ -588,35 +588,35 @@
 
 当回复涉及 OMS 系统页面时，使用完整 URL 格式 `[链接文本](完整URL)`，确保前端可直接渲染为可点击链接。
 
-Base URL: `https://omsv2-staging.item.com`（staging 环境，生产环境需替换）
+Base URL: `OMS_BASE_URL`（由前端 / agent session 提供）
 
 | 页面 | 完整 URL | 使用场景 |
 
 |------|----------|----------|
 
-| 仪表板 | `https://omsv2-staging.item.com/dashboard` | 数据概览、销售趋势 |
+| 仪表板 | `{OMS_BASE_URL}/dashboard` | 数据概览、销售趋势 |
 
-| 订单管理 | `https://omsv2-staging.item.com/orders` | 订单列表、筛选 |
+| 订单管理 | `{OMS_BASE_URL}/orders` | 订单列表、筛选 |
 
-| 订单详情 | `https://omsv2-staging.item.com/orders/{order_id}` | 具体订单查看 |
+| 订单详情 | `{OMS_BASE_URL}/orders/{order_id}` | 具体订单查看 |
 
-| 退货管理 | `https://omsv2-staging.item.com/returns` | 退货相关 |
+| 退货管理 | `{OMS_BASE_URL}/returns` | 退货相关 |
 
-| 采购管理 | `https://omsv2-staging.item.com/purchase` | 采购相关 |
+| 采购管理 | `{OMS_BASE_URL}/purchase` | 采购相关 |
 
-| 物流管理 | `https://omsv2-staging.item.com/logistics` | 物流跟踪 |
+| 物流管理 | `{OMS_BASE_URL}/logistics` | 物流跟踪 |
 
-| 库存管理 | `https://omsv2-staging.item.com/inventory` | 库存查询、预警 |
+| 库存管理 | `{OMS_BASE_URL}/inventory` | 库存查询、预警 |
 
-| 商品管理 | `https://omsv2-staging.item.com/product` | 产品和变体 |
+| 商品管理 | `{OMS_BASE_URL}/product` | 产品和变体 |
 
-| 事件管理 | `https://omsv2-staging.item.com/events` | 异常事件、日志 |
+| 事件管理 | `{OMS_BASE_URL}/events` | 异常事件、日志 |
 
-| 客户管理 | `https://omsv2-staging.item.com/customer-management` | 客户信息、细分 |
+| 客户管理 | `{OMS_BASE_URL}/customer-management` | 客户信息、细分 |
 
-| 自动化 | `https://omsv2-staging.item.com/automation` | 工作流、规则 |
+| 自动化 | `{OMS_BASE_URL}/automation` | 工作流、规则 |
 
-| AI 异常处理 | `https://omsv2-staging.item.com/orders/exception-ai` | AI 辅助异常处理 |
+| AI 异常处理 | `{OMS_BASE_URL}/orders/exception-ai` | AI 辅助异常处理 |
 
 链接使用原则：
 

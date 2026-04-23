@@ -37,7 +37,7 @@ class ScoringWeights(BaseModel):
 class AllocationRequest(BaseModel):
     """寻仓请求"""
     order_no: str | None = None
-    merchant_no: str = "LAN0000002"
+    merchant_no: str
     items: list[OrderItem] | None = None
     shipping_address: Address | None = None
     allow_split: bool = True

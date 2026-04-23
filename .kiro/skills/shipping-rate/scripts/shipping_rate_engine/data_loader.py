@@ -71,7 +71,7 @@ class DataLoader:
 
     def load_one_to_one_mappings(
         self,
-        merchant_no: str = "LAN0000002",
+        merchant_no: str,
         mapping_types: list[str] | None = None,
         channel_no: str | None = None,
     ) -> list[OneToOneMapping]:
@@ -128,7 +128,7 @@ class DataLoader:
 
     def load_condition_mappings(
         self,
-        merchant_no: str = "LAN0000002",
+        merchant_no: str,
         mapping_key: str | None = None,
     ) -> list[ConditionMapping]:
         """查询条件映射列表。"""
@@ -157,7 +157,7 @@ class DataLoader:
 
     def load_shipping_rules(
         self,
-        merchant_no: str = "LAN0000002",
+        merchant_no: str,
         channel_no: str | None = None,
     ) -> list[ShippingRule]:
         """查询 Shipping Mapping 规则配置。"""

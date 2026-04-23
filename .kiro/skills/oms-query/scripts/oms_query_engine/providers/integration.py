@@ -28,7 +28,10 @@ class IntegrationProvider(BaseProvider):
 
     def query(self, context: QueryContext) -> ProviderResult:
         result = ProviderResult(provider_name=self.name)
-        merchant_no = context.merchant_no or "LAN0000002"
+        merchant_no = context.merchant_no
+        if not merchant_no:
+            result.errors.append("缺少 merchantNo")
+            return result
         connector_key = context.extra.get("connector_key") or context.primary_key
         intents = context.intents
 

@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 class ShippingPlanRequest(BaseModel):
     """物流方案推荐请求"""
     order_no: str
-    merchant_no: str = "LAN0000002"
+    merchant_no: str
     carriers: list[str] = Field(default_factory=lambda: ["UPS Ground", "FedEx Ground", "USPS Priority"])
     risk_level: str = "P75"
 

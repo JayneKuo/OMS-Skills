@@ -23,8 +23,8 @@ import json
 
 # 自动定位引擎包路径（相对于本文件位置）
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_SKILLS_DIR = os.path.dirname(_THIS_DIR)
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(_SKILLS_DIR))
+_PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+_SKILLS_DIR = os.path.join(_PROJECT_ROOT, ".kiro", "skills")
 
 # 添加引擎包路径
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-query", "scripts"))
@@ -37,6 +37,19 @@ sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-agent", "scripts"))
 sys.path.insert(0, _PROJECT_ROOT)
 
 from mcp.server.fastmcp import FastMCP
+
+
+MISSING_MERCHANT_ERROR = {
+    "error": "Missing merchant number. Provide merchant_no or set CRM_MERCHANT_CODE / OMS_MERCHANT_NO in the agent session env."
+}
+
+
+def _resolve_merchant_no(merchant_no: str | None) -> str:
+    resolved = merchant_no or os.environ.get("CRM_MERCHANT_CODE") or os.environ.get("OMS_MERCHANT_NO")
+    if not resolved:
+        raise ValueError(MISSING_MERCHANT_ERROR["error"])
+    return resolved
+
 
 mcp = FastMCP("OMS Agent")
 
@@ -107,17 +120,18 @@ def oms_batch_query(
 # ══════════════════════════════════════════════════════════
 
 @mcp.tool()
-def oms_warehouse_list(merchant_no: str = "LAN0000002") -> str:
+def oms_warehouse_list(merchant_no: str | None = None) -> str:
     """查询当前商户下的所有仓库列表。
 
     返回仓库名称、编码、地址、WMS版本、状态等信息。
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.api_client import OMSAPIClient
     from oms_query_engine.config import EngineConfig
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     client = OMSAPIClient(EngineConfig())
     client._ensure_token()
     resp = client.post(
@@ -151,17 +165,18 @@ def oms_warehouse_list(merchant_no: str = "LAN0000002") -> str:
 
 
 @mcp.tool()
-def oms_inventory_list(merchant_no: str = "LAN0000002") -> str:
+def oms_inventory_list(merchant_no: str | None = None) -> str:
     """查询当前商户下的库存列表。
 
     返回各 SKU 在各仓库的库存情况。
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.api_client import OMSAPIClient
     from oms_query_engine.config import EngineConfig
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     client = OMSAPIClient(EngineConfig())
     client._ensure_token()
     resp = client.post(
@@ -178,13 +193,13 @@ def oms_inventory_list(merchant_no: str = "LAN0000002") -> str:
 
 
 @mcp.tool()
-def oms_rule_list(merchant_no: str = "LAN0000002") -> str:
+def oms_rule_list(merchant_no: str | None = None) -> str:
     """查询当前商户下的分仓规则配置。
 
     返回路由规则、自定义规则、Hold 规则、SKU 仓库指定规则。
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.engine_v2 import OMSQueryEngine
     from oms_query_engine.models.request import QueryRequest
@@ -194,6 +209,7 @@ def oms_rule_list(merchant_no: str = "LAN0000002") -> str:
     # 直接调用 RuleProvider
     from oms_query_engine.models.query_plan import QueryContext
     rule_provider = engine._executor.get_provider("rule")
+    merchant_no = _resolve_merchant_no(merchant_no)
     ctx = QueryContext(merchant_no=merchant_no)
     result = rule_provider.query(ctx)
 
@@ -205,15 +221,16 @@ def oms_rule_list(merchant_no: str = "LAN0000002") -> str:
 
 
 @mcp.tool()
-def oms_hold_rules(merchant_no: str = "LAN0000002") -> str:
+def oms_hold_rules(merchant_no: str | None = None) -> str:
     """查询当前商户下的 Hold（暂停履约）规则列表。
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.api_client import OMSAPIClient
     from oms_query_engine.config import EngineConfig
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     client = OMSAPIClient(EngineConfig())
     client._ensure_token()
     resp = client.get(
@@ -226,17 +243,18 @@ def oms_hold_rules(merchant_no: str = "LAN0000002") -> str:
 
 
 @mcp.tool()
-def oms_channel_list(merchant_no: str = "LAN0000002") -> str:
+def oms_channel_list(merchant_no: str | None = None) -> str:
     """查询当前商户已连接的渠道/连接器列表。
 
     返回渠道名称、连接器类型、连接状态、认证状态等。
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.api_client import OMSAPIClient
     from oms_query_engine.config import EngineConfig
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     client = OMSAPIClient(EngineConfig())
     client._ensure_token()
     resp = client.get(
@@ -309,16 +327,17 @@ def oms_order_timeline(order_no: str) -> str:
 
 
 @mcp.tool()
-def oms_order_logs(order_no: str, merchant_no: str = "LAN0000002") -> str:
+def oms_order_logs(order_no: str, merchant_no: str | None = None) -> str:
     """查询订单日志（含异常事件、拆单事件等）。
 
     Args:
         order_no: 订单号
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
     """
     from oms_query_engine.api_client import OMSAPIClient
     from oms_query_engine.config import EngineConfig
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     client = OMSAPIClient(EngineConfig())
     client._ensure_token()
     resp = client.get(
@@ -448,7 +467,7 @@ def _extract_list(data) -> list:
 @mcp.tool()
 def oms_analysis(
     identifier: str | None = None,
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     intent: str | None = None,
     query: str | None = None,
 ) -> str:
@@ -457,7 +476,7 @@ def oms_analysis(
 
     Args:
         identifier: 订单号（单订单分析时使用）
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         intent: 分析意图（root_cause/hold_analysis/stuck_order/inventory_health/
                 warehouse_efficiency/channel_performance/order_trend/sku_sales/
                 replenishment/impact_assessment/batch_pattern/fix_recommendation 等）
@@ -478,6 +497,7 @@ def oms_analysis(
         fetcher = DataFetcher()
 
     engine = OMSAnalysisEngine(data_fetcher=fetcher)
+    merchant_no = _resolve_merchant_no(merchant_no)
     request = AnalysisRequest(
         identifier=identifier,
         merchant_no=merchant_no,
@@ -498,7 +518,7 @@ def oms_analysis(
 @mcp.tool()
 def warehouse_allocate(
     order_no: str | None = None,
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     sku_list: str | None = None,
     country: str = "US",
     state: str | None = None,
@@ -512,7 +532,7 @@ def warehouse_allocate(
 
     Args:
         order_no: 订单号（模式1，自动获取订单数据）
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         sku_list: SKU 列表 JSON（模式2），格式 [{"sku":"ABC","quantity":2}]
         country: 收货国家，默认 US
         state: 收货州（如 CA、TX、NY）
@@ -541,6 +561,7 @@ def warehouse_allocate(
     if country:
         address = Address(country=country, state=state)
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     request = AllocationRequest(
         order_no=order_no,
         merchant_no=merchant_no,
@@ -597,7 +618,7 @@ def validate_cartonization(input_json: str, result_json: str) -> str:
 
 @mcp.tool()
 def shipping_rate_query(
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     mapping_types: str | None = None,
     channel_no: str | None = None,
 ) -> str:
@@ -609,7 +630,7 @@ def shipping_rate_query(
     - Layer 3: Shipping Mapping 规则（渠道级多条件规则）
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         mapping_types: 映射类型过滤（逗号分隔），可选 CARRIER,SHIP_METHOD,DELIVERY_SERVICE,FREIGHT_TERM,SKU,UOM
         channel_no: 渠道号过滤
     """
@@ -629,6 +650,7 @@ def shipping_rate_query(
     engine = ShippingRateEngine(data_loader=loader)
     types_list = [t.strip() for t in mapping_types.split(",")] if mapping_types else None
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     request = MappingQueryRequest(
         merchant_no=merchant_no,
         mapping_types=types_list,
@@ -643,7 +665,7 @@ def shipping_rate_query(
 
 @mcp.tool()
 def shipping_rate_execute(
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     channel_no: str | None = None,
     skus: str | None = None,
     carriers: str | None = None,
@@ -660,7 +682,7 @@ def shipping_rate_execute(
     2. Shipping Mapping 执行：传入 channel_no + input_conditions（JSON 数组）
 
     Args:
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         channel_no: 渠道号（Shipping Mapping 执行时必填）
         skus: SKU 列表（逗号分隔），如 "SKU001,SKU002"
         carriers: 承运商列表（逗号分隔），如 "FedEx,UPS"
@@ -689,6 +711,7 @@ def shipping_rate_execute(
     if input_conditions:
         parsed_conditions = json.loads(input_conditions)
 
+    merchant_no = _resolve_merchant_no(merchant_no)
     request = MappingExecuteRequest(
         merchant_no=merchant_no,
         channel_no=channel_no,
@@ -710,7 +733,7 @@ def shipping_rate_execute(
 @mcp.tool()
 def shipping_rate_recommend(
     order_no: str | None = None,
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     channel_no: str | None = None,
     sku_list: str | None = None,
     country: str = "US",
@@ -724,7 +747,7 @@ def shipping_rate_recommend(
 
     Args:
         order_no: 订单号（模式1）
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         channel_no: 渠道号
         sku_list: SKU 列表 JSON，格式 [{"sku":"ABC","quantity":2}]
         country: 收货国家，默认 US
@@ -1033,7 +1056,7 @@ def cost_calculate(
 @mcp.tool()
 def shipping_plan_recommend(
     order_no: str,
-    merchant_no: str = "LAN0000002",
+    merchant_no: str | None = None,
     risk_level: str = "P75",
 ) -> str:
     """全链路物流方案推荐。输入订单号，自动串联查询→包裹→运费→时效→评分，输出 Top-3 推荐方案。
@@ -1050,12 +1073,13 @@ def shipping_plan_recommend(
 
     Args:
         order_no: 订单号（如 SO00993148）
-        merchant_no: 商户号，默认 LAN0000002
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
         risk_level: 风险化口径，可选 P50/P75/P90，默认 P75
     """
     from workflow_engine.shipping_plan import ShippingPlanWorkflow
 
     workflow = ShippingPlanWorkflow()
+    merchant_no = _resolve_merchant_no(merchant_no)
     result = workflow.run(
         order_no=order_no,
         merchant_no=merchant_no,
