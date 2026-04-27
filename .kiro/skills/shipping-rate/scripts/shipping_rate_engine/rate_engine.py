@@ -119,8 +119,17 @@ class RateEngine:
         explanation_parts.append(f"包裹数: {len(package_rates)}")
         if degraded:
             explanation_parts.append(f"降级字段: {degraded_fields}")
+            if "merchant_agreement" in degraded_fields:
+                explanation_parts.append("注意：无商户签约价格表，使用公开牌价估算，实际签约价通常有 30-70% 折扣，仅供参考")
         if summary.total_promotion_discount > 0:
             explanation_parts.append(f"促销减免: {summary.total_promotion_discount}")
+
+        confidence = "high"
+        if degraded:
+            if "merchant_agreement" in degraded_fields:
+                confidence = "estimated"
+            else:
+                confidence = "medium"
 
         return RateResult(
             success=True,
@@ -134,7 +143,7 @@ class RateEngine:
             errors=pkg_errors,
             carrier=request.carrier or "",
             recommend_source=request.recommend_source,
-            confidence="high" if not degraded else "medium",
+            confidence=confidence,
             calculation_explanation="；".join(explanation_parts),
         )
 
