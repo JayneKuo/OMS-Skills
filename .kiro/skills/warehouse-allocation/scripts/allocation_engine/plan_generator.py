@@ -35,42 +35,142 @@ class PlanGenerator:
         allow_split: bool,
         max_split: int,
         backup_mode: bool = False,
+        sku_warehouse_map: dict[str, str] | None = None,
     ) -> tuple[FulfillmentPlan | None, list[FulfillmentPlan]]:
         """生成履约方案。
 
         Parameters
         ----------
+        sku_warehouse_map : dict[str, str] | None
+            SKU → accounting_code 的强制指定映射。
+            有映射的 SKU 必须从指定仓发货，不参与普通评分分配。
         backup_mode : bool
             ONE_WAREHOUSE_BACKUP 模式：即使无仓能满足所有 SKU，
             也选评分最高的仓作为推荐。
         """
+        sku_map = sku_warehouse_map or {}
+
+        # 将 SKU 指定仓的商品行拆分出来单独处理
+        pinned_items: list[OrderItem] = []   # 有指定仓的商品
+        free_items: list[OrderItem] = []     # 无指定仓的商品
+        for item in items:
+            if item.sku in sku_map:
+                pinned_items.append(item)
+            else:
+                free_items.append(item)
+
+        # 如果所有商品都有指定仓，直接生成强制方案
+        if pinned_items and not free_items:
+            plan = self._pinned_plan(pinned_items, sku_map, warehouses_map, scored, dest_state)
+            if plan:
+                return plan, []
+
+        # 如果有部分商品指定仓，先处理指定仓部分，剩余走正常流程
+        if pinned_items and free_items:
+            pinned_plan = self._pinned_plan(pinned_items, sku_map, warehouses_map, scored, dest_state)
+            # 用 free_items 继续走正常流程，最后合并
+            free_scored = [w for w in scored if w.warehouse_id not in {
+                wh.warehouse_id for wh in warehouses_map.values()
+                if wh.accounting_code in set(sku_map.values())
+            }] or scored
+            free_plan, _ = self._generate_free(free_scored, warehouses_map, free_items, dest_state, allow_split, max_split, backup_mode)
+            if pinned_plan and free_plan:
+                # 合并为多仓方案
+                merged = FulfillmentPlan(
+                    plan_type="multi_warehouse",
+                    assignments=pinned_plan.assignments + free_plan.assignments,
+                    total_score=round((pinned_plan.total_score + free_plan.total_score) / 2, 4),
+                    split_penalty=round(self.SPLIT_PENALTY, 4),
+                    recommendation_reason=f"SKU 指定仓 + 自由分配：{len(pinned_plan.assignments + free_plan.assignments)} 仓",
+                )
+                return merged, []
+            if pinned_plan:
+                return pinned_plan, []
+
+        return self._generate_free(scored, warehouses_map, items, dest_state, allow_split, max_split, backup_mode)
+
+    def _generate_free(
+        self,
+        scored: list[ScoredWarehouse],
+        warehouses_map: dict[str, Warehouse],
+        items: list[OrderItem],
+        dest_state: str,
+        allow_split: bool,
+        max_split: int,
+        backup_mode: bool,
+    ) -> tuple[FulfillmentPlan | None, list[FulfillmentPlan]]:
+        """原有的自由分配逻辑。"""
         required_skus = {item.sku for item in items}
 
-        # Step 1: 单仓直发（库存充足的仓）
-        single_plans = self._single_warehouse_plans(
-            scored, warehouses_map, items, dest_state,
-        )
+        single_plans = self._single_warehouse_plans(scored, warehouses_map, items, dest_state)
         if single_plans:
             return single_plans[0], single_plans[1:3]
 
-        # Step 2: 多仓拆发
         if allow_split:
             multi_plans = self._multi_warehouse_plans(
-                scored, warehouses_map, items, dest_state,
-                required_skus, max_split,
+                scored, warehouses_map, items, dest_state, required_skus, max_split,
             )
             if multi_plans:
                 return multi_plans[0], multi_plans[1:3]
 
-        # Step 3: Backup 模式 — 库存不足走最高优先级仓
         if backup_mode and scored:
             backup_plan = self._backup_plan(scored[0], warehouses_map, items, dest_state)
             return backup_plan, []
 
-        # Step 4: 无解
         return None, []
 
-    # ── 单仓直发 ──────────────────────────────────────
+    def _pinned_plan(
+        self,
+        pinned_items: list[OrderItem],
+        sku_map: dict[str, str],
+        warehouses_map: dict[str, Warehouse],
+        scored: list[ScoredWarehouse],
+        dest_state: str,
+    ) -> FulfillmentPlan | None:
+        """为 SKU 指定仓的商品生成强制分配方案。"""
+        # accounting_code → warehouse_id 反查
+        code_to_id = {wh.accounting_code: wh.warehouse_id for wh in warehouses_map.values()}
+        scored_map = {w.warehouse_id: w for w in scored}
+
+        assignment_items: dict[str, list[OrderItem]] = {}
+        for item in pinned_items:
+            code = sku_map[item.sku]
+            wh_id = code_to_id.get(code)
+            if not wh_id:
+                return None  # 指定仓不在候选列表，无法生成方案
+            assignment_items.setdefault(wh_id, []).append(item)
+
+        assignments = []
+        total_score = 0.0
+        for wh_id, wh_items in assignment_items.items():
+            wh = warehouses_map.get(wh_id)
+            wh_state = wh.state or "" if wh else ""
+            dist = get_distance(wh_state, dest_state)
+            scored_wh = scored_map.get(wh_id)
+            score = scored_wh.score if scored_wh else 0.5
+            total_score += score
+            assignments.append(WarehouseAssignment(
+                warehouse_id=wh_id,
+                warehouse_name=wh.warehouse_name if wh else wh_id,
+                accounting_code=wh.accounting_code if wh else "",
+                items=wh_items,
+                score=score,
+                score_breakdown=scored_wh.score_breakdown if scored_wh else {},
+                estimated_cost=round(estimate_cost(dist), 2),
+                estimated_days=round(estimate_days(dist), 1),
+                distance_km=round(dist, 1),
+            ))
+
+        if not assignments:
+            return None
+
+        plan_type = "single_warehouse" if len(assignments) == 1 else "multi_warehouse"
+        return FulfillmentPlan(
+            plan_type=plan_type,
+            assignments=assignments,
+            total_score=round(total_score / len(assignments), 4),
+            recommendation_reason=f"SKU 指定仓强制分配：{len(assignments)} 仓",
+        )
 
     def _single_warehouse_plans(
         self,

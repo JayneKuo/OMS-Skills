@@ -48,7 +48,8 @@ class WarehouseAllocationEngine:
 
         # 2. 解析商户规则
         routing_rules = self._data_loader.load_routing_rules(request.merchant_no)
-        rules = self._rule_resolver.resolve(routing_rules)
+        sku_warehouse_rules = self._data_loader.load_sku_warehouse_rules(request.merchant_no)
+        rules = self._rule_resolver.resolve(routing_rules, sku_warehouse_rules)
 
         # 规则覆盖请求参数
         if not rules.allow_split:
@@ -85,6 +86,7 @@ class WarehouseAllocationEngine:
             allow_split=request.allow_split,
             max_split=request.max_split_warehouses,
             backup_mode=rules.skip_inventory_hard_check,
+            sku_warehouse_map=rules.sku_warehouse_map,
         )
 
         # 6. 结果构建

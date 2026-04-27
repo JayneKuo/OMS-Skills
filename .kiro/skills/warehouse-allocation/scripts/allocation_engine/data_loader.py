@@ -22,9 +22,9 @@ from .models import Address, AllocationRequest, OrderItem, Warehouse
 
 # ── API 路径 ──────────────────────────────────────────────
 
-WAREHOUSE_LIST_API = "/api/linker-oms/opc/app-api/facility/v2/page"
-INVENTORY_LIST_API = "/api/linker-oms/opc/app-api/inventory/list"
-ORDER_DETAIL_API = "/api/linker-oms/opc/app-api/sale-order/{orderNo}"
+WAREHOUSE_LIST_API = "/opc/app-api/facility/v2/page"
+INVENTORY_LIST_API = "/opc/app-api/inventory/list"
+ORDER_DETAIL_API = "/opc/app-api/sale-order/{orderNo}"
 
 
 # ── 辅助函数 ──────────────────────────────────────────────
@@ -299,10 +299,22 @@ class DataLoader:
         """加载商户的路由规则配置。"""
         try:
             resp = self._client.get(
-                "/api/linker-oms/opc/app-api/routing/v2/rules",
+                "/opc/app-api/routing/v2/rules",
                 {"merchantNo": merchant_no},
             )
             data = _get_data(resp)
             return _extract_list(data) if isinstance(data, list) else [data] if isinstance(data, dict) else []
+        except Exception:
+            return []
+
+    def load_sku_warehouse_rules(self, merchant_no: str) -> list[dict]:
+        """加载 SKU 指定仓规则（sku-warehouse/page）。"""
+        try:
+            resp = self._client.post(
+                "/opc/app-api/sku-warehouse/page",
+                {"merchantNo": merchant_no, "pageNo": 1, "pageSize": 500},
+            )
+            data = _get_data(resp)
+            return _extract_list(data)
         except Exception:
             return []
