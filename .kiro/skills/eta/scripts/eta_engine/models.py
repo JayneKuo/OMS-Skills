@@ -84,6 +84,8 @@ class ETARequest(BaseModel):
     risk_level: str = "P75"            # 风险化口径
     sla_hours: Decimal = Decimal("72") # SLA 时限（小时）
     order_hour: int = 14               # 下单时间（24h 制）
+    order_month: int | None = None     # 下单月份（1-12），用于节假日检测
+    order_day: int | None = None       # 下单日期（1-31），用于节假日检测
     warehouse: WarehouseContext = Field(default_factory=WarehouseContext)
     carrier_ctx: CarrierContext = Field(default_factory=CarrierContext)
     risk_factors: RiskFactors = Field(default_factory=RiskFactors)

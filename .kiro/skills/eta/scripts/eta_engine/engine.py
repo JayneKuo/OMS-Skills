@@ -62,13 +62,42 @@ _DEFAULT_LAST_MILE: dict[str, Decimal] = {
     "Priority": Decimal("2"),
 }
 
-# ── 风险化口径乘数 ──────────────────────────────────
+# ── 节假日/旺季日期表（月-日） ───────────────────────
+# 格式：(月, 日起, 日止, congestion_level)
+_US_PEAK_PERIODS: list[tuple[int, int, int, str]] = [
+    (11, 25, 30, "peak"),        # 黑五/网一
+    (12, 15, 31, "peak"),        # 圣诞旺季
+    (1,  1,  3,  "peak"),        # 元旦
+    (2,  10, 16, "normal_promo"),# 情人节
+    (5,  20, 27, "normal_promo"),# 阵亡将士纪念日
+    (7,  1,  7,  "normal_promo"),# 独立日
+    (9,  1,  7,  "normal_promo"),# 劳工节
+    (10, 28, 31, "normal_promo"),# 万圣节
+]
 
-_RISK_MULTIPLIER: dict[str, Decimal] = {
-    "P50": Decimal("1.00"),
-    "P75": Decimal("1.15"),
-    "P90": Decimal("1.35"),
-}
+
+def _detect_congestion(month: int, day: int) -> str:
+    """根据日期自动判断拥堵级别"""
+    for m, d_start, d_end, level in _US_PEAK_PERIODS:
+        if month == m and d_start <= day <= d_end:
+            return level
+    return "none"
+
+
+# ── 风险化口径乘数（基于承运商准点率动态计算） ────────
+
+def _risk_multipliers(on_time_rate: Decimal) -> dict[str, Decimal]:
+    """
+    P75/P90 乘数随承运商准点率动态调整：
+    准点率越低 → 分位数越分散 → P90 乘数越大
+    基准：on_time_rate=0.92 时 P75=1.15, P90=1.35
+    """
+    spread = _round2((Decimal("1") - on_time_rate) * Decimal("2"))
+    return {
+        "P50": Decimal("1.00"),
+        "P75": _round2(Decimal("1.15") + spread * Decimal("0.3")),
+        "P90": _round2(Decimal("1.35") + spread * Decimal("0.6")),
+    }
 
 # ── 天气风险因子 ─────────────────────────────────────
 
@@ -124,13 +153,21 @@ class ETAEngine:
         errors: list[str] = []
         degraded_fields: list[str] = []
 
+        # 节假日自动检测：如果传了日期且 congestion_level 未手动设置，自动推断
+        if (request.order_month and request.order_day
+                and request.risk_factors.congestion_level == "none"):
+            auto_congestion = _detect_congestion(request.order_month, request.order_day)
+            if auto_congestion != "none":
+                request.risk_factors.congestion_level = auto_congestion
+
         # ── 1. 计算各组件 ──
 
         # T_queue: 排队等待
         wh = request.warehouse
-        if wh.backlog_orders > 0 and wh.processing_speed > 0:
+        if wh.processing_speed > 0:
             t_queue = _round2(Decimal(str(wh.backlog_orders)) / Decimal(str(wh.processing_speed)))
         else:
+            # processing_speed 未知才降级，backlog=0 是正常状态
             t_queue = Decimal("0.5")
             degraded_fields.append("t_queue")
 
@@ -155,7 +192,6 @@ class ETAEngine:
             # 有承运商 API 数据，乘以校准系数 1.2
             t_transit = _round2(carrier_api * Decimal("1.2"))
             transit_source = "carrier_api_calibrated"
-            degraded_fields.append("t_transit")
         else:
             # 使用默认 transit time
             segment = _get_distance_segment(request.origin_state, request.dest_state)
@@ -213,10 +249,11 @@ class ETAEngine:
             eta_after_adjustment=eta_adjusted,
         )
 
-        # ── 4. 三口径 ──
-        p50 = _round2(eta_adjusted * _RISK_MULTIPLIER["P50"])
-        p75 = _round2(eta_adjusted * _RISK_MULTIPLIER["P75"])
-        p90 = _round2(eta_adjusted * _RISK_MULTIPLIER["P90"])
+        # ── 4. 三口径（基于承运商准点率动态计算乘数） ──
+        risk_mults = _risk_multipliers(on_time_rate)
+        p50 = _round2(eta_adjusted * risk_mults["P50"])
+        p75 = _round2(eta_adjusted * risk_mults["P75"])
+        p90 = _round2(eta_adjusted * risk_mults["P90"])
 
         eta_by_risk = ETAByRiskLevel(
             p50_hours=p50,
@@ -225,8 +262,8 @@ class ETAEngine:
         )
 
         # 选择请求的口径
-        risk_level = request.risk_level if request.risk_level in _RISK_MULTIPLIER else "P75"
-        eta_final = _round2(eta_adjusted * _RISK_MULTIPLIER[risk_level])
+        risk_level = request.risk_level if request.risk_level in risk_mults else "P75"
+        eta_final = _round2(eta_adjusted * risk_mults[risk_level])
 
         # ── 5. OnTimeProbability ──
         sla = request.sla_hours
@@ -235,7 +272,17 @@ class ETAEngine:
 
         # ── 6. 构建结果 ──
         is_degraded = len(degraded_fields) > 0
-        confidence = "estimated" if is_degraded else "high"
+        # 置信度三档，以 t_transit 数据来源为主要判断依据：
+        # - t_transit 来自承运商 API → high
+        # - t_transit 用默认表，其他字段正常 → medium
+        # - t_queue 也降级（仓库无积压数据）→ estimated
+        meaningful_degraded = [f for f in degraded_fields if f != "t_last_mile"]
+        if not meaningful_degraded:
+            confidence = "high"
+        elif meaningful_degraded == ["t_transit"]:
+            confidence = "medium"
+        else:
+            confidence = "estimated"
 
         eta_days = _round2(eta_final / Decimal("24"))
 
