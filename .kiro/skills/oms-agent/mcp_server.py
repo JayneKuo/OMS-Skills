@@ -605,5 +605,228 @@ def validate_cartonization(input_json: str, result_json: str) -> str:
     return json.dumps(validation, ensure_ascii=False, indent=2, default=str)
 
 
+# ══════════════════════════════════════════════════════════
+# Tool: get_page_url — OMS 页面导航
+# ══════════════════════════════════════════════════════════
+
+def _resolve_frontend_url() -> str:
+    raw = os.environ.get("OMS_BASE_URL", "")
+    if raw:
+        from urllib.parse import urlparse
+        p = urlparse(raw)
+        return f"{p.scheme}://{p.netloc}"
+    return "http://localhost:3000"
+
+_BASE_URL = _resolve_frontend_url()
+
+_ROUTES: dict[str, str] = {
+    # Dashboard
+    "end-to-end": "/dashboard/end-to-end",
+    "plc-report": "/dashboard/plc-report",
+    "ots-report": "/dashboard/ots-report",
+    # Sales Orders
+    "sales-orders": "/sales-orders",
+    "sales-order-detail": "/sales-orders/{orderNo}",
+    "sales-order-add": "/sales-orders/add",
+    "sales-order-edit": "/sales-orders/edit/{orderNo}",
+    "shipping-requests": "/shipping-requests",
+    "shipping-request-detail": "/shipping-requests/{dispatchNo}",
+    "order-track": "/order-track",
+    "order-track-detail": "/order-track/{orderNo}",
+    "fulfillments": "/fulfillments",
+    "fulfillment-detail": "/fulfillments/{shipmentNo}",
+    "work-orders": "/work-orders",
+    "work-order-detail": "/work-orders/{orderNo}",
+    # Purchase
+    "purchase-requests": "/purchase-requests",
+    "purchase-request-detail": "/purchase-requests/{prNo}",
+    "purchase-orders": "/purchase-orders",
+    "purchase-order-detail": "/purchase-orders/{orderNo}",
+    "quote-orders": "/quote-orders",
+    "quote-order-detail": "/quote-orders/{quoteNo}",
+    "quote-order-add": "/quote-orders/add",
+    "container-tracking": "/container-tracking",
+    # Logistics
+    "international-freight": "/logistics/international-freight",
+    "transaction-management": "/logistics/transaction-management",
+    "transaction-detail": "/logistics/transaction-management/{orderNo}",
+    "delivery-orders": "/logistics/delivery-orders",
+    "delivery-order-create": "/logistics/delivery-orders/create",
+    "small-parcel": "/logistics/small-parcel",
+    "small-parcel-detail": "/logistics/small-parcel/detail/{orderId}",
+    "small-parcel-dispatch": "/logistics/small-parcel-dispatch",
+    "tax-payment": "/logistics/tax-payment",
+    "lso-claims": "/logistics/lso-claims",
+    "pickup-appointment": "/logistics/pickup-appointment",
+    "driver-manage": "/logistics/driver-manage",
+    "file-manage": "/logistics/file-manage",
+    "trip-detail": "/logistics/trip-detail",
+    # Inventory
+    "inventory-list": "/inventory/inventory-list",
+    "inventory-detail": "/inventory/inventory-detail/{sku}",
+    "warehouse": "/inventory/warehouse",
+    "warehouse-zipcode": "/inventory/warehouse-zipcode",
+    # Product
+    "item-master": "/item-master",
+    "product-list": "/product-list",
+    "product-detail": "/product-list/{productId}",
+    "product-create": "/product-list/create",
+    "brand": "/products/brand",
+    "category": "/products/category",
+    # POM
+    "pom-project": "/pom/project",
+    "pom-project-detail": "/pom/project/{projectId}",
+    "pom-project-new": "/pom/project/newProject",
+    "pom-invoice": "/pom/invoice",
+    "pom-invoice-detail": "/pom/invoice/{invoiceId}",
+    "pom-ams": "/pom/ams",
+    "pom-isf": "/pom/isf",
+    "pom-e214": "/pom/e214",
+    "pom-form7512": "/pom/form7512List",
+    "pom-form3461": "/pom/form3461List",
+    "customs-duty": "/pom/customs-duty",
+    "customs-ports": "/customs/ports",
+    "customs-t86": "/customs/t86List",
+    "customs-form7501": "/customs/form7501List",
+    # Integrations
+    "connected-systems": "/integration/connected-systems",
+    "channel-detail": "/integration/{channelNo}",
+    # Events
+    "order-logs": "/events/order-logs",
+    "inventory-sync": "/events/inventory-sync",
+    # Automation
+    "sales-order-routing": "/automation/sales-order-routing",
+    "fulfillment-mode": "/automation/fulfillment-mode",
+    "product-designated-warehouse": "/automation/product-designated-warehouse",
+    "hold-order-rules": "/automation/hold-order-rules",
+    "sku-filters": "/automation/sku-filters-goods",
+    "order-update-setting": "/automation/order-update-setting",
+    "mappings": "/automation/mappings",
+    "inventory-sync-rule": "/automation/inventory-sync-rule",
+    "rate-shopping": "/automation/rate-shopping/rate-shopping",
+    "shipping-account": "/automation/rate-shopping/shipping-account",
+    "shipping-account-detail": "/automation/rate-shopping/shipping-account/{id}",
+    "shipping-account-add": "/automation/rate-shopping/shipping-account/add",
+    "carrier-service": "/automation/rate-shopping/carrier-service",
+    "carrier-service-detail": "/automation/rate-shopping/carrier-service/{id}",
+    "carrier-service-add": "/automation/rate-shopping/carrier-service/add",
+    "delivery-order-routing": "/automation/delivery-order-routing",
+    "form-engine": "/automation/form-engine",
+    "form-engine-detail": "/automation/form-engine/{id}",
+    "form-engine-add": "/automation/form-engine/add",
+    "email-configuration": "/automation/email-configuration",
+    "event-callback-routing": "/automation/event-callback-routing",
+    # Merchant
+    "merchant-list": "/merchant-list",
+    # Admin
+    "admin-dashboard": "/admin/dashboard",
+    "dev-tools": "/admin/dev-tools",
+    "json-schema-editor": "/admin/dev-tools/json-schema-editor",
+    "variable-text-editor": "/admin/dev-tools/variable-text-editor",
+    "widget-tests": "/admin/dev-tools/widget-tests",
+    "http-config": "/admin/dev-tools/http-config",
+    # Other
+    "profile": "/profile",
+}
+
+# 模糊匹配关键词 → page key
+_FUZZY_MAP: list[tuple[list[str], str]] = [
+    (["销售订单", "sales order", "订单列表"], "sales-orders"),
+    (["订单详情", "sales order detail"], "sales-order-detail"),
+    (["新建订单", "创建订单"], "sales-order-add"),
+    (["出货请求", "shipping request", "发货请求"], "shipping-requests"),
+    (["ai追踪", "ai订单追踪", "order track", "订单追踪"], "order-track"),
+    (["发货单", "fulfillment"], "fulfillments"),
+    (["工作单", "work order"], "work-orders"),
+    (["采购申请", "purchase request", "pr"], "purchase-requests"),
+    (["采购订单", "purchase order", "po"], "purchase-orders"),
+    (["报价单", "quote"], "quote-orders"),
+    (["集装箱", "container"], "container-tracking"),
+    (["国际运费", "international freight"], "international-freight"),
+    (["交易管理", "transaction"], "transaction-management"),
+    (["配送单", "delivery order"], "delivery-orders"),
+    (["小包裹", "small parcel"], "small-parcel"),
+    (["税款", "tax"], "tax-payment"),
+    (["lso", "索赔"], "lso-claims"),
+    (["取货预约", "pickup"], "pickup-appointment"),
+    (["司机", "driver"], "driver-manage"),
+    (["文件管理", "file"], "file-manage"),
+    (["库存列表", "库存", "inventory"], "inventory-list"),
+    (["仓库管理", "仓库", "warehouse"], "warehouse"),
+    (["item master", "商品主数据"], "item-master"),
+    (["商品列表", "产品列表", "product list"], "product-list"),
+    (["新建商品", "创建商品"], "product-create"),
+    (["品牌", "brand"], "brand"),
+    (["分类", "category"], "category"),
+    (["进口项目", "pom project"], "pom-project"),
+    (["发票", "invoice"], "pom-invoice"),
+    (["ams"], "pom-ams"),
+    (["isf"], "pom-isf"),
+    (["关税", "customs duty"], "customs-duty"),
+    (["港口", "port"], "customs-ports"),
+    (["已连接", "集成", "integration", "connected"], "connected-systems"),
+    (["订单日志", "order log"], "order-logs"),
+    (["库存同步", "inventory sync"], "inventory-sync"),
+    (["订单路由", "sales order routing"], "sales-order-routing"),
+    (["履约模式", "fulfillment mode"], "fulfillment-mode"),
+    (["hold规则", "hold order"], "hold-order-rules"),
+    (["sku过滤", "sku filter"], "sku-filters"),
+    (["映射", "mapping"], "mappings"),
+    (["rate shopping", "运费比价"], "rate-shopping"),
+    (["运输账户", "shipping account"], "shipping-account"),
+    (["承运商服务", "carrier service"], "carrier-service"),
+    (["配送路由", "delivery routing"], "delivery-order-routing"),
+    (["表单引擎", "form engine"], "form-engine"),
+    (["邮件配置", "email"], "email-configuration"),
+    (["事件回调", "callback"], "event-callback-routing"),
+    (["商户列表", "merchant"], "merchant-list"),
+    (["管理员", "admin"], "admin-dashboard"),
+    (["开发者工具", "dev tools"], "dev-tools"),
+    (["用户资料", "profile"], "profile"),
+]
+
+
+@mcp.tool()
+def get_page_url(page: str, params: str | None = None) -> str:
+    """获取 OMS 系统页面的完整 URL，用于导航跳转。
+
+    支持精确 page key 或自然语言模糊描述（如"商品列表"、"销售订单"）。
+    带参数的详情页需传入 params（JSON 字符串）。
+
+    Args:
+        page: 页面标识或自然语言描述。
+              精确 key 示例：sales-orders、sales-order-detail、product-list、rate-shopping
+              模糊描述示例：商品列表、销售订单、库存、rate shopping
+        params: 路径参数 JSON 字符串，如 '{"orderNo": "SO-12345"}' 或 '{"productId": "P-001"}'
+    """
+    p = params
+    path_params: dict = json.loads(p) if p else {}
+
+    # 精确匹配
+    path = _ROUTES.get(page)
+
+    # 模糊匹配
+    if path is None:
+        page_lower = page.lower()
+        for keywords, key in _FUZZY_MAP:
+            if any(kw in page_lower for kw in keywords):
+                path = _ROUTES.get(key)
+                break
+
+    if path is None:
+        available = sorted(_ROUTES.keys())
+        return json.dumps({
+            "error": f"未找到页面 '{page}'",
+            "available_pages": available,
+        }, ensure_ascii=False, indent=2)
+
+    # 替换路径参数
+    for k, v in path_params.items():
+        path = path.replace(f"{{{k}}}", str(v))
+
+    url = f"{_BASE_URL}{path}"
+    return json.dumps({"url": url, "page": page, "path": path}, ensure_ascii=False)
+
+
 if __name__ == "__main__":
     mcp.run()
