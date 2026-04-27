@@ -11,7 +11,7 @@ from .base import BaseProvider
 
 # DI 服务 API 路径（集成中心独立服务）
 CHANNEL_LIST = "/api/linker-di/app-api/{customerCode}/channels"
-CHANNEL_LIST_OMS = "/api/linker-oms/opc/app-api/channel/*/list"
+CHANNEL_LIST_OMS = "/opc/app-api/channel/*/list"
 CHANNEL_DETAIL = "/api/linker-di/app-api/{customerCode}/channels/{channelNo}"
 CONNECTOR_GROUPS = "/api/linker-di/app-api/connectors/group"
 CONNECTOR_LIST = "/api/linker-di/app-api/connectors"

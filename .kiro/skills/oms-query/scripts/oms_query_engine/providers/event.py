@@ -7,9 +7,9 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.event import EventInfo, MilestoneTimes, DurationMetrics
 from .base import BaseProvider
 
-ORDER_LOGS = "/api/linker-oms/opc/app-api/orderLog/list"
-TIMELINE = "/api/linker-oms/opc/app-api/payment/time-line/{orderNo}"
-DISPATCH_LOG = "/api/linker-oms/oas/rpc-api/dispatch-log/{eventId}"
+ORDER_LOGS = "/opc/app-api/orderLog/list"
+TIMELINE = "/opc/app-api/payment/time-line/{orderNo}"
+DISPATCH_LOG = "/oas/rpc-api/dispatch-log/{eventId}"
 
 
 class EventProvider(BaseProvider):

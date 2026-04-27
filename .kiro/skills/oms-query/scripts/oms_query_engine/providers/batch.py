@@ -6,8 +6,8 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.batch import BatchQueryResult
 from .base import BaseProvider
 
-STATUS_NUM = "/api/linker-oms/opc/app-api/sale-order/status/num"
-ORDER_PAGE = "/api/linker-oms/opc/app-api/sale-order/page"
+STATUS_NUM = "/opc/app-api/sale-order/status/num"
+ORDER_PAGE = "/opc/app-api/sale-order/page"
 
 
 class BatchProvider(BaseProvider):

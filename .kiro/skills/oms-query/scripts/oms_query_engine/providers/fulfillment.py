@@ -7,8 +7,8 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.fulfillment import WarehouseExecutionInfo, WarehouseStatusInfo
 from .base import BaseProvider
 
-FULFILLMENT_ORDERS = "/api/linker-oms/opc/app-api/tracking-assistant/fulfillment-orders/{orderNo}"
-SHIPMENT_PAGE = "/api/linker-oms/opc/app-api/shipment/page"
+FULFILLMENT_ORDERS = "/opc/app-api/tracking-assistant/fulfillment-orders/{orderNo}"
+SHIPMENT_PAGE = "/opc/app-api/shipment/page"
 
 
 def _extract_list(data) -> list:

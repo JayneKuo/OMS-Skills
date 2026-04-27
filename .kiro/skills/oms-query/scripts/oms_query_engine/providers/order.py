@@ -11,7 +11,7 @@ from oms_query_engine.models.order import (
 )
 from .base import BaseProvider
 
-ORDER_DETAIL = "/api/linker-oms/opc/app-api/sale-order/{orderNo}"
+ORDER_DETAIL = "/opc/app-api/sale-order/{orderNo}"
 
 
 class OrderProvider(BaseProvider):

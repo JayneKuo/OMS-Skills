@@ -7,10 +7,10 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.rule import RuleInfo
 from .base import BaseProvider
 
-ROUTING_RULES = "/api/linker-oms/opc/app-api/routing/v2/rules"
-CUSTOM_RULES = "/api/linker-oms/opc/app-api/routing/v2/custom-rule"
-SKU_WAREHOUSE = "/api/linker-oms/opc/app-api/sku-warehouse/page"
-HOLD_RULES = "/api/linker-oms/opc/app-api/hold-rule-data/page"
+ROUTING_RULES = "/opc/app-api/routing/v2/rules"
+CUSTOM_RULES = "/opc/app-api/routing/v2/custom-rule"
+SKU_WAREHOUSE = "/opc/app-api/sku-warehouse/page"
+HOLD_RULES = "/opc/app-api/hold-rule-data/page"
 
 # 策略翻译表：内部名 → 中文业务名
 STRATEGY_NAME_MAP: dict[str, str] = {

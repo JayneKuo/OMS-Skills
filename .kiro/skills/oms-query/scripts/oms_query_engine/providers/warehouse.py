@@ -7,7 +7,7 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.warehouse import WarehouseInfo
 from .base import BaseProvider
 
-WAREHOUSE_LIST = "/api/linker-oms/opc/app-api/facility/v2/page"
+WAREHOUSE_LIST = "/opc/app-api/facility/v2/page"
 
 
 def _extract_list(data) -> list:

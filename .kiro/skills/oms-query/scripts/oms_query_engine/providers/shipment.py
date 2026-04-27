@@ -7,8 +7,8 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.shipment import ShipmentInfo, TrackingProgressInfo
 from .base import BaseProvider
 
-TRACKING_DETAIL = "/api/linker-oms/opc/app-api/tracking-assistant/{orderNo}"
-TRACKING_STATUS = "/api/linker-oms/opc/app-api/tracking-assistant/tracking-status/{orderNo}"
+TRACKING_DETAIL = "/opc/app-api/tracking-assistant/{orderNo}"
+TRACKING_STATUS = "/opc/app-api/tracking-assistant/tracking-status/{orderNo}"
 
 
 class ShipmentProvider(BaseProvider):

@@ -7,8 +7,8 @@ from oms_query_engine.models.provider_result import ProviderResult
 from oms_query_engine.models.inventory import InventoryInfo, SkuInventoryItem
 from .base import BaseProvider
 
-INVENTORY_LIST = "/api/linker-oms/opc/app-api/inventory/list"
-INVENTORY_MOVEMENT = "/api/linker-oms/opc/app-api/inventory/movement-history"
+INVENTORY_LIST = "/opc/app-api/inventory/list"
+INVENTORY_MOVEMENT = "/opc/app-api/inventory/movement-history"
 
 
 def _extract_list(data) -> list:

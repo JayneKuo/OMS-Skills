@@ -9,8 +9,8 @@ from oms_query_engine.models.allocation import (
 )
 from .base import BaseProvider
 
-DISPATCH_QUERY = "/api/linker-oms/opc/app-api/dispatch/recover/query/{orderNo}"
-DISPATCH_HAND = "/api/linker-oms/opc/app-api/dispatch/hand/item/{orderNo}"
+DISPATCH_QUERY = "/opc/app-api/dispatch/recover/query/{orderNo}"
+DISPATCH_HAND = "/opc/app-api/dispatch/hand/item/{orderNo}"
 
 # 策略翻译
 STRATEGY_MAP = {

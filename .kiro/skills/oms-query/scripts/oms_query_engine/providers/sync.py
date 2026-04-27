@@ -10,7 +10,7 @@ from .base import BaseProvider
 # 同步状态主要从订单日志和 shipment 相关字段中提取
 # 集成中心日志可以补充同步失败信息
 INTEGRATION_LOGS = "/api/linker-di/admin-api/connectors/http/logs"
-ORDER_LOGS = "/api/linker-oms/opc/app-api/orderLog/list"
+ORDER_LOGS = "/opc/app-api/orderLog/list"
 
 
 class SyncProvider(BaseProvider):
