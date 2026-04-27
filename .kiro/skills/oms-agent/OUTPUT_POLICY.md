@@ -662,8 +662,14 @@ Base URL: `OMS_BASE_URL`（由前端 / agent session 提供）
 - 避免过度使用"根据..."、"基于..."等前缀
 - 避免在简单查询中使用分析型的冗长表达
 - 避免在用户没问"为什么"时主动输出大段理由（简单查询场景）
+- **严禁输出内部查询过程**，包括但不限于：
+  - 查询步骤标记（`--- QUERY 1 ---`、`--- QUERY 2 --- 0` 等）
+  - 数据库表名（`p_product_sku`、`sales_order_item`、`order_dispatch_item` 等）
+  - SQL 语句（`SELECT ... FROM ... WHERE ...`）
+  - 查询计数中间结果（`X 条`、`0 条` 等原始数字）
+  - 任何形如"我查的是 XX 表"的内部实现说明
+  - 所有内部过程只能出现在思考过程（thinking）中，不得出现在最终回复里
 - 禁止暴露技术实现细节给用户，包括但不限于：
-
   - skill 名称（oms_query、cartonization、order_analysis 等）
   - 技术参数名（query_intent、confidence、retryable_flag 等）
   - API 字段名、JSON 结构、错误码原文
