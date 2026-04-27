@@ -15,6 +15,7 @@ from .models import (
     PlanInput,
     PlanResult,
     ScoreBreakdown,
+    ScoreWeights,
 )
 
 
@@ -84,7 +85,22 @@ class CostEngine:
 
         errors: list[str] = []
         degraded_fields: list[str] = []
-        weights = request.weights
+
+        # preset 优先级高于 weights
+        if request.preset:
+            try:
+                weights = ScoreWeights.from_preset(request.preset)
+            except ValueError as e:
+                errors.append(str(e))
+                weights = request.weights
+        else:
+            weights = request.weights
+
+        # 权重校验与自动归一化
+        try:
+            weights = weights.validate_sum()
+        except ValueError as e:
+            return CostResult(success=False, errors=[str(e)])
 
         # ── 1. 计算每个方案的 Cost_total ──
         plan_costs: list[tuple[PlanInput, CostBreakdown]] = []
@@ -116,14 +132,16 @@ class CostEngine:
         costs = [cb.cost_total for _, cb in plan_costs]
         etas = [p.eta_hours for p, _ in plan_costs]
 
-        # 支持两种归一化模式：
-        # 1. 参考值归一化（cost_ref_max / eta_ref_max 指定时）
-        # 2. 方案集内 Min-Max 归一化（默认）
         use_ref_cost = request.cost_ref_max is not None
         use_ref_eta = request.eta_ref_max is not None
 
         cost_min, cost_max = min(costs), max(costs)
         eta_min, eta_max = min(etas), max(etas)
+
+        # 单方案时 min=max，归一化无意义，标记降级
+        single_plan = len(request.plans) == 1
+        if single_plan:
+            degraded_fields.append("normalization")
 
         # ── 3. 计算 Score ──
         plan_results: list[PlanResult] = []
@@ -201,8 +219,10 @@ class CostEngine:
         explanation_parts = [
             f"共 {len(plan_results)} 个方案",
             f"推荐: {recommended_id}（Score={plan_results[0].score}）" if plan_results else "",
-            f"权重: cost={weights.w_cost} eta={weights.w_eta} ontime={weights.w_ontime} cap={weights.w_cap}",
+            f"场景: {request.preset or 'custom'} | 权重: cost={weights.w_cost} eta={weights.w_eta} ontime={weights.w_ontime} cap={weights.w_cap}",
         ]
+        if single_plan:
+            explanation_parts.append("注意: 仅1个方案，归一化分数无对比意义")
 
         return CostResult(
             success=True,

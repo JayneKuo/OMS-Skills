@@ -22,6 +22,37 @@ class ScoreWeights(BaseModel):
     w_ontime: Decimal = Decimal("0.15")
     w_cap: Decimal = Decimal("0.15")
 
+    @classmethod
+    def from_preset(cls, preset: str) -> "ScoreWeights":
+        """从场景预设创建权重
+
+        - balanced:       均衡（默认）cost=0.40 eta=0.30 ontime=0.15 cap=0.15
+        - cost_sensitive: 成本优先     cost=0.60 eta=0.20 ontime=0.10 cap=0.10
+        - time_sensitive: 时效优先     cost=0.20 eta=0.50 ontime=0.20 cap=0.10
+        - reliability:    可靠性优先   cost=0.25 eta=0.25 ontime=0.40 cap=0.10
+        """
+        presets = {
+            "balanced":       cls(w_cost=Decimal("0.40"), w_eta=Decimal("0.30"), w_ontime=Decimal("0.15"), w_cap=Decimal("0.15")),
+            "cost_sensitive": cls(w_cost=Decimal("0.60"), w_eta=Decimal("0.20"), w_ontime=Decimal("0.10"), w_cap=Decimal("0.10")),
+            "time_sensitive": cls(w_cost=Decimal("0.20"), w_eta=Decimal("0.50"), w_ontime=Decimal("0.20"), w_cap=Decimal("0.10")),
+            "reliability":    cls(w_cost=Decimal("0.25"), w_eta=Decimal("0.25"), w_ontime=Decimal("0.40"), w_cap=Decimal("0.10")),
+        }
+        if preset not in presets:
+            raise ValueError(f"未知预设: {preset}，可选: {list(presets.keys())}")
+        return presets[preset]
+
+    def validate_sum(self) -> "ScoreWeights":
+        """校验权重总和，不等于1.0时自动归一化"""
+        total = self.w_cost + self.w_eta + self.w_ontime + self.w_cap
+        if total <= Decimal("0"):
+            raise ValueError("权重总和必须大于 0")
+        if abs(total - Decimal("1")) > Decimal("0.001"):
+            self.w_cost = (self.w_cost / total).quantize(Decimal("0.0001"))
+            self.w_eta = (self.w_eta / total).quantize(Decimal("0.0001"))
+            self.w_ontime = (self.w_ontime / total).quantize(Decimal("0.0001"))
+            self.w_cap = Decimal("1") - self.w_cost - self.w_eta - self.w_ontime
+        return self
+
 
 class PlanInput(BaseModel):
     """单个方案输入"""
@@ -42,11 +73,11 @@ class CostRequest(BaseModel):
     """综合成本计算请求"""
     plans: list[PlanInput] = Field(default_factory=list)
     weights: ScoreWeights = Field(default_factory=ScoreWeights)
-    split_penalty_unit: Decimal = Decimal("5")      # 拆单惩罚单价（元/仓）
-    sla_hours: Decimal = Decimal("72")              # SLA 时限
-    # 归一化参考范围（可选，不指定则使用方案集内 min-max）
-    cost_ref_max: Decimal | None = None             # 成本归一化参考最大值
-    eta_ref_max: Decimal | None = None              # 时效归一化参考最大值
+    preset: str | None = None                        # 场景预设：balanced/cost_sensitive/time_sensitive/reliability；指定时覆盖 weights
+    split_penalty_unit: Decimal = Decimal("5")       # 拆单惩罚单价（元/仓）
+    sla_hours: Decimal = Decimal("72")               # SLA 时限
+    cost_ref_max: Decimal | None = None              # 成本归一化参考最大值
+    eta_ref_max: Decimal | None = None               # 时效归一化参考最大值
 
 
 # ── 输出模型 ──────────────────────────────────────────
