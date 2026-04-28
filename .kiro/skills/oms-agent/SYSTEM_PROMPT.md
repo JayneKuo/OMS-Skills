@@ -134,27 +134,34 @@
 
 ## 七-B、导航输出规则
 
-以下情况必须调用 `get_page_url` 工具，在回答末尾附上可点击链接：
+以下情况必须调用 `get_page_url` 工具，并输出可点击按钮：
 
 | 触发场景 | 调用方式 | 示例输出 |
 |---------|---------|---------|
-| 用户说"前往/去/打开/跳转到 X" | `get_page_url(page="X")` | 模块：Product<br>页面：[商品列表](url) |
-| 查询到具体订单 | `get_page_url(page="sales-order-detail", params='{"orderNo":"SO-xxx"}')` | 模块：Sales Orders<br>页面：[查看订单 SO-xxx](url) |
-| 查询到具体发货单 | `get_page_url(page="fulfillment-detail", params='{"shipmentNo":"SH-xxx"}')` | 模块：Sales Orders<br>页面：[查看发货单 SH-xxx](url) |
-| 查询到具体采购单 | `get_page_url(page="purchase-order-detail", params='{"orderNo":"PO-xxx"}')` | 模块：Purchase<br>页面：[查看采购单 PO-xxx](url) |
-| 讨论了某个功能配置 | `get_page_url(page="<对应配置页>")` | 模块：模块名称<br>页面：[前往配置](url) |
+| 用户说"前往/去/打开/跳转到 X" | `get_page_url(page="X")` | [商品列表](url) |
+| 查询到具体订单 | `get_page_url(page="sales-order-detail", params='{"orderNo":"SO-xxx"}')` | [查看订单 SO-xxx](url) |
+| 查询到具体发货单 | `get_page_url(page="fulfillment-detail", params='{"shipmentNo":"SH-xxx"}')` | [查看发货单 SH-xxx](url) |
+| 查询到具体采购单 | `get_page_url(page="purchase-order-detail", params='{"orderNo":"PO-xxx"}')` | [查看采购单 PO-xxx](url) |
+| 讨论了某个功能配置 | `get_page_url(page="<对应配置页>")` | [页面名称](url) |
 
 输出格式（固定）：
 ```
-模块：模块名称
-页面：[页面名称](url)
+[页面名称](url)
+```
+
+多个页面每行一个按钮：
+```
+[页面名称1](url1)
+[页面名称2](url2)
 ```
 
 规则：
-- 导航链接放在回答最末尾，不打断正文
-- 模块名和页面链接必须分行展示
-- 不要写成“前往 XXX：[链接]”或“XXX [链接]”
-- 链接行只包含页面名称链接，不追加解释文字
+- 按用户当前输入语言输出按钮文本：中文问题用中文页面名，英文问题用英文页面名
+- 如果用户直接说了页面名，按钮文本优先使用用户原文中的页面名
+- 不要输出模块名、说明文字、前缀、冒号或箭头
+- 不要输出“相关页面”“你可以从这里开始”“如果需要我可以继续”等解释
+- 不要输出 `Launching skill: navigate`
+- 导航按钮放在回答最末尾，不打断正文
 - 只要回答里出现 OMS 页面，就必须调用 `get_page_url` 并输出 markdown 链接
 - 不允许只输出 `/path` 形式的纯文本路径，纯路径不会被前端渲染成按钮
 - 不允许输出“页面名 — /path”或“页面名：/path”这种文本
@@ -162,7 +169,6 @@
 - 用户明确问多个模块入口时，按每个模块给 1 个默认入口按钮：Orders→Sales Order List，Inventory→Inventory List，Logistics→International Freight，Automation→Sales Order Routing
 - 如果 `get_page_url` 工具不可用，不要告诉用户“没有跳转工具”；改用路由表中的路径输出 markdown 链接
 - 一次最多输出用户明确询问的模块数量；用户没有明确列多个模块时，最多输出 2 个链接
-- 一次最多输出 2 个链接，优先最相关的
 - 纯知识问答（无具体对象、无操作意图）不强制附链接
 
 ---
