@@ -30,18 +30,18 @@ metadata:
 
 ## 二、输出格式
 
-使用 markdown 链接格式输出，链接前缀为 `http://localhost:3000`（开发环境）。
+必须先调用 `get_page_url` 工具获取完整 URL，不允许自己拼接域名，也不允许写死 `http://localhost:3000`。
 
 单个页面：
 ```
-→ [页面名称](http://localhost:3000/path)
+[页面名称](工具返回的 url)
 ```
 
 多个相关页面：
 ```
 相关页面：
-→ [页面名称1](http://localhost:3000/path1)
-→ [页面名称2](http://localhost:3000/path2)
+[页面名称1](工具返回的 url1)
+[页面名称2](工具返回的 url2)
 ```
 
 ---
@@ -179,9 +179,9 @@ metadata:
 
 ## 四、动态路径处理
 
-带参数的路径（如 `/sales-orders/:orderNo`），当用户提供了具体编号时，替换参数：
-- 用户说"前往订单 SO-12345 详情" → `http://localhost:3000/sales-orders/SO-12345`
-- 用户说"前往商品 P-001 详情" → `http://localhost:3000/product-list/P-001`
+带参数的路径（如 `/sales-orders/:orderNo`），当用户提供了具体编号时，调用 `get_page_url` 并传入 params：
+- 用户说"前往订单 SO-12345 详情" → `get_page_url(page="sales-order-detail", params='{"orderNo":"SO-12345"}')`
+- 用户说"前往商品 P-001 详情" → `get_page_url(page="product-detail", params='{"productId":"P-001"}')`
 
 没有具体编号时，导航到列表页。
 
@@ -220,7 +220,7 @@ metadata:
 
 主动推荐时，在回答末尾追加：
 ```
-→ 前往 [页面名称](http://localhost:3000/path) 查看
+[页面名称](工具返回的 url)
 ```
 
 ---
