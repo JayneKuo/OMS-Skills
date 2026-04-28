@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult, Recommendation
+from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec
 from oms_analysis_engine.models.enums import Severity
 
 BATCH_THRESHOLD = 3
@@ -209,6 +209,46 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                 "channel_distribution": dict(channel_counter),
                 "warehouse_distribution": dict(warehouse_counter),
             },
+            charts=[
+                ChartSpec(
+                    chart_id="batch_root_cause_distribution",
+                    title="Root Cause Distribution",
+                    chart_type="bar",
+                    data=[{"cause": k, "count": v} for k, v in root_cause_counter.items()],
+                    x_key="cause",
+                    y_keys=["count"],
+                    category_key="cause",
+                    value_key="count",
+                ),
+                ChartSpec(
+                    chart_id="batch_status_distribution",
+                    title="Status Distribution",
+                    chart_type="pie",
+                    data=[{"status": k, "count": v} for k, v in status_counter.items()],
+                    category_key="status",
+                    value_key="count",
+                ),
+                ChartSpec(
+                    chart_id="batch_channel_distribution",
+                    title="Channel Distribution",
+                    chart_type="bar",
+                    data=[{"channel": k, "count": v} for k, v in channel_counter.items()],
+                    x_key="channel",
+                    y_keys=["count"],
+                    category_key="channel",
+                    value_key="count",
+                ),
+                ChartSpec(
+                    chart_id="batch_warehouse_distribution",
+                    title="Warehouse Distribution",
+                    chart_type="bar",
+                    data=[{"warehouse": k, "count": v} for k, v in warehouse_counter.items()],
+                    x_key="warehouse",
+                    y_keys=["count"],
+                    category_key="warehouse",
+                    value_key="count",
+                ),
+            ],
         )
 
     @staticmethod

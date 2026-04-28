@@ -2,7 +2,7 @@
 from __future__ import annotations
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult
+from oms_analysis_engine.models.result import AnalysisResult, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import Confidence
 
 MIN_SAMPLE = 5
@@ -88,4 +88,28 @@ class ChannelPerformanceAnalyzer(BaseAnalyzer):
                 "total_orders": sum(s["total"] for s in ch_stats.values()),
             },
             details={"channels": channel_list},
+            charts=[
+                ChartSpec(
+                    chart_id="channel_gmv_ranking",
+                    title="Channel GMV Ranking",
+                    chart_type="bar",
+                    data=channel_list,
+                    x_key="channel",
+                    y_keys=["gmv"],
+                    series=[ChartSeries(name="GMV", data_key="gmv")],
+                ),
+                ChartSpec(
+                    chart_id="channel_performance_rates",
+                    title="Channel Performance Rates",
+                    chart_type="bar",
+                    data=channel_list,
+                    x_key="channel",
+                    series=[
+                        ChartSeries(name="Exception Rate", data_key="exception_rate"),
+                        ChartSeries(name="Completion Rate", data_key="completion_rate"),
+                        ChartSeries(name="Cancel Rate", data_key="cancel_rate"),
+                    ],
+                    unit="%",
+                ),
+            ],
         )

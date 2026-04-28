@@ -2,7 +2,7 @@
 from __future__ import annotations
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult, Recommendation
+from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import InventoryHealthLevel, Severity, Urgency
 
 SAFETY_DAYS = 7
@@ -79,4 +79,32 @@ class InventoryHealthAnalyzer(BaseAnalyzer):
             recommendations=recs,
             metrics={"total_skus": len(items), "out_of_stock": out_of_stock, "low_stock": low_stock},
             details={"sku_health": sku_health[:50]},
+            charts=[
+                ChartSpec(
+                    chart_id="inventory_health_distribution",
+                    title="Inventory Health Distribution",
+                    chart_type="pie",
+                    data=[
+                        {"health_level": level, "count": sum(1 for s in sku_health if s["health_level"] == level)}
+                        for level in sorted({s["health_level"] for s in sku_health})
+                    ],
+                    category_key="health_level",
+                    value_key="count",
+                ),
+                ChartSpec(
+                    chart_id="inventory_low_stock_top",
+                    title="Low Stock SKU Top",
+                    chart_type="bar",
+                    data=sorted(
+                        [s for s in sku_health if isinstance(s["sellable_days"], (int, float))],
+                        key=lambda x: x["sellable_days"],
+                    )[:20],
+                    x_key="sku",
+                    y_keys=["available", "sellable_days"],
+                    series=[
+                        ChartSeries(name="Available", data_key="available"),
+                        ChartSeries(name="Sellable Days", data_key="sellable_days", axis="right"),
+                    ],
+                ),
+            ],
         )

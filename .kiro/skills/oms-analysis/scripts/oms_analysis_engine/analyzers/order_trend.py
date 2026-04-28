@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult, Recommendation
+from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import Severity
 
 
@@ -113,4 +113,31 @@ class OrderTrendAnalyzer(BaseAnalyzer):
                 "days_count": len(sorted_days),
             },
             details={"daily_trend": trend, "consecutive_rise_warning": warning},
+            charts=[
+                ChartSpec(
+                    chart_id="order_daily_trend",
+                    title="Daily Order Trend",
+                    chart_type="line",
+                    data=trend,
+                    x_key="date",
+                    series=[
+                        ChartSeries(name="Orders", data_key="total"),
+                        ChartSeries(name="GMV", data_key="gmv", axis="right"),
+                    ],
+                    description="Daily order count and GMV trend",
+                ),
+                ChartSpec(
+                    chart_id="order_exception_cancel_rate",
+                    title="Exception and Cancel Rate",
+                    chart_type="line",
+                    data=trend,
+                    x_key="date",
+                    series=[
+                        ChartSeries(name="Exception Rate", data_key="exception_rate"),
+                        ChartSeries(name="Cancel Rate", data_key="cancel_rate"),
+                    ],
+                    unit="%",
+                    description="Daily exception and cancel rate",
+                ),
+            ],
         )

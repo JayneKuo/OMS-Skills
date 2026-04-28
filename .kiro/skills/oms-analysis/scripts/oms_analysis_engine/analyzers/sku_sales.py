@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult
+from oms_analysis_engine.models.result import AnalysisResult, ChartSpec, ChartSeries
 
 
 class SkuSalesAnalyzer(BaseAnalyzer):
@@ -104,4 +104,35 @@ class SkuSalesAnalyzer(BaseAnalyzer):
                 "cold_count": len(cold),
             },
             details={"sku_ranking": sku_list[:30]},
+            charts=[
+                ChartSpec(
+                    chart_id="sku_quantity_ranking",
+                    title="SKU Quantity Ranking",
+                    chart_type="bar",
+                    data=sku_list[:20],
+                    x_key="sku",
+                    y_keys=["quantity"],
+                    series=[ChartSeries(name="Quantity", data_key="quantity")],
+                ),
+                ChartSpec(
+                    chart_id="sku_revenue_ranking",
+                    title="SKU Revenue Ranking",
+                    chart_type="bar",
+                    data=sorted(sku_list, key=lambda x: x["revenue"], reverse=True)[:20],
+                    x_key="sku",
+                    y_keys=["revenue"],
+                    series=[ChartSeries(name="Revenue", data_key="revenue")],
+                ),
+                ChartSpec(
+                    chart_id="sku_abc_distribution",
+                    title="SKU Sales Tag Distribution",
+                    chart_type="pie",
+                    data=[
+                        {"tag": tag, "count": sum(1 for s in sku_list if s["tag"] == tag)}
+                        for tag in ("热销", "正常", "滞销")
+                    ],
+                    category_key="tag",
+                    value_key="count",
+                ),
+            ],
         )

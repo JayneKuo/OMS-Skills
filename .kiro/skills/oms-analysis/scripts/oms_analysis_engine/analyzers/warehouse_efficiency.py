@@ -4,7 +4,7 @@ import statistics
 from collections import defaultdict
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult, Recommendation
+from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import Severity
 
 # Shipping Request 状态码映射
@@ -131,4 +131,28 @@ class WarehouseEfficiencyAnalyzer(BaseAnalyzer):
                 "warning_warehouse_count": len(warning_whs),
             },
             details={"warehouse_stats": wh_stats},
+            charts=[
+                ChartSpec(
+                    chart_id="warehouse_shipping_requests",
+                    title="Warehouse Shipping Requests",
+                    chart_type="bar",
+                    data=wh_stats,
+                    x_key="warehouse_name",
+                    y_keys=["total_orders"],
+                    series=[ChartSeries(name="Shipping Requests", data_key="total_orders")],
+                ),
+                ChartSpec(
+                    chart_id="warehouse_efficiency_rates",
+                    title="Warehouse Efficiency Rates",
+                    chart_type="bar",
+                    data=wh_stats,
+                    x_key="warehouse_name",
+                    series=[
+                        ChartSeries(name="Ship Rate", data_key="ship_rate"),
+                        ChartSeries(name="Exception Rate", data_key="exception_rate"),
+                        ChartSeries(name="Cancel Rate", data_key="cancel_rate"),
+                    ],
+                    unit="%",
+                ),
+            ],
         )

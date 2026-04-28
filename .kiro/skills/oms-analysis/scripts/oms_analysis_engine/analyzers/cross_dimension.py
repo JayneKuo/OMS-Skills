@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult
+from oms_analysis_engine.models.result import AnalysisResult, ChartSpec
 
 
 class CrossDimensionAnalyzer(BaseAnalyzer):
@@ -51,4 +51,17 @@ class CrossDimensionAnalyzer(BaseAnalyzer):
             confidence=self._assess_confidence(evidences),
             data_completeness=self._assess_data_completeness(context, self.required_data),
             details={"resonances": resonances},
+            charts=[
+                ChartSpec(
+                    chart_id="warehouse_channel_exception_heatmap",
+                    title="Warehouse × Channel Exception Heatmap",
+                    chart_type="heatmap",
+                    data=resonances,
+                    x_key="warehouse",
+                    y_keys=["cross_exception_rate"],
+                    category_key="channel",
+                    value_key="cross_exception_rate",
+                    unit="%",
+                ),
+            ],
         )

@@ -2,7 +2,7 @@
 from __future__ import annotations
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
-from oms_analysis_engine.models.result import AnalysisResult, Recommendation
+from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import Urgency, Severity
 
 DEFAULT_TARGET_DAYS = 14
@@ -72,4 +72,26 @@ class ReplenishmentAdvisor(BaseAnalyzer):
             severity=Severity.CRITICAL if urgent_count > 3 else Severity.MAJOR if urgent_count > 0 else None,
             recommendations=recs,
             details={"replenishment_suggestions": suggestions},
+            charts=[
+                ChartSpec(
+                    chart_id="replenishment_suggested_qty",
+                    title="Suggested Replenishment Quantity",
+                    chart_type="bar",
+                    data=sorted(suggestions, key=lambda x: x["suggested_qty"], reverse=True)[:20],
+                    x_key="sku",
+                    y_keys=["suggested_qty"],
+                    series=[ChartSeries(name="Suggested Quantity", data_key="suggested_qty")],
+                ),
+                ChartSpec(
+                    chart_id="replenishment_urgency_distribution",
+                    title="Replenishment Urgency Distribution",
+                    chart_type="pie",
+                    data=[
+                        {"urgency": urgency, "count": sum(1 for s in suggestions if s["urgency"] == urgency)}
+                        for urgency in sorted({s["urgency"] for s in suggestions})
+                    ],
+                    category_key="urgency",
+                    value_key="count",
+                ),
+            ],
         )

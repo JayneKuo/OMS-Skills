@@ -20,6 +20,27 @@ class Recommendation(BaseModel):
     expected_effect: str | None = None
 
 
+class ChartSeries(BaseModel):
+    name: str
+    data_key: str
+    chart_type: str | None = None
+    axis: str | None = None
+
+
+class ChartSpec(BaseModel):
+    chart_id: str
+    title: str
+    chart_type: str
+    data: list[dict[str, Any]] = Field(default_factory=list)
+    x_key: str | None = None
+    y_keys: list[str] = Field(default_factory=list)
+    series: list[ChartSeries] = Field(default_factory=list)
+    category_key: str | None = None
+    value_key: str | None = None
+    unit: str | None = None
+    description: str | None = None
+
+
 class AnalysisResult(BaseModel):
     analyzer_name: str
     analyzer_version: str
@@ -32,7 +53,7 @@ class AnalysisResult(BaseModel):
     severity: Severity | None = None
     recommendations: list[Recommendation] = Field(default_factory=list)
     metrics: dict = Field(default_factory=dict)
-    details: dict = Field(default_factory=dict)
+    charts: list[ChartSpec] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
 
     @classmethod
