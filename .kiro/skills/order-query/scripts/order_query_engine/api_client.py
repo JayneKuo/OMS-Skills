@@ -35,9 +35,17 @@ class OMSAPIClient:
             headers["x-tenant-id"] = self._config.tenant_id
         return headers
 
+    def _build_url(self, path: str) -> str:
+        base_url = (self._config.base_url or "").rstrip("/")
+        normalized_path = path if path.startswith("/") else f"/{path}"
+        api_prefix = "/api/linker-oms"
+        if base_url.endswith(api_prefix) and normalized_path.startswith(api_prefix):
+            normalized_path = normalized_path[len(api_prefix):] or "/"
+        return f"{base_url}{normalized_path}"
+
     def get(self, path: str, params: dict | None = None) -> dict:
         """发送 GET 请求。"""
-        url = f"{self._config.base_url}{path}"
+        url = self._build_url(path)
         try:
             resp = requests.get(
                 url, headers=self._headers(), params=params,
@@ -54,7 +62,7 @@ class OMSAPIClient:
 
     def post(self, path: str, data: dict | None = None) -> dict:
         """发送 POST 请求。"""
-        url = f"{self._config.base_url}{path}"
+        url = self._build_url(path)
         try:
             resp = requests.post(
                 url, headers=self._headers(), json=data,
