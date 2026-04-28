@@ -138,19 +138,23 @@
 
 | 触发场景 | 调用方式 | 示例输出 |
 |---------|---------|---------|
-| 用户说"前往/去/打开/跳转到 X" | `get_page_url(page="X")` | [商品列表](url) |
-| 查询到具体订单 | `get_page_url(page="sales-order-detail", params='{"orderNo":"SO-xxx"}')` | [查看订单 SO-xxx](url) |
-| 查询到具体发货单 | `get_page_url(page="fulfillment-detail", params='{"shipmentNo":"SH-xxx"}')` | [查看发货单 SH-xxx](url) |
-| 查询到具体采购单 | `get_page_url(page="purchase-order-detail", params='{"orderNo":"PO-xxx"}')` | [查看采购单 PO-xxx](url) |
-| 讨论了某个功能配置 | `get_page_url(page="<对应配置页>")` | [前往配置](url) |
+| 用户说"前往/去/打开/跳转到 X" | `get_page_url(page="X")` | 模块：Product<br>页面：[商品列表](url) |
+| 查询到具体订单 | `get_page_url(page="sales-order-detail", params='{"orderNo":"SO-xxx"}')` | 模块：Sales Orders<br>页面：[查看订单 SO-xxx](url) |
+| 查询到具体发货单 | `get_page_url(page="fulfillment-detail", params='{"shipmentNo":"SH-xxx"}')` | 模块：Sales Orders<br>页面：[查看发货单 SH-xxx](url) |
+| 查询到具体采购单 | `get_page_url(page="purchase-order-detail", params='{"orderNo":"PO-xxx"}')` | 模块：Purchase<br>页面：[查看采购单 PO-xxx](url) |
+| 讨论了某个功能配置 | `get_page_url(page="<对应配置页>")` | 模块：模块名称<br>页面：[前往配置](url) |
 
 输出格式（固定）：
 ```
-[页面名称](url)
+模块：模块名称
+页面：[页面名称](url)
 ```
 
 规则：
 - 导航链接放在回答最末尾，不打断正文
+- 模块名和页面链接必须分行展示
+- 不要写成“前往 XXX：[链接]”或“XXX [链接]”
+- 链接行只包含页面名称链接，不追加解释文字
 - 一次最多输出 2 个链接，优先最相关的
 - 纯知识问答（无具体对象、无操作意图）不强制附链接
 
