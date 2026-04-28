@@ -729,6 +729,59 @@ _ROUTES: dict[str, str] = {
     "profile": "/profile",
 }
 
+_PAGE_TITLES: dict[str, str] = {
+    "sales-orders": "Sales Order List",
+    "sales-order-detail": "Sales Order Detail",
+    "sales-order-add": "New Sales Order",
+    "sales-order-edit": "Edit Sales Order",
+    "shipping-requests": "Shipping Requests",
+    "shipping-request-detail": "Shipping Request Detail",
+    "order-track": "AI Order Track",
+    "order-track-detail": "Track Detail",
+    "fulfillments": "Fulfillments",
+    "fulfillment-detail": "Fulfillment Detail",
+    "work-orders": "Work Orders",
+    "work-order-detail": "Work Order Detail",
+    "inventory-list": "Inventory List",
+    "inventory-detail": "Inventory Detail",
+    "warehouse": "Warehouse Management",
+    "warehouse-zipcode": "Warehouse Zipcodes",
+    "international-freight": "International Freight",
+    "transaction-management": "Transaction Management",
+    "transaction-detail": "Transaction Detail",
+    "delivery-orders": "Delivery Orders",
+    "delivery-order-create": "Create Delivery Order",
+    "small-parcel": "Small Parcel",
+    "small-parcel-detail": "Small Parcel Detail",
+    "small-parcel-dispatch": "Small Parcel Dispatch",
+    "tax-payment": "Tax Payment",
+    "lso-claims": "LSO Claims",
+    "pickup-appointment": "Pickup Appointment",
+    "driver-manage": "Driver Management",
+    "file-manage": "File Management",
+    "sales-order-routing": "Sales Order Routing",
+    "fulfillment-mode": "Fulfillment Mode",
+    "product-designated-warehouse": "Product Designated Warehouse",
+    "hold-order-rules": "Hold Order Rules",
+    "sku-filters": "SKU Filters",
+    "order-update-setting": "Order Update Setting",
+    "mappings": "Mappings",
+    "inventory-sync-rule": "Inventory Sync Rules",
+    "rate-shopping": "Rate Shopping",
+    "shipping-account": "Shipping Account",
+    "shipping-account-detail": "Shipping Account Detail",
+    "shipping-account-add": "New Shipping Account",
+    "carrier-service": "Carrier Service",
+    "carrier-service-detail": "Carrier Service Detail",
+    "carrier-service-add": "New Carrier Service",
+    "delivery-order-routing": "Delivery Order Routing",
+    "form-engine": "Form Engine",
+    "form-engine-detail": "Form Detail",
+    "form-engine-add": "New Form",
+    "email-configuration": "Email Configuration",
+    "event-callback-routing": "Event Callback Routing",
+}
+
 # 模糊匹配关键词 → page key
 _FUZZY_MAP: list[tuple[list[str], str]] = [
     (["销售订单", "sales order", "订单列表"], "sales-orders"),
@@ -803,6 +856,7 @@ def get_page_url(page: str, params: str | None = None) -> str:
     path_params: dict = json.loads(p) if p else {}
 
     # 精确匹配
+    matched_key = page if page in _ROUTES else None
     path = _ROUTES.get(page)
 
     # 模糊匹配
@@ -810,6 +864,7 @@ def get_page_url(page: str, params: str | None = None) -> str:
         page_lower = page.lower()
         for keywords, key in _FUZZY_MAP:
             if any(kw in page_lower for kw in keywords):
+                matched_key = key
                 path = _ROUTES.get(key)
                 break
 
@@ -825,7 +880,8 @@ def get_page_url(page: str, params: str | None = None) -> str:
         path = path.replace(f"{{{k}}}", str(v))
 
     url = f"{_BASE_URL}{path}"
-    return json.dumps({"url": url, "page": page, "path": path}, ensure_ascii=False)
+    title = _PAGE_TITLES.get(matched_key or page, page)
+    return json.dumps({"url": url, "title": title, "page": matched_key or page, "path": path}, ensure_ascii=False)
 
 
 if __name__ == "__main__":
