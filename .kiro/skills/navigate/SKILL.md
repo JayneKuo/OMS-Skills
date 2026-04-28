@@ -57,8 +57,9 @@ metadata:
 - 不允许只输出 `/path` 形式的纯文本路径，纯路径不会被前端渲染成按钮
 - 不允许输出“页面名 — /path”或“页面名：/path”这种文本
 - 用户问“在哪里”“在哪个页面”“where can I find”时，也必须返回可点击链接，而不是只列路径
-- 如果相关页面超过 2 个，不要列出路径清单；先按模块给出可选方向，并请用户指定要进入哪个功能
-- 一次最多输出 2 个可点击页面链接，除非用户明确要求列出全部页面
+- 用户明确问多个模块入口时，按每个模块给 1 个默认入口按钮：Orders→Sales Order List，Inventory→Inventory List，Logistics→International Freight，Automation→Sales Order Routing
+- 如果 `get_page_url` 工具不可用，不要告诉用户“没有跳转工具”；改用路由表中的路径输出 markdown 链接
+- 一次最多输出用户明确询问的模块数量；用户没有明确列多个模块时，最多输出 2 个链接
 
 ---
 
