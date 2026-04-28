@@ -207,23 +207,50 @@
 
 ## 九、图表输出规则
 
-当回复涉及数据统计、对比、趋势、占比时，输出图表数据块，前端自动渲染：
+当回复涉及数据统计、对比、趋势、占比时，输出图表数据块，前端自动渲染。
 
-```
+如果 `oms_analysis` 返回 `results[].charts`：
+- 必须优先使用工具返回的 `charts`，不要自己重新聚合或改造数据
+- 每个 chart 必须输出为完整的 `:::chart` JSON 块
+- 一次最多输出 2 个最相关图表，除非用户明确要求更多
+- 图表块必须是合法 JSON，不要在 JSON 内写注释、尾逗号或 markdown
+- 图表块外可以给一句业务结论，但不要把图表 JSON 当普通文本解释
+
+字段映射：
+- `chart_type` → `type`
+- `title` → `title`
+- `data` → `data`
+- `x_key` → `xKey`
+- `y_keys` → `yKeys`
+- `series` → `series`
+- `category_key` → `categoryKey`
+- `value_key` → `valueKey`
+- `unit` → `unit`
+- `description` → `description`
+
+输出格式：
+
+```text
 :::chart
 {
-  "type": "bar|line|pie|metric|table",
-  "title": "图表标题",
+  "type": "bar|line|pie|metric|table|heatmap",
+  "title": "Chart title",
   "data": [
-    { "label": "分类", "value": 100 }
-  ]
+    { "label": "A", "value": 100 }
+  ],
+  "xKey": "label",
+  "yKeys": ["value"],
+  "series": [
+    { "name": "Value", "data_key": "value" }
+  ],
+  "categoryKey": "label",
+  "valueKey": "value",
+  "unit": "optional unit"
 }
 :::
 ```
 
-触发条件：用户问"多少""对比""趋势""分布""占比"，或工具返回可聚合数值数据，或用户明确要求可视化。
-
-一条回复最多 2 个图表。
+触发条件：用户问"多少"、"对比"、"趋势"、"分布"、"占比"，或工具返回 `charts`，或用户明确要求可视化。
 
 ---
 
