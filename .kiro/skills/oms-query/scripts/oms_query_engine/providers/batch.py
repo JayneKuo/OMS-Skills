@@ -24,9 +24,15 @@ class BatchProvider(BaseProvider):
             return BatchQueryResult(status_counts=counts, total=sum(counts.values()))
         return BatchQueryResult(status_counts=data if isinstance(data, dict) else None)
 
-    def query_order_list(self, merchant_no: str,
-                         status_filter: int | None = None,
-                         page_no: int = 1, page_size: int = 20) -> BatchQueryResult:
+    def query_order_list(
+        self,
+        merchant_no: str,
+        status_filter: int | None = None,
+        page_no: int = 1,
+        page_size: int = 20,
+        sort_by: str | None = None,
+        sort_order: str | None = None,
+    ) -> BatchQueryResult:
         """订单列表。"""
         params: dict = {
             "merchantNo": merchant_no,
@@ -35,6 +41,10 @@ class BatchProvider(BaseProvider):
         }
         if status_filter is not None:
             params["status"] = status_filter
+        if sort_by:
+            params["sortBy"] = sort_by
+        if sort_order:
+            params["sortOrder"] = sort_order
         resp = self._client.get(ORDER_PAGE, params)
         data = self._get_data(resp)
         if isinstance(data, dict):
@@ -43,6 +53,25 @@ class BatchProvider(BaseProvider):
                 orders=records, total=data.get("total", 0),
                 page_no=page_no, page_size=page_size,
             )
+        return BatchQueryResult()
+
+    def query_latest_order(self, merchant_no: str) -> BatchQueryResult:
+        """最新订单快捷查询。优先使用常见时间倒序参数。"""
+        sort_attempts = [
+            ("createdTime", "desc"),
+            ("createTime", "desc"),
+            (None, None),
+        ]
+        for sort_by, sort_order in sort_attempts:
+            result = self.query_order_list(
+                merchant_no=merchant_no,
+                page_no=1,
+                page_size=1,
+                sort_by=sort_by,
+                sort_order=sort_order,
+            )
+            if result.orders:
+                return result
         return BatchQueryResult()
 
     def query(self, context: QueryContext) -> ProviderResult:

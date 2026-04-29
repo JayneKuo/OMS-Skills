@@ -12,10 +12,9 @@ def mock_engine():
     """创建一个 mock API 的引擎实例。"""
     config = EngineConfig(
         base_url="https://test.example.com",
-        username="test@example.com",
-        password="testpass",
         tenant_id="LT",
         merchant_no="TEST0001",
+        access_token="test-token",
     )
     engine = OMSQueryEngine(config)
 
@@ -254,3 +253,18 @@ class TestBatchQuery:
 
         assert result.total == 2
         assert len(result.orders) == 2
+
+    def test_latest_order(self, mock_engine):
+        engine, client = mock_engine
+        client._ensure_token = MagicMock()
+        client.get.return_value = {"data": {
+            "records": [{"orderNo": "SO999", "createdTime": 1777429554000}],
+            "total": 1,
+        }}
+
+        result = engine.query_batch(BatchQueryRequest(query_type="latest_order"))
+
+        assert result.total == 1
+        assert result.orders[0]["orderNo"] == "SO999"
+        first_call_params = client.get.call_args.args[1]
+        assert first_call_params["pageSize"] == 1

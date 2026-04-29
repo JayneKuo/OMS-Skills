@@ -50,8 +50,6 @@
 
 ### Steps（批量异常）
 1. 调用 `oms_analysis`（query="为什么订单总是异常"）
-   - IntentDetector 自动扩展为 batch_pattern + impact_assessment + fix_recommendation
-   - DataFetcher 自动拉取订单列表 + 抽样事件日志
 2. 按 OUTPUT_POLICY Level 2 模板输出根因 + 影响范围 + 修复建议
 
 ### Outputs
@@ -76,119 +74,61 @@
 
 ### Steps
 1. 调用 `oms_query` 获取订单、商品、目的地
-2. 调用库存/仓能力相关能力，获取库存与仓能力
-3. 调用 `warehouse_allocation` 生成候选仓和推荐仓
-4. 如用户要求完整发货建议，则继续：
-   - 调用 `cartonization` 获取装箱方案
-   - 调用 `shipping_rate` 计算运费
-   - 调用 `eta` 计算时效
-   - 调用 `cost` 计算综合成本
-5. 输出：
+2. 调用 `warehouse_allocation` 生成候选仓和推荐仓
+3. 输出：
    - 推荐仓
    - 候选仓
-   - 如果有完整建议，则补充推荐承运商、服务和理由
+   - 推荐理由
+   - 风险与约束
+4. 如果用户要求完整发货建议，则切换到 `fulfillment_planner_workflow`
 
 ### Outputs
 - recommended_warehouse
 - candidate_warehouses
 - allocation_reason
-- recommended_carrier
-- recommended_service
-- recommendation_reason
 - risks_and_constraints
 
 ---
 
-## 4. shipping_plan_recommendation_workflow（✅ 已实现）
+## 4. fulfillment_planner_workflow（✅ 当前主编排层）
 
 ### Trigger
 当用户请求：
 
 - 这单怎么发最合适
-- 走哪个承运商
-- 用什么服务
-- 这票货怎么装箱并发货
 - 给我一个完整发货方案
-
-### MCP Tool
-`shipping_plan_recommend(order_no, merchant_no?, risk_level?)`
-
-### 实现
-`workflow_engine/shipping_plan.py` → `ShippingPlanWorkflow.run()`
-
-### Pipeline Steps
-1. **oms_query** → 调用 OMSQueryEngine 获取订单全景（SKU、数量、地址、仓库）
-2. **build_packages** → 构建包裹信息（无 SKU 物理数据时用默认重量 0.9kg 估算，标注 degraded）
-3. **shipping_rate** → 调用 DefaultUSRateProvider 做多承运商运费比价（UPS Ground / FedEx Ground / USPS Priority）
-4. **eta** → 调用 ETAEngine 为每个承运商方案计算 ETA（支持 P50/P75/P90 口径）
-5. **cost_score** → 调用 CostEngine 做综合评分排序（4 维加权：成本/时效/准时率/容量）
-6. **输出** → Top-3 推荐方案 + 每步执行状态 + 白盒解释
-
-### 降级策略
-- 每一步失败不阻断后续步骤，降级继续
-- 无 SKU 重量数据 → 使用默认 0.9kg/件估算
-- 无仓库地址 → 默认 NJ 州
-- cost_engine 失败 → 降级为仅按运费排序
-- 结果中标注所有降级步骤和原因
-
-### Outputs
-- order_summary（订单摘要：SKU、数量、地址、仓库）
-- package_summary（包裹摘要：包裹数、重量）
-- plans[]（Top-3 方案：承运商、运费、ETA、准时率、Score、排名）
-- recommended_plan（推荐方案）
-- pipeline_steps[]（每步执行状态：名称、成功/失败、耗时、降级标记）
-- degraded / degraded_reasons（降级标记和原因）
-- explanation（白盒解释）
-
----
-
-## 5. warehouse_plus_shipping_recommendation_workflow
-
-### Trigger
-当用户请求：
-
-- 这单该分哪个仓、走哪个承运商、用什么服务
-- 给我完整推荐方案
-- 从仓库到物流服务一起推荐
+- 这单该分哪个仓、怎么装箱、走哪个承运商
+- 比较几个履约方案的成本、时效、风险
 
 ### Steps
-1. 调用 `oms_query`
-2. 调用库存/仓能力相关能力
-3. 调用 `warehouse_allocation`
-4. 调用 `cartonization`
-5. 调用 `shipping_rate`
-6. 调用 `eta`
-7. 调用 `cost`
-8. 比较多个候选组合：
-   - 仓库 + 承运商 + 服务
-9. 输出最终推荐：
-   - 推荐仓库
-   - 推荐承运商
-   - 推荐服务
-   - 推荐理由
-   - 成本与时效差异
-   - 备选方案
+1. 调用 `oms_query` 获取订单、商品、地址、当前履约上下文
+2. 调用 `warehouse_allocation` 生成单仓 / 多仓候选方案
+3. 对每个候选方案调用 `cartonization` 生成装箱结果
+4. 调用 `shipping_rate` 计算包裹级与订单级运费
+5. 调用 `eta` 计算 ETA、准时率、时效风险
+6. 调用 `cost` 做综合评分、排序和推荐
+7. 输出推荐方案、备选方案、风险与假设
 
 ### Outputs
-- recommended_warehouse
-- recommended_carrier
-- recommended_service
-- package_plan
-- estimated_shipping_cost
-- estimated_eta
-- total_cost
-- recommendation_reason
-- alternative_options
+- recommended_plan
+- alternative_plans
+- warehouse_summary
+- package_summary
+- freight_summary
+- eta_summary
+- cost_summary
+- risks_and_constraints
+- degraded / confidence
 
 ---
 
-## 6. workflow 使用原则
+## 5. workflow 使用原则
 
 1. 能单 skill 解决的问题，不要强行走 workflow  
-2. 涉及多个业务维度的推荐问题，必须走 workflow  
+2. 涉及多个业务维度的推荐问题，优先走 `fulfillment_planner_workflow`  
 3. workflow 中每一步都要基于前一步结果，不得跳步  
 4. 如果某个关键步骤失败，必须明确说明失败位置和影响  
-5. 如果数据不完整，可以输出估算型 workflow 结果，但必须标记为估算  
+5. 如果数据不完整，可以输出估算型 workflow 结果，但必须标记为估算或 degraded  
 6. 最终输出必须包含：
    - 结果
    - 原因

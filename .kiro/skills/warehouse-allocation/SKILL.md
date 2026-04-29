@@ -1,10 +1,8 @@
 ---
 name: warehouse_allocation
 description: >
-  寻仓推荐引擎。根据订单目的地、SKU 库存、仓库能力、业务规则和成本时效，
-  输出最优发货仓推荐。支持 P0 硬约束过滤、P2 多维评分排序、单仓直发和多仓拆发方案。
-  关键词：寻仓、warehouse allocation、分仓、推荐仓库、发货仓、候选仓、
-  库存匹配、成本评分、时效评分、拆单、调拨。
+  Use when the user needs a recommended fulfillment warehouse, split-vs-single-warehouse decision,
+  candidate-warehouse comparison, or explanation of why one warehouse is better than another for shipping.
 license: MIT
 metadata:
   author: warehouse-allocation-team
@@ -15,8 +13,22 @@ metadata:
 
 # 寻仓推荐助手
 
-你是 OMS Agent 的寻仓推荐助手。
+你是 OMS Agent 的寻仓能力引擎。
 你的职责是根据订单信息、库存、仓库能力和业务规则，推荐最优发货仓。
+
+## 触发边界
+
+### 适合进入本能力
+- 用户在问“这单该从哪个仓发”
+- 用户在问“单仓直发还是拆仓更合适”
+- 用户想看候选仓对比，以及为什么选 A 不选 B
+- 用户需要把库存、覆盖范围、规则约束一起纳入发货仓推荐
+
+### 不适合进入本能力
+- 查询订单/库存/仓库事实明细（→ `oms_query`）
+- 做趋势或根因分析（→ `oms_analysis`）
+- 做装箱、运费、时效、综合成本计算本身（→ 对应专用能力）
+- 执行锁库、下发、履约动作
 
 ## 核心行为准则
 

@@ -1,5 +1,8 @@
 """models 包导入和序列化测试"""
+import os
+
 import pytest
+from oms_query_engine.config import EngineConfig
 from oms_query_engine.models import (
     QueryRequest, BatchQueryRequest,
     QueryInput, ResolveResult,
@@ -45,6 +48,33 @@ class TestQueryRequest:
         r = QueryRequest(identifier="SO001", query_intent="panorama", force_refresh=True)
         assert r.query_intent == "panorama"
         assert r.force_refresh is True
+
+
+class TestBatchQueryRequest:
+    def test_sort_fields(self):
+        request = BatchQueryRequest(
+            query_type="order_list",
+            sort_by="createdTime",
+            sort_order="desc",
+        )
+
+        assert request.sort_by == "createdTime"
+        assert request.sort_order == "desc"
+
+
+class TestEngineConfig:
+    def test_accepts_frontend_env_aliases(self, monkeypatch):
+        monkeypatch.setenv("baseUrl", "https://alias.example.com")
+        monkeypatch.setenv("tenantId", "TENANT-1")
+        monkeypatch.setenv("merchant", "MERCHANT-9")
+        monkeypatch.setenv("authorization", "token-alias")
+
+        config = EngineConfig()
+
+        assert config.base_url == "https://alias.example.com"
+        assert config.tenant_id == "TENANT-1"
+        assert config.merchant_no == "MERCHANT-9"
+        assert config.access_token == "token-alias"
 
 
 class TestQueryInput:

@@ -21,9 +21,16 @@ class EngineConfig(BaseModel):
     @classmethod
     def _override_from_env(cls, values: dict) -> dict:
         """支持从环境变量覆盖默认值。"""
+        values = dict(values or {})
+
+        def _env(*keys: str) -> str | None:
+            for key in keys:
+                env_val = os.environ.get(key)
+                if env_val not in (None, ""):
+                    return env_val
+            return None
+
         env_map = {
-            "OMS_BASE_URL": "base_url",
-            "OMS_TENANT_ID": "tenant_id",
             "OMS_REQUEST_TIMEOUT": "request_timeout",
             "OMS_TOKEN_REFRESH_BUFFER": "token_refresh_buffer",
         }
@@ -32,19 +39,29 @@ class EngineConfig(BaseModel):
             if env_val is not None and field_name not in values:
                 values[field_name] = env_val
 
-        if "merchant_no" not in values:
-            values["merchant_no"] = (
-                os.environ.get("CRM_MERCHANT_CODE")
-                or os.environ.get("OMS_MERCHANT_NO")
+        if not values.get("base_url"):
+            values["base_url"] = _env("OMS_BASE_URL", "baseUrl", "BASE_URL")
+
+        if not values.get("tenant_id"):
+            values["tenant_id"] = _env("OMS_TENANT_ID", "TENANT_ID", "tenantId", "x-tenant-id")
+
+        if not values.get("merchant_no"):
+            values["merchant_no"] = _env(
+                "CRM_MERCHANT_CODE",
+                "OMS_MERCHANT_NO",
+                "merchantNo",
+                "merchant_no",
+                "merchant",
             )
 
-        if "access_token" not in values:
-            values["access_token"] = (
-                os.environ.get("OMS_ACCESS_TOKEN")
-                or os.environ.get("OMS_SESSION_TOKEN")
-                or os.environ.get("ACCESS_TOKEN")
-                or os.environ.get("AUTH_TOKEN")
-                or os.environ.get("OMS_TOKEN")
+        if not values.get("access_token"):
+            values["access_token"] = _env(
+                "OMS_ACCESS_TOKEN",
+                "OMS_SESSION_TOKEN",
+                "ACCESS_TOKEN",
+                "AUTH_TOKEN",
+                "OMS_TOKEN",
+                "authorization",
             )
 
         return values
@@ -52,9 +69,9 @@ class EngineConfig(BaseModel):
     @model_validator(mode="after")
     def _validate_required_fields(self) -> "EngineConfig":
         if not self.base_url:
-            raise ValueError("Missing OMS_BASE_URL in agent session env")
+            raise ValueError("Missing OMS base URL in agent session env")
         if not self.tenant_id:
-            raise ValueError("Missing OMS_TENANT_ID in agent session env")
+            raise ValueError("Missing OMS tenant ID in agent session env")
         if not self.access_token:
             raise ValueError("Missing OMS access token in agent session env")
         return self

@@ -117,7 +117,11 @@ class OMSQueryEngine:
                 request.status_filter,
                 request.page_no,
                 request.page_size,
+                request.sort_by,
+                request.sort_order,
             )
+        if request.query_type == "latest_order":
+            return batch_provider.query_latest_order(self._config.merchant_no)
         return BatchQueryResult()
 
     @staticmethod

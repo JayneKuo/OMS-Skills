@@ -45,7 +45,14 @@ MISSING_MERCHANT_ERROR = {
 
 
 def _resolve_merchant_no(merchant_no: str | None) -> str:
-    resolved = merchant_no or os.environ.get("CRM_MERCHANT_CODE") or os.environ.get("OMS_MERCHANT_NO")
+    resolved = (
+        merchant_no
+        or os.environ.get("CRM_MERCHANT_CODE")
+        or os.environ.get("OMS_MERCHANT_NO")
+        or os.environ.get("merchantNo")
+        or os.environ.get("merchant_no")
+        or os.environ.get("merchant")
+    )
     if not resolved:
         raise ValueError(MISSING_MERCHANT_ERROR["error"])
     return resolved
@@ -112,6 +119,21 @@ def oms_batch_query(
         page_no=page_no,
         page_size=page_size,
     ))
+    return json.dumps(result.model_dump(), ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def oms_latest_order() -> str:
+    """查询当前商户最新的一个订单。
+
+    适用于“最新订单”“最近一单”“刚创建的订单”这类高频问题。
+    优先使用订单列表接口的最小查询路径，减少不必要的编排开销。
+    """
+    from oms_query_engine.engine_v2 import OMSQueryEngine
+    from oms_query_engine.models.request import BatchQueryRequest
+
+    engine = OMSQueryEngine()
+    result = engine.query_batch(BatchQueryRequest(query_type="latest_order"))
     return json.dumps(result.model_dump(), ensure_ascii=False, indent=2)
 
 

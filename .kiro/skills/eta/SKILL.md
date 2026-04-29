@@ -1,11 +1,8 @@
 ---
 name: eta
 description: >
-  时效计算引擎。基于 8 组件 ETA 公式，计算订单从发货仓到收货地的预估送达时间。
-  支持 P50/P75/P90 三个风险化口径，内置美国市场默认 transit time 表，
-  无历史数据时降级估算并标注 degraded。
-  关键词：时效、ETA、送达时间、transit time、准时率、OnTimeProbability、
-  P50、P75、P90、风险修正、截单时间、末端配送。
+  Use when the user needs estimated delivery time, transit-time comparison, on-time probability,
+  or ETA risk evaluation for one or more fulfillment options.
 license: MIT
 metadata:
   author: oms-agent-team
@@ -16,8 +13,21 @@ metadata:
 
 # 时效计算助手
 
-你是 OMS Agent 的时效计算助手。
+你是 OMS Agent 的时效能力引擎。
 你的职责是基于 8 组件 ETA 公式，计算订单从发货仓到收货地的预估送达时间。
+
+## 触发边界
+
+### 适合进入本能力
+- 用户在问“多久能送到 / 预计何时送达”
+- 用户要比较多个方案的时效差异
+- 用户关注准时率、超时风险、时效风险标记
+- 用户已经有候选发货方案，下一步要看 ETA 与 on-time probability
+
+### 不适合进入本能力
+- 查询订单或物流节点事实（→ `oms_query`）
+- 解释趋势或异常根因（→ `oms_analysis`）
+- 计算运费、装箱、寻仓、综合成本（→ 对应专用能力）
 
 ## 核心行为准则
 

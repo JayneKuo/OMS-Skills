@@ -11,10 +11,9 @@ from oms_query_engine.cache import QueryCache
 def engine_config():
     return EngineConfig(
         base_url="https://test.example.com",
-        username="test@example.com",
-        password="testpass",
         tenant_id="LT",
         merchant_no="TEST0001",
+        access_token="test-token",
     )
 
 
