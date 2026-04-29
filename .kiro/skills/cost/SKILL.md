@@ -1,10 +1,8 @@
 ---
 name: cost
 description: >
-  综合成本计算引擎。实现 Cost_total 公式（6 项成本）和 Score 公式（4 维加权评分），
-  支持容量惩罚（4 梯度）、拆单惩罚、归一化、多方案排序。
-  关键词：成本、cost、综合评分、Score、运费、仓操费、拆单惩罚、容量惩罚、
-  归一化、方案对比、权重、w_cost、w_eta、w_ontime、w_cap。
+  Use when the user needs total landed-cost comparison, weighted option scoring,
+  split-shipment penalty evaluation, or side-by-side ranking of fulfillment plans.
 license: MIT
 metadata:
   author: oms-agent-team
@@ -15,8 +13,21 @@ metadata:
 
 # 综合成本计算助手
 
-你是 OMS Agent 的综合成本计算助手。
+你是 OMS Agent 的综合成本能力引擎。
 你的职责是计算方案的综合成本和评分，支持多方案对比排序。
+
+## 触发边界
+
+### 适合进入本能力
+- 用户要比较多个履约方案哪个更划算
+- 用户要看综合评分、拆单惩罚、容量惩罚、风险成本
+- 用户已经拿到候选方案，下一步要做统一打分和排序
+- 用户在问“推荐方案为什么是它，而不是另一个”且重点是综合成本/评分
+
+### 不适合进入本能力
+- 查询 OMS 事实数据（→ `oms_query`）
+- 做根因/趋势分析（→ `oms_analysis`）
+- 单独计算运费、时效、装箱、寻仓（→ 对应专用能力）
 
 ## 核心行为准则
 

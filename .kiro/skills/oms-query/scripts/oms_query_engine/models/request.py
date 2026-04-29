@@ -16,3 +16,5 @@ class BatchQueryRequest(BaseModel):
     status_filter: int | None = None
     page_no: int = 1
     page_size: int = 20
+    sort_by: str | None = None
+    sort_order: str | None = None

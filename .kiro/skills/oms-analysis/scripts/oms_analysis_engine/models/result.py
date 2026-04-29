@@ -70,6 +70,10 @@ class AnalysisResult(BaseModel):
 
 class AnalysisResponse(BaseModel):
     results: list[AnalysisResult] = Field(default_factory=list)
+    summary: str = ""
+    metrics: dict = Field(default_factory=dict)
+    charts: list[ChartSpec] = Field(default_factory=list)
+    recommendations: list[Recommendation] = Field(default_factory=list)
     overall_severity: Severity | None = None
     overall_confidence: Confidence = Confidence.LOW
     overall_data_completeness: DataCompleteness = DataCompleteness.INSUFFICIENT

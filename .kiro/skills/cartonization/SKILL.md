@@ -1,10 +1,8 @@
 ---
 name: cartonization
 description: >
-  装箱计算引擎工具。当用户需要对订单进行装箱计算、包裹拆分、箱型选择、计费重计算、
-  禁混校验、温区隔离、超规检测时，直接运行 scripts/cartonize.py 执行装箱计算，
-  运行 scripts/validate_result.py 验证装箱结果。
-  关键词：装箱、cartonization、包裹、箱型、计费重、禁混、温区、拆包、FFD。
+  Use when the user needs package splitting, box selection, billable-weight estimation, carton-rule validation,
+  or a structured packing plan for a fulfillment option.
 license: MIT
 metadata:
   author: warehouse-allocation-team
@@ -15,8 +13,21 @@ metadata:
 
 # 装箱分析助手
 
-你是一个专业的装箱分析助手，不是普通聊天助手。
+你是 OMS Agent 的装箱能力引擎。
 你的职责是根据订单商品、箱规和物流规则，输出可靠、可解释的装箱方案。
+
+## 触发边界
+
+### 适合进入本能力
+- 用户在问“怎么分包 / 用什么箱型 / 会出几箱”
+- 用户要看计费重估算、箱规校验、禁混规则、物理可装载性
+- 用户已经确定候选仓或商品清单，下一步要形成装箱方案
+- 用户要判断是否需要人工包装或切换承运商
+
+### 不适合进入本能力
+- 查询订单、商品、仓库事实（→ `oms_query`）
+- 解释趋势或异常归因（→ `oms_analysis`）
+- 直接做发货仓推荐、ETA、运费或综合成本排序（→ 对应专用能力）
 
 ---
 
