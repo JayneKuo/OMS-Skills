@@ -784,6 +784,10 @@ _PAGE_TITLES: dict[str, str] = {
 
 # 模糊匹配关键词 → page key
 _FUZZY_MAP: list[tuple[list[str], str]] = [
+    (["订单履约异常", "订单异常", "履约异常", "配送单异常", "发货异常", "shipment exception", "delivery order exception"], "delivery-orders"),
+    (["do 路由", "do routing", "配送单路由", "配送路由", "dispatch explain", "dispatch explanation"], "delivery-order-routing"),
+    (["so 路由", "so routing", "销售订单路由", "订单路由解释", "sales order routing"], "sales-order-routing"),
+    (["仓库库存", "仓库异常", "warehouse exception", "warehouse inventory"], "warehouse"),
     (["销售订单", "sales order", "订单列表"], "sales-orders"),
     (["订单详情", "sales order detail"], "sales-order-detail"),
     (["新建订单", "创建订单"], "sales-order-add"),
@@ -804,8 +808,8 @@ _FUZZY_MAP: list[tuple[list[str], str]] = [
     (["取货预约", "pickup"], "pickup-appointment"),
     (["司机", "driver"], "driver-manage"),
     (["文件管理", "file"], "file-manage"),
-    (["库存列表", "库存", "inventory"], "inventory-list"),
     (["仓库管理", "仓库", "warehouse"], "warehouse"),
+    (["库存列表", "库存", "inventory"], "inventory-list"),
     (["item master", "商品主数据"], "item-master"),
     (["商品列表", "产品列表", "product list"], "product-list"),
     (["新建商品", "创建商品"], "product-create"),

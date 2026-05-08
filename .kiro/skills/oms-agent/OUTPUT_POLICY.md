@@ -579,47 +579,32 @@
 
 ## 六、导航链接规范
 
-当回复涉及 OMS 系统页面时，使用完整 URL 格式 `[链接文本](完整URL)`，确保前端可直接渲染为可点击链接。
+当回复涉及 OMS 系统页面时，必须先通过 `get_page_url` 获取 URL；只有工具成功返回 `url` 时，才使用 `[链接文本](完整URL)` 输出可点击链接。
 
-Base URL: `OMS_BASE_URL`（由前端 / agent session 提供）
+链接真实性硬约束：
 
-| 页面 | 完整 URL | 使用场景 |
+- 不允许根据业务短语自行拼接 URL、slug 或相对路径。
+- 不允许输出 `get_page_url` 未确认的 markdown 链接。
+- 如果 `get_page_url` 返回 `error`、没有返回 `url`，或当前 session 没有导航工具，只能输出普通文本页面名/模块名，不生成可点击链接。
+- 禁止输出 `/oms-order-exception`、`/oms-dispatch-explain` 等前端不存在的页面。
 
-|------|----------|----------|
+OMS 场景到真实页面的推荐映射：
 
-| 仪表板 | `{OMS_BASE_URL}/dashboard` | 数据概览、销售趋势 |
-
-| 订单管理 | `{OMS_BASE_URL}/orders` | 订单列表、筛选 |
-
-| 订单详情 | `{OMS_BASE_URL}/orders/{order_id}` | 具体订单查看 |
-
-| 退货管理 | `{OMS_BASE_URL}/returns` | 退货相关 |
-
-| 采购管理 | `{OMS_BASE_URL}/purchase` | 采购相关 |
-
-| 物流管理 | `{OMS_BASE_URL}/logistics` | 物流跟踪 |
-
-| 库存管理 | `{OMS_BASE_URL}/inventory` | 库存查询、预警 |
-
-| 商品管理 | `{OMS_BASE_URL}/product` | 产品和变体 |
-
-| 事件管理 | `{OMS_BASE_URL}/events` | 异常事件、日志 |
-
-| 客户管理 | `{OMS_BASE_URL}/customer-management` | 客户信息、细分 |
-
-| 自动化 | `{OMS_BASE_URL}/automation` | 工作流、规则 |
-
-| AI 异常处理 | `{OMS_BASE_URL}/orders/exception-ai` | AI 辅助异常处理 |
+| 场景 | get_page_url page | 真实页面 |
+|------|-------------------|----------|
+| 订单履约异常、配送单异常、发货异常 | `delivery-orders` | Delivery Orders |
+| DO 路由解释、配送单路由解释 | `delivery-order-routing` | Delivery Order Routing |
+| SO 路由解释、销售订单路由解释 | `sales-order-routing` | Sales Order Routing |
+| 仓库、仓库库存、仓库异常 | `warehouse` | Warehouse Management |
+| 库存列表查询 | `inventory-list` | Inventory List |
 
 链接使用原则：
 
-- 查询结果附带详情页链接
-- 分析结论附带相关管理页面链接
-- 推荐建议附带可执行操作的页面链接
-- 一条回复中链接不超过 5 个，避免信息过载
-- 必须使用完整 URL（含 base URL），不使用相对路径，确保前端可直接渲染为 `<a>` 标签
-- 前端 AI 对话组件需解析 markdown 链接语法 `[文本](URL)` 并渲染为可点击元素
-- 在 Kiro / IDE 环境下省略链接（因为无法跳转）
+- 查询结果可以附带工具确认过的详情页或列表页链接。
+- 分析结论只附带与结论直接相关、且工具确认存在的页面链接。
+- 推荐建议只附带用户可执行操作对应的真实页面链接。
+- 一条回复中链接不超过 2 个，避免信息过载。
+- 前端 AI 对话组件需解析 markdown 链接语法 `[文本](URL)` 并渲染为可点击元素。
 
 ---
 

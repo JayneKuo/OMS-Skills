@@ -32,6 +32,8 @@ metadata:
 
 必须先调用 `get_page_url` 工具获取完整 URL，不允许自己拼接域名，也不允许写死 `http://localhost:3000`。
 
+**链接真实性硬约束**：只允许输出 `get_page_url` 成功返回的 URL。工具返回 `error`、没有返回 `url`，或页面不在下方路由表时，不得输出 markdown 链接，也不得把用户原文改写成路径；只能用普通文本说明“当前没有可确认的直达页面”。
+
 单个页面只输出按钮：
 ```
 [页面名称](工具返回的 url)
@@ -49,12 +51,12 @@ metadata:
 - 不要输出模块名、说明文字、前缀、冒号或箭头
 - 不要输出“相关页面”“你可以从这里开始”“如果需要我可以继续”等解释
 - 不要输出 `Launching skill: navigate`
-- 只要回答里出现 OMS 页面，就必须调用 `get_page_url` 并输出 markdown 链接
+- 只要回答里出现 OMS 页面，就必须先调用 `get_page_url`；只有工具成功返回 `url` 时才输出 markdown 链接
 - 不允许只输出 `/path` 形式的纯文本路径，纯路径不会被前端渲染成按钮
 - 不允许输出“页面名 — /path”或“页面名：/path”这种文本
-- 用户问“在哪里”“在哪个页面”“where can I find”时，也必须返回可点击链接，而不是只列路径
-- 用户明确问多个模块入口时，按每个模块给 1 个默认入口按钮：Orders→Sales Order List，Inventory→Inventory List，Logistics→International Freight，Automation→Sales Order Routing
-- 如果 `get_page_url` 工具不可用，不要告诉用户“没有跳转工具”；改用路由表中的路径输出 markdown 链接
+- 用户问“在哪里”“在哪个页面”“where can I find”时，也必须先尝试 `get_page_url`；无法确认真实页面时输出普通文本，不生成链接
+- 用户明确问多个模块入口时，按每个模块给 1 个默认入口按钮：Orders→Sales Order List，Inventory→Inventory List，Logistics→Delivery Orders，Automation→Sales Order Routing
+- 如果 `get_page_url` 工具不可用，不要自行拼接 URL；只能使用路由表中的真实页面名做普通文本提示，不生成 markdown 链接
 - 一次最多输出用户明确询问的模块数量；用户没有明确列多个模块时，最多输出 2 个链接
 
 ---
@@ -209,7 +211,11 @@ metadata:
 | 订单、销售单 | /sales-orders |
 | 采购、PO | /purchase-orders |
 | 发货、出货 | /shipping-requests |
-| 库存、仓库 | /inventory/inventory-list |
+| 订单履约异常、配送单异常、发货异常 | /logistics/delivery-orders |
+| DO 路由、配送单路由、dispatch explanation | /automation/delivery-order-routing |
+| SO 路由、销售订单路由、订单路由解释 | /automation/sales-order-routing |
+| 仓库、仓库库存、仓库异常 | /inventory/warehouse |
+| 库存列表、库存查询 | /inventory/inventory-list |
 | 商品、产品 | /product-list |
 | 物流、运费 | /logistics/international-freight |
 | 自动化、规则 | /automation/sales-order-routing |
@@ -226,7 +232,10 @@ metadata:
 | 回答内容 | 推荐页面 |
 |---------|---------|
 | 解释了某个订单的状态 | 该订单详情页 |
-| 分析了库存问题 | 库存列表 |
+| 分析了订单履约/配送单/发货异常 | 国内配送单 |
+| 解释了 DO 路由/配送单路由 | 配送单路由 |
+| 解释了 SO 路由/销售订单路由 | 销售订单路由 |
+| 分析了仓库或库存问题 | 仓库管理；仅库存列表查询才推荐库存列表 |
 | 讨论了运费/运输账户 | Rate Shopping 或运输账户列表 |
 | 讨论了自动化规则 | 对应规则配置页 |
 | 讨论了采购流程 | 采购订单列表 |
@@ -242,7 +251,9 @@ metadata:
 ## 七、禁止行为
 
 1. 不得编造不在路由表中的路径
-2. 不得在用户没有导航意图时强行插入大量链接（最多推荐 2 个）
-3. 不得把链接作为回答的主体，链接是辅助，内容回答才是主体
-4. 不得输出纯路径清单，例如 `Sales Order List — /sales-orders`
-5. 不得把路由表内容原样复述给用户
+2. 不得输出 `/oms-order-exception`、`/oms-dispatch-explain` 或任何 `get_page_url` 未确认的 OMS 页面
+3. 不得把用户问题中的业务短语直接改写成 URL slug
+4. 不得在用户没有导航意图时强行插入大量链接（最多推荐 2 个）
+5. 不得把链接作为回答的主体，链接是辅助，内容回答才是主体
+6. 不得输出纯路径清单，例如 `Sales Order List — /sales-orders`
+7. 不得把路由表内容原样复述给用户
