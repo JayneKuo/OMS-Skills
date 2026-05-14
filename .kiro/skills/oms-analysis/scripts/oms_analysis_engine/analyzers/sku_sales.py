@@ -4,6 +4,7 @@ from collections import defaultdict
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
 from oms_analysis_engine.models.result import AnalysisResult, ChartSpec, ChartSeries
+from oms_analysis_engine.analyzers.product_filters import matching_items, order_matches_filters
 
 
 class SkuSalesAnalyzer(BaseAnalyzer):
@@ -17,28 +18,47 @@ class SkuSalesAnalyzer(BaseAnalyzer):
         if not orders:
             return self._make_result(summary="无订单数据")
 
-        sku_data: dict[str, dict] = defaultdict(lambda: {"qty": 0, "revenue": 0.0, "order_count": 0})
+        sku_data: dict[str, dict] = defaultdict(lambda: {
+            "qty": 0,
+            "revenue": 0.0,
+            "order_count": 0,
+            "estimated_revenue": 0.0,
+        })
+
+        filters = context.request.filters or {}
 
         for o in orders:
-            items = o.get("itemLines") or o.get("items") or []
+            if not order_matches_filters(o, filters):
+                continue
+            items = matching_items(o, filters)
             order_amount = float(o.get("totalAmount") or o.get("total") or 0)
 
             if items:
+                order_qty = sum(int(item.get("qty", 0) or item.get("quantity", 0) or 0) for item in items)
+                matched_skus = set()
                 for item in items:
                     sku = item.get("sku", "")
                     qty = int(item.get("qty", 0) or item.get("quantity", 0) or 0)
-                    # 尝试取行级金额，没有就按订单均摊
-                    line_amt = item.get("amount") or item.get("lineTotal") or item.get("price", 0)
-                    if line_amt:
-                        revenue = float(line_amt) * qty if float(line_amt) < 1000 else float(line_amt)
-                    elif order_amount and qty:
-                        revenue = order_amount  # 单 SKU 订单直接用订单金额
+                    if not sku:
+                        continue
+                    line_amt = item.get("amount") or item.get("lineTotal")
+                    price = item.get("price")
+                    estimated = False
+                    if line_amt not in (None, ""):
+                        revenue = float(line_amt)
+                    elif price not in (None, "") and qty:
+                        revenue = float(price) * qty
+                    elif order_amount and qty and order_qty == qty:
+                        revenue = order_amount
+                        estimated = True
                     else:
-                        revenue = 0
-                    if sku:
-                        sku_data[sku]["qty"] += qty
-                        sku_data[sku]["revenue"] += revenue
-                        sku_data[sku]["order_count"] += 1
+                        revenue = 0.0
+                    sku_data[sku]["qty"] += qty
+                    sku_data[sku]["revenue"] += revenue
+                    sku_data[sku]["order_count"] += 1
+                    if estimated:
+                        sku_data[sku]["estimated_revenue"] += revenue
+                    matched_skus.add(sku)
             elif o.get("product"):
                 # 没有 itemLines 但有 product 字段（列表接口）
                 sku = o["product"]
@@ -46,12 +66,15 @@ class SkuSalesAnalyzer(BaseAnalyzer):
                 sku_data[sku]["qty"] += qty
                 sku_data[sku]["revenue"] += order_amount
                 sku_data[sku]["order_count"] += 1
+                if order_amount:
+                    sku_data[sku]["estimated_revenue"] += order_amount
 
         if not sku_data:
             return self._make_result(summary="无 SKU 销售数据")
 
         total_qty = sum(d["qty"] for d in sku_data.values())
         total_revenue = sum(d["revenue"] for d in sku_data.values())
+        estimated_revenue = sum(d["estimated_revenue"] for d in sku_data.values())
 
         # 按销量排名
         ranked = sorted(sku_data.items(), key=lambda x: x[1]["qty"], reverse=True)
@@ -75,6 +98,7 @@ class SkuSalesAnalyzer(BaseAnalyzer):
                 "qty_percentage": round(qty_pct, 1),
                 "revenue": round(d["revenue"], 2),
                 "revenue_percentage": round(rev_pct, 1),
+                "estimated_revenue": round(d["estimated_revenue"], 2),
                 "order_count": d["order_count"],
                 "tag": tag,
             })
@@ -88,6 +112,17 @@ class SkuSalesAnalyzer(BaseAnalyzer):
                 "statistic",
                 f"热销 SKU {len(hot)} 个，贡献销售额 ${hot_rev:,.2f}（占 {hot_rev/total_revenue*100:.0f}%）" if total_revenue > 0
                 else f"热销 SKU {len(hot)} 个，占总销量 {sum(s['qty_percentage'] for s in hot):.0f}%",
+            ))
+        if estimated_revenue > 0:
+            evidences.append(self._build_evidence(
+                "statistic",
+                f"其中 ${estimated_revenue:,.2f} 销售额来自订单级估算，缺少完整行级金额拆分",
+            ))
+
+        if context.sampling_info:
+            evidences.append(self._build_evidence(
+                "statistic",
+                f"当前分析基于抽样 {context.sampling_info.sample_count}/{context.sampling_info.total_count} 单，采样方式 {context.sampling_info.method}"
             ))
 
         return self._make_result(

@@ -1,6 +1,5 @@
 """数据获取层 — 通过 oms_query_engine 获取数据"""
 from __future__ import annotations
-import random
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.request import AnalysisRequest
 from oms_analysis_engine.models.context import AnalysisContext, SamplingInfo
@@ -277,12 +276,12 @@ class DataFetcher:
     def _apply_sampling(data: list, threshold: int = SAMPLING_THRESHOLD) -> tuple[list, SamplingInfo | None]:
         if len(data) <= threshold:
             return data, None
-        sampled = random.sample(data, threshold)
+        sampled = data[:threshold]
         return sampled, SamplingInfo(
             total_count=len(data),
             sample_count=threshold,
             sample_ratio=threshold / len(data),
-            method="random",
+            method="first_n_after_filters",
         )
 
     def _fetch_status_counts(self, merchant_no: str | None) -> dict:

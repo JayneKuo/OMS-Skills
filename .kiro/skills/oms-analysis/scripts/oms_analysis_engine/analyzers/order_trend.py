@@ -44,6 +44,7 @@ class OrderTrendAnalyzer(BaseAnalyzer):
 
         sorted_days = sorted(daily.keys())
         trend = []
+        has_trend_window = len(sorted_days) >= 3
         for d in sorted_days:
             s = daily[d]
             total = s["total"]
@@ -71,13 +72,14 @@ class OrderTrendAnalyzer(BaseAnalyzer):
         total_cancel = sum(d["cancelled"] for d in trend)
         overall_aov = (total_gmv / total_orders) if total_orders > 0 else 0
 
-        # 连续上升预警
+        # 连续上升预警：至少有 3 天数据时才判断趋势
         rates = [t["exception_rate"] for t in trend]
         warning = False
-        for i in range(len(rates) - 2):
-            if rates[i] < rates[i + 1] < rates[i + 2]:
-                warning = True
-                break
+        if has_trend_window:
+            for i in range(len(rates) - 2):
+                if rates[i] < rates[i + 1] < rates[i + 2]:
+                    warning = True
+                    break
 
         evidences = []
         evidences.append(self._build_evidence(
@@ -91,6 +93,8 @@ class OrderTrendAnalyzer(BaseAnalyzer):
             ))
         if warning:
             evidences.append(self._build_evidence("statistic", "异常率连续 3 天上升"))
+        elif not has_trend_window:
+            evidences.append(self._build_evidence("statistic", f"当前仅有 {len(sorted_days)} 天数据，不足以形成趋势判断"))
 
         recs = []
         if warning:
@@ -112,7 +116,11 @@ class OrderTrendAnalyzer(BaseAnalyzer):
                 "total_cancelled": total_cancel,
                 "days_count": len(sorted_days),
             },
-            details={"daily_trend": trend, "consecutive_rise_warning": warning},
+            details={
+                "daily_trend": trend,
+                "consecutive_rise_warning": warning,
+                "trend_window_complete": has_trend_window,
+            },
             charts=[
                 ChartSpec(
                     chart_id="order_daily_trend",

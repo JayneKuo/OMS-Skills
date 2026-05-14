@@ -78,6 +78,29 @@ OMS Agent 设计遵循以下原则：
 5. 数据不足时必须明确标注为估算或 degraded  
 6. 高风险动作默认不执行  
 7. 不向用户暴露框架噪音、仓库探索过程和内部实现细节
+8. 所有后续建议必须使用用户动作语言，不得暴露内部能力名称
+
+## 4.1 前端安全的建议项协议
+
+为了支持前端把建议项区分为“跳页面”“直接追问”“先填输入框”，OMS Agent 的后续建议统一按三类理解：
+
+- `navigation`：去真实 OMS 页面查看或处理
+- `prompt`：可直接发送给 AI 的具体问题
+- `prompt_draft`：还需要用户补充参数的问题草稿
+
+推荐字段：
+- `label`
+- `kind`
+- `intent`
+- `value`
+- `reason`
+- `requires_confirmation`
+
+其中：
+- `label` 必须直接展示为用户能理解的动作
+- `intent` 必须是业务意图，不得写 skill/tool/workflow 名
+- `navigation` 只能使用真实页面信息
+- `prompt_draft` 不能伪装成一个已经足够具体的可执行问题
 
 ---
 

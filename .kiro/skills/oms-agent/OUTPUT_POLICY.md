@@ -606,6 +606,41 @@ OMS 场景到真实页面的推荐映射：
 - 一条回复中链接不超过 2 个，避免信息过载。
 - 前端 AI 对话组件需解析 markdown 链接语法 `[文本](URL)` 并渲染为可点击元素。
 
+### 建议项（Suggestions）规范
+
+当回复末尾提供“你可以继续查看”或类似建议时，建议项必须归入以下三类之一：
+
+| kind | 用户含义 | 适用场景 | 点击后的预期行为 |
+|------|----------|----------|------------------|
+| `navigation` | 去某个真实 OMS 页面查看或处理 | 页面定位、详情页、列表页、配置页 | 前往页面 |
+| `prompt` | 继续向 AI 发送一个已经足够具体的问题 | 深挖原因、补充查询、继续对比 | 直接发送问题 |
+| `prompt_draft` | 先给出问题草稿，但还需要用户补充参数 | 宽泛分析、参数不全的趋势/对比问题 | 填入输入框，等待补充 |
+
+建议项字段建议统一为：
+- `label`：短文案，直接展示给用户
+- `kind`：`navigation` / `prompt` / `prompt_draft`
+- `intent`：业务意图，禁止写内部 skill/tool 名
+- `value`：
+  - `navigation` → `{ page, url, title }`
+  - `prompt` / `prompt_draft` → `{ text }`
+- `reason`：一句话说明为什么建议继续看这个
+- `requires_confirmation`：是否需要用户补充或确认后再执行
+
+建议项硬约束：
+- `label`、`intent`、`reason` 必须全部使用业务语言
+- 不得暴露 skill 名、tool 名、workflow 名、MCP 名、函数名
+- 不得在建议文案中写“使用 XX skill”“调用 XX tool”“通过 XX workflow”
+- `navigation` 只能指向工具确认过的真实页面
+- `prompt` 必须是可以直接发送的完整问题
+- `prompt_draft` 必须明确仍需用户补充参数，不能伪装成可直接执行的问题
+
+示例：
+- 正确（`navigation`）：`前往销售订单页查看异常订单`
+- 正确（`prompt`）：`查看 5 月 7 日高峰订单的分仓记录`
+- 正确（`prompt_draft`）：`分析最近异常订单趋势`
+- 错误：`使用 oms_query 查看订单明细`
+- 错误：`调用 oms_analysis 进行异常根因分析`
+
 ---
 
 ## 七、表达风格
@@ -649,9 +684,11 @@ OMS 场景到真实页面的推荐映射：
   - 所有内部过程只能出现在思考过程（thinking）中，不得出现在最终回复里
 - 禁止暴露技术实现细节给用户，包括但不限于：
   - skill 名称（oms_query、cartonization、order_analysis 等）
+  - tool / MCP / workflow 名称
   - 技术参数名（query_intent、confidence、retryable_flag 等）
   - API 字段名、JSON 结构、错误码原文
   - 内部编排过程描述（如"调用了 XX skill 获取数据"）
+  - 任何 suggestion / recommendation 中的内部能力归属描述（如"此问题建议走 oms_analysis"）
 - 技术状态码必须翻译为业务语言再展示：
 
   -`INVALID_POSTAL_CODE` → "邮编格式不正确"

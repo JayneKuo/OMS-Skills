@@ -29,6 +29,8 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(_SKILLS_DIR))
 # 添加引擎包路径
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-query", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-analysis", "scripts"))
+sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-diagnosis", "scripts"))
+sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-query", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "warehouse-allocation", "scripts"))
 sys.path.insert(0, _PROJECT_ROOT)
 
@@ -81,6 +83,210 @@ def oms_query(
         force_refresh=force_refresh,
     ))
     return json.dumps(result.model_dump(), ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def product_query(
+    identifier: str | None = None,
+    merchant_no: str | None = None,
+    intent: str | None = None,
+    filters: str | None = None,
+) -> str:
+    """Product Agent 商品事实查询 MVP。支持 SKU 身份确认、库存价格摘要和表现分析过滤条件生成。
+
+    Args:
+        identifier: SKU / SPU / product_id / channel_product_id；MVP 优先按 SKU 处理
+        merchant_no: 商户号；未传时从 agent session env 的 CRM_MERCHANT_CODE / OMS_MERCHANT_NO 读取
+        intent: identity_for_performance / inventory_price / overview
+        filters: JSON 字符串，如 {"sku":"SKU001","channel_code":"amazon","shop_id":"SHOP001"}
+    """
+    from product_query_engine.engine import ProductQueryEngine
+    from product_query_engine.inventory_adapter import InventoryAdapter
+    from product_query_engine.product_adapter import ProductApiAdapter
+    from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
+    from oms_query_engine.api_client import OMSAPIClient
+    from oms_query_engine.config import EngineConfig
+
+    try:
+        parsed_filters = json.loads(filters) if filters else {}
+    except json.JSONDecodeError as e:
+        return json.dumps({"success": False, "error": "invalid_filters_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    try:
+        resolved_merchant_no = _resolve_merchant_no(merchant_no)
+    except ValueError as e:
+        return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    client = OMSAPIClient(EngineConfig())
+    engine = ProductQueryEngine(
+        inventory_adapter=InventoryAdapter(client),
+        product_adapter=ProductApiAdapter(client),
+        channel_product_adapter=ChannelProductApiAdapter(client),
+    )
+    result = engine.query(
+        identifier=identifier,
+        merchant_no=resolved_merchant_no,
+        intent=intent or "overview",
+        filters=parsed_filters,
+    )
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def product_diagnosis(
+    identifier: str | None = None,
+    merchant_no: str | None = None,
+    intent: str | None = None,
+    filters: str | None = None,
+    context: str | None = None,
+) -> str:
+    """Product Agent 商品异常诊断 MVP。只基于调用方传入的商品快照、缺失字段和错误信息做诊断。"""
+    from product_diagnosis_engine.engine import ProductDiagnosisEngine
+    from product_query_engine.engine import ProductQueryEngine
+    from product_query_engine.inventory_adapter import InventoryAdapter
+    from product_query_engine.product_adapter import ProductApiAdapter
+    from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
+    from oms_query_engine.api_client import OMSAPIClient
+    from oms_query_engine.config import EngineConfig
+
+    try:
+        parsed_filters = json.loads(filters) if filters else {}
+    except json.JSONDecodeError as e:
+        return json.dumps({"success": False, "error": "invalid_filters_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    try:
+        parsed_context = json.loads(context) if context else {}
+    except json.JSONDecodeError as e:
+        return json.dumps({"success": False, "error": "invalid_context_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    try:
+        resolved_merchant_no = _resolve_merchant_no(merchant_no)
+    except ValueError as e:
+        return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    if not parsed_context:
+        client = OMSAPIClient(EngineConfig())
+        query_result = ProductQueryEngine(
+            inventory_adapter=InventoryAdapter(client),
+            product_adapter=ProductApiAdapter(client),
+            channel_product_adapter=ChannelProductApiAdapter(client),
+        ).query(
+            identifier=identifier,
+            merchant_no=resolved_merchant_no,
+            intent="listing_status",
+            filters=parsed_filters,
+        )
+        details = query_result.get("details", {})
+        parsed_context = {
+            "product_snapshot": details.get("product") or {},
+            "skus": details.get("skus") or [],
+            "channel_products": details.get("channel_products") or [],
+            "publish_history": details.get("publish_history") or [],
+        }
+
+    result = ProductDiagnosisEngine().diagnose(
+        identifier=identifier,
+        merchant_no=resolved_merchant_no,
+        intent=intent,
+        filters=parsed_filters,
+        context=parsed_context,
+    )
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def product_performance(
+    identifier: str | None = None,
+    merchant_no: str | None = None,
+    filters: str | None = None,
+    time_range: str | None = None,
+    include_channel: bool = False,
+) -> str:
+    """Product Agent 商品表现入口。组合 product_query 与 oms_analysis，返回 SKU 销售表现和可选渠道表现。"""
+    from datetime import datetime
+    from product_query_engine.engine import ProductQueryEngine
+    from product_query_engine.inventory_adapter import InventoryAdapter
+    from product_query_engine.product_adapter import ProductApiAdapter
+    from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
+    from oms_query_engine.api_client import OMSAPIClient
+    from oms_query_engine.config import EngineConfig
+    from oms_query_engine.engine_v2 import OMSQueryEngine
+    from oms_analysis_engine.data_fetcher import DataFetcher
+    from oms_analysis_engine.engine import OMSAnalysisEngine
+    from oms_analysis_engine.models.request import AnalysisRequest, TimeRange
+
+    try:
+        parsed_filters = json.loads(filters) if filters else {}
+    except json.JSONDecodeError as e:
+        return json.dumps({"success": False, "error": "invalid_filters_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    parsed_time_range = None
+    if time_range:
+        try:
+            raw_time_range = json.loads(time_range)
+            parsed_time_range = TimeRange(
+                start=datetime.fromisoformat(raw_time_range["start"].replace("Z", "+00:00")),
+                end=datetime.fromisoformat(raw_time_range["end"].replace("Z", "+00:00")),
+            )
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            return json.dumps({"success": False, "error": "invalid_time_range_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    try:
+        resolved_merchant_no = _resolve_merchant_no(merchant_no)
+    except ValueError as e:
+        return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    client = OMSAPIClient(EngineConfig())
+    product_result = ProductQueryEngine(
+        inventory_adapter=InventoryAdapter(client),
+        product_adapter=ProductApiAdapter(client),
+        channel_product_adapter=ChannelProductApiAdapter(client),
+    ).query(
+        identifier=identifier,
+        merchant_no=resolved_merchant_no,
+        intent="identity_for_performance",
+        filters=parsed_filters,
+    )
+    performance_filters = product_result.get("details", {}).get("performance_query", {})
+
+    analysis_engine = OMSAnalysisEngine(data_fetcher=DataFetcher(OMSQueryEngine()))
+    sku_sales = analysis_engine.analyze(AnalysisRequest(
+        identifier=identifier,
+        merchant_no=resolved_merchant_no,
+        intent="sku_sales",
+        filters=performance_filters,
+        time_range=parsed_time_range,
+    )).model_dump()
+
+    channel_performance = None
+    if include_channel:
+        channel_performance = analysis_engine.analyze(AnalysisRequest(
+            identifier=identifier,
+            merchant_no=resolved_merchant_no,
+            intent="channel_performance",
+            filters=performance_filters,
+            time_range=parsed_time_range,
+        )).model_dump()
+
+    errors = []
+    errors.extend(product_result.get("errors", []))
+    errors.extend(sku_sales.get("errors", []))
+    if channel_performance:
+        errors.extend(channel_performance.get("errors", []))
+
+    result = {
+        "success": bool(product_result.get("success", True) and sku_sales.get("success", True)),
+        "summary": "已生成商品表现分析。",
+        "metrics": sku_sales.get("metrics", {}),
+        "details": {
+            "product_query": product_result,
+            "sku_sales": sku_sales,
+        },
+        "errors": errors,
+    }
+    if channel_performance:
+        result["details"]["channel_performance"] = channel_performance
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -465,6 +671,8 @@ def oms_analysis(
     merchant_no: str | None = None,
     intent: str | None = None,
     query: str | None = None,
+    filters: str | None = None,
+    time_range: str | None = None,
 ) -> str:
     """OMS 运营分析。支持异常根因分析、Hold 诊断、卡单定位、库存健康、仓库效率、
     渠道业绩、订单趋势、SKU 销售、补货建议、影响评估等 15 种分析能力。
@@ -476,9 +684,12 @@ def oms_analysis(
                 warehouse_efficiency/channel_performance/order_trend/sku_sales/
                 replenishment/impact_assessment/batch_pattern/fix_recommendation 等）
         query: 自然语言查询（如"这个订单为什么失败"、"哪些SKU缺货"）
+        filters: JSON 字符串，商品/渠道/店铺过滤条件，如 {"sku":"SKU001","channel_code":"amazon"}
+        time_range: JSON 字符串，时间范围，如 {"start":"2026-04-11T00:00:00Z","end":"2026-05-11T23:59:59Z"}
     """
+    from datetime import datetime
     from oms_analysis_engine.engine import OMSAnalysisEngine
-    from oms_analysis_engine.models.request import AnalysisRequest
+    from oms_analysis_engine.models.request import AnalysisRequest, TimeRange
     from oms_analysis_engine.data_fetcher import DataFetcher
 
     # 初始化 DataFetcher（连接 oms_query_engine）
@@ -491,12 +702,40 @@ def oms_analysis(
         init_errors.append(f"OMSQueryEngine init failed: {e}")
         fetcher = DataFetcher()
 
+    parsed_filters = {}
+    if filters:
+        try:
+            parsed_filters = json.loads(filters)
+        except json.JSONDecodeError as e:
+            return json.dumps({
+                "success": False,
+                "error": "invalid_filters_json",
+                "message": str(e),
+            }, ensure_ascii=False, indent=2)
+
+    parsed_time_range = None
+    if time_range:
+        try:
+            raw_time_range = json.loads(time_range)
+            parsed_time_range = TimeRange(
+                start=datetime.fromisoformat(raw_time_range["start"].replace("Z", "+00:00")),
+                end=datetime.fromisoformat(raw_time_range["end"].replace("Z", "+00:00")),
+            )
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            return json.dumps({
+                "success": False,
+                "error": "invalid_time_range_json",
+                "message": str(e),
+            }, ensure_ascii=False, indent=2)
+
     engine = OMSAnalysisEngine(data_fetcher=fetcher)
     request = AnalysisRequest(
         identifier=identifier,
         merchant_no=merchant_no,
         intent=intent,
         query=query,
+        filters=parsed_filters,
+        time_range=parsed_time_range,
     )
     response = engine.analyze(request)
     result = response.model_dump()

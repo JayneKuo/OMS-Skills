@@ -4,6 +4,7 @@ from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
 from oms_analysis_engine.models.result import AnalysisResult, ChartSpec, ChartSeries
 from oms_analysis_engine.models.enums import Confidence
+from oms_analysis_engine.analyzers.product_filters import order_matches_filters
 
 MIN_SAMPLE = 5
 
@@ -19,8 +20,11 @@ class ChannelPerformanceAnalyzer(BaseAnalyzer):
         if not orders:
             return self._make_result(summary="无订单数据")
 
+        filters = context.request.filters or {}
         ch_stats: dict[str, dict] = {}
         for o in orders:
+            if not order_matches_filters(o, filters):
+                continue
             ch = o.get("channelName") or o.get("dataChannel") or "未知"
             if ch not in ch_stats:
                 ch_stats[ch] = {"total": 0, "exception": 0, "completed": 0,
@@ -37,6 +41,9 @@ class ChannelPerformanceAnalyzer(BaseAnalyzer):
             ch_stats[ch]["gmv"] += float(amt) if amt else 0
             qty = o.get("qty") or 0
             ch_stats[ch]["total_qty"] += int(qty) if qty else 0
+
+        if not ch_stats:
+            return self._make_result(summary="无匹配渠道表现数据")
 
         evidences = []
         channel_list = []
@@ -75,6 +82,12 @@ class ChannelPerformanceAnalyzer(BaseAnalyzer):
         summary_parts = [f"共 {len(ch_stats)} 个渠道，总 GMV ${total_gmv:,.2f}"]
         if top_ch:
             summary_parts.append(f"最大渠道 {top_ch['channel']}（GMV ${top_ch['gmv']:,.2f}，占 {top_ch['gmv_share']:.0f}%）")
+
+        if context.sampling_info:
+            evidences.append(self._build_evidence(
+                "statistic",
+                f"当前分析基于抽样 {context.sampling_info.sample_count}/{context.sampling_info.total_count} 单，采样方式 {context.sampling_info.method}"
+            ))
 
         return self._make_result(
             success=True,

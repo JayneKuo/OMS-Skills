@@ -4,7 +4,7 @@ from collections import Counter
 from oms_analysis_engine.base import BaseAnalyzer
 from oms_analysis_engine.models.context import AnalysisContext
 from oms_analysis_engine.models.result import AnalysisResult, Recommendation, ChartSpec
-from oms_analysis_engine.models.enums import Severity
+from oms_analysis_engine.models.enums import Confidence, Severity
 
 BATCH_THRESHOLD = 3
 SAMPLE_SIZE = 10  # 抽样查事件日志的异常订单数
@@ -65,6 +65,7 @@ class BatchPatternAnalyzer(BaseAnalyzer):
         affected_skus = Counter()       # 涉及的 SKU
         sample_details = []             # 抽样详情
         sampled = exception_orders[:SAMPLE_SIZE]
+        sampled_order_count = len(sampled)
 
         for o in sampled:
             order_no = o.get("orderNo", "")
@@ -107,7 +108,7 @@ class BatchPatternAnalyzer(BaseAnalyzer):
         # 根因分布（最重要的结论）
         if sorted_causes:
             top_cause, top_count = sorted_causes[0]
-            pct = top_count / len(sampled) * 100
+            pct = top_count / sampled_order_count * 100 if sampled_order_count else 0
             evidences.append(self._build_evidence(
                 "business_field",
                 f"抽样 {len(sampled)} 单异常订单中，{pct:.0f}% 的根因是「{top_cause}」",
@@ -118,7 +119,7 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                 if cause == "系统错误" and any(c != "系统错误" for c, _ in sorted_causes[:1]):
                     continue  # 系统错误是包装，跳过
                 if cnt > 1:
-                    pct2 = cnt / len(sampled) * 100
+                    pct2 = cnt / sampled_order_count * 100 if sampled_order_count else 0
                     evidences.append(self._build_evidence(
                         "statistic",
                         f"另有 {pct2:.0f}% 涉及「{cause}」",
@@ -150,6 +151,12 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                     "statistic",
                     f"仓库 {wh} 集中了 {count} 单异常（{concentration:.0f}%）",
                 ))
+
+        if sampled_order_count and sampled_order_count < total_exc:
+            evidences.append(self._build_evidence(
+                "statistic",
+                f"根因归纳基于 {sampled_order_count}/{total_exc} 单异常订单日志抽样，未覆盖全部异常订单"
+            ))
 
         # 4. 生成建议
         recs = []
@@ -183,16 +190,23 @@ class BatchPatternAnalyzer(BaseAnalyzer):
         # 5. 构建摘要
         if sorted_causes:
             top_cause = sorted_causes[0][0]
-            summary = f"共 {total_exc} 单异常，主要根因是「{top_cause}」"
+            if sampled_order_count < total_exc:
+                summary = f"共 {total_exc} 单异常，基于抽样 {sampled_order_count} 单日志，主要异常模式指向「{top_cause}」"
+            else:
+                summary = f"共 {total_exc} 单异常，主要根因是「{top_cause}」"
         else:
             summary = f"共 {total_exc} 单异常，未能识别具体根因"
+
+        confidence = self._assess_confidence(evidences)
+        if sampled_order_count < total_exc and confidence == Confidence.HIGH:
+            confidence = Confidence.MEDIUM
 
         return self._make_result(
             success=True,
             summary=summary,
             reason=f"抽样 {len(sampled)} 单异常订单的事件日志，归纳异常根因分布",
             evidences=evidences,
-            confidence=self._assess_confidence(evidences),
+            confidence=confidence,
             data_completeness=self._assess_data_completeness(context, self.required_data),
             severity=Severity.CRITICAL if total_exc > 50 else Severity.MAJOR if total_exc > 10 else Severity.MINOR,
             recommendations=recs,
@@ -208,6 +222,11 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                 "sample_details": sample_details,
                 "channel_distribution": dict(channel_counter),
                 "warehouse_distribution": dict(warehouse_counter),
+                "sample_scope": {
+                    "exception_order_count": total_exc,
+                    "sampled_order_count": sampled_order_count,
+                    "sample_method": "first_n_exception_orders_with_event_logs",
+                },
             },
             charts=[
                 ChartSpec(

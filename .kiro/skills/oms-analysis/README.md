@@ -13,6 +13,7 @@ oms_analysis 是 OMS Agent 的运营分析 Skill，消费 oms_query 的数据做
 - 时间范围提取：从自然语言解析"近7天"、"本月"等，无时间默认近 30 天
 - 事件日志抽样：BatchPatternAnalyzer 自动抽样异常订单事件日志归纳根因
 - 金额维度：OrderTrendAnalyzer / ChannelPerformanceAnalyzer / SkuSalesAnalyzer 加入 GMV、客单价、取消率
+- 商品维度过滤：SkuSalesAnalyzer / ChannelPerformanceAnalyzer 支持 SKU、渠道、店铺过滤，服务 Product Agent 商品表现分析
 - 数据源修正：批量分析从订单 API（sale-order/page）获取数据，而非 Shipping Request
 
 ## 架构
@@ -59,6 +60,15 @@ OMSAnalysisEngine（顶层编排器）
 
 ## MCP Tool
 
-`oms_analysis(identifier, merchant_no, intent, query)` — 在 oms-agent MCP server 中注册。
+`oms_analysis(identifier, merchant_no, intent, query, filters, time_range)` — 在 oms-agent MCP server 中注册。
+
+`filters` 和 `time_range` 为 JSON 字符串，用于商品表现分析：
+
+```json
+{
+  "filters": {"sku": "SKU001", "channel_code": "amazon", "shop_id": "SHOP001"},
+  "time_range": {"start": "2026-04-11T00:00:00Z", "end": "2026-05-11T23:59:59Z"}
+}
+```
 
 详细需求规格见 [references/需求规格.md](references/需求规格.md)。

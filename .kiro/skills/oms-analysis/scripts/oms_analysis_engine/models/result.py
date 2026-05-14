@@ -53,6 +53,7 @@ class AnalysisResult(BaseModel):
     severity: Severity | None = None
     recommendations: list[Recommendation] = Field(default_factory=list)
     metrics: dict = Field(default_factory=dict)
+    details: dict = Field(default_factory=dict)
     charts: list[ChartSpec] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
 
