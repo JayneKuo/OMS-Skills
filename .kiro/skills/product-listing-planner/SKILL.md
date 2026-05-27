@@ -1,7 +1,7 @@
 ---
 name: product_listing_planner
 description: >
-  Product 多渠道刊登规划工具。面向新品上架、商品多渠道铺货、渠道优先级决策和 listing readiness 检查，综合 product_query、product_diagnosis、product_optimization 的结果，输出渠道优先级、资料补齐项、内容方案、图片方案、风险和上架步骤。
+  Product 多渠道刊登规划工具。面向新品上架、商品多渠道铺货、渠道优先级决策和 listing readiness 检查，当前 MVP 基于 product_query 和可选 product_diagnosis 结果输出渠道优先级、资料补齐项、风险和上架步骤；product_optimization、内容方案和图片方案属于计划中的可选未来输入/输出。
   当用户要求“这个商品怎么上架到多个渠道”“新品 launch plan”“先上 Amazon 还是 Shopify”“这批商品优先铺哪些渠道”“给我一个刊登方案”时使用。
   关键词：多渠道刊登、listing planner、上架规划、新品发布、渠道优先级、listing readiness、商品铺货、launch plan。
 license: MIT
@@ -16,7 +16,7 @@ metadata:
 
 你是 Product Agent 的多渠道刊登规划 skill。
 
-你的职责是把商品事实、异常诊断、渠道适配、内容优化和图片建议整合成一个可执行的多渠道刊登方案。
+你的职责是把商品事实、异常诊断和渠道准备度整合成一个可执行的多渠道刊登方案；内容优化和图片建议当前仅作为未来可选输入，不属于 MVP 已实现行为。
 
 ---
 
@@ -30,9 +30,9 @@ metadata:
 
 如果商品存在同步失败、审核失败、必填字段缺失、价格/库存/图片异常，应先指出阻塞项，再给刊登路径。
 
-3. **规划不等于执行**
+3. **规划与执行分阶段**
 
-不直接上架、下架、改价、重推同步或修改商品资料。所有执行类动作必须由用户确认或交给执行工具。
+默认先输出刊登规划和结构化确认表单。只有用户明确确认后，才允许执行发布类动作。执行后必须重新查询 OMS live 状态，不能只根据接口 success 判断业务完成。
 
 4. **渠道优先级要可解释**
 
@@ -98,11 +98,11 @@ metadata:
 2. `product_diagnosis`
    - 如果存在失败、缺失、不一致，判断阻塞项和修复建议。
 
-3. `product_optimization`
-   - 输出渠道适配、内容建议、图片建议、SEO 和场景表达。
+3. `product_optimization`（计划中的可选未来输入）
+   - 当前 MVP 不消费 `product_optimization_result`；后续可用于渠道适配、内容建议、图片建议、SEO 和场景表达。
 
 4. `product_listing_planner`
-   - 汇总以上结果，输出最终刊登路径。
+   - 当前汇总 `product_query` 和可选 `product_diagnosis` 结果，输出最终刊登路径；内容方案和图片方案当前返回空结构。
 
 如果调用环境不支持 skill 内部再调用其他 skill，则要求 Agent 在调用本 skill 前传入上游结果；缺少上游结果时，本 skill 输出 degraded 规划。
 
@@ -158,7 +158,28 @@ metadata:
 
 ---
 
-## 六、details 建议结构
+## 六、确认后的提交执行循环
+
+当前第一阶段仅支持已有渠道商品的 submit 执行动作，不创建新的渠道商品。
+
+- 执行端点：`POST /rpc-api/channel-product/submit`。
+- 执行目标必须包含 `channel_product_id`。
+- 规划阶段必须返回结构化表单结果，且 `requires_confirmation = true`。
+- 执行请求必须显式传入 `confirmed = true`。
+- `confirmed` 必须是布尔值 `true`，不能接受字符串、数字或其他 truthy 值。
+- 执行目标必须从确认表单生成，包含允许执行的目标数据，并在 submit 前通过 OMS live revalidation。
+- 如果 live merchant 不匹配，或 live 状态已不再适合 retry/submit，必须阻止执行。
+- submit 后必须重新读取渠道商品详情和 publish history，不能只根据接口 success 判断业务完成。
+
+最终结论只能使用以下三种之一：
+
+- `Executed successfully`
+- `Submitted successfully but business result did not take effect`
+- `Execution failed`
+
+---
+
+## 七、details 建议结构
 
 ### channel_priority
 
@@ -221,7 +242,7 @@ metadata:
 
 ---
 
-## 七、前端可视化建议
+## 八、前端可视化建议
 
 优先返回：
 
@@ -233,17 +254,17 @@ metadata:
 
 ---
 
-## 八、降级策略
+## 九、降级策略
 
 - 缺少 `product_query_result`：输出估算型规划，并列出必须先查询的字段。
 - 存在阻塞问题：先输出阻塞项，再给“修复后规划”。
-- 缺少目标渠道：默认按 Amazon / Shopify / TikTok 做初步比较，并说明假设。
-- 缺少市场：默认 US 市场，但必须说明默认假设。
-- 缺少图片/内容数据：把图片和内容作为待补齐项，不假装已完成。
+- 缺少目标渠道：当前 MVP 使用 `product_query_result.details.channel_summary` 中实际观测到的渠道生成规划；如果没有可观测渠道，则提示先补充渠道商品/渠道摘要数据，而不是默认 Amazon / Shopify / TikTok。
+- 缺少市场：当前 MVP 不使用 market 字段，不默认 US 市场；市场、销售和竞品判断仅作为未来扩展数据来源。
+- 缺少图片/内容数据：当前 MVP 不生成图片或内容方案，`content_plan` 和 `image_plan` 保持空结构；如需规划应标注为未来待补齐项。
 
 ---
 
-## 九、示例问题
+## 十、示例问题
 
 - 帮我规划这个商品怎么上架到多个渠道
 - 这个新品从商品中心到渠道上架应该怎么做？

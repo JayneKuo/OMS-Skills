@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-analysis", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-diagnosis", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-query", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "warehouse-allocation", "scripts"))
+sys.path.insert(0, os.path.join(_THIS_DIR, "batch-reallocation", "scripts"))
 sys.path.insert(0, _PROJECT_ROOT)
 
 from mcp.server.fastmcp import FastMCP
@@ -47,6 +48,13 @@ def _resolve_merchant_no(merchant_no: str | None) -> str:
     if not resolved:
         raise ValueError(MISSING_MERCHANT_ERROR["error"])
     return resolved
+
+
+def _build_product_client():
+    from product_query_engine.api_client import ProductOMSAPIClient
+    from product_query_engine.config import EngineConfig
+
+    return ProductOMSAPIClient(EngineConfig())
 
 
 mcp = FastMCP("OMS Agent")
@@ -104,8 +112,6 @@ def product_query(
     from product_query_engine.inventory_adapter import InventoryAdapter
     from product_query_engine.product_adapter import ProductApiAdapter
     from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
-    from oms_query_engine.api_client import OMSAPIClient
-    from oms_query_engine.config import EngineConfig
 
     try:
         parsed_filters = json.loads(filters) if filters else {}
@@ -117,7 +123,7 @@ def product_query(
     except ValueError as e:
         return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
 
-    client = OMSAPIClient(EngineConfig())
+    client = _build_product_client()
     engine = ProductQueryEngine(
         inventory_adapter=InventoryAdapter(client),
         product_adapter=ProductApiAdapter(client),
@@ -146,8 +152,6 @@ def product_diagnosis(
     from product_query_engine.inventory_adapter import InventoryAdapter
     from product_query_engine.product_adapter import ProductApiAdapter
     from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
-    from oms_query_engine.api_client import OMSAPIClient
-    from oms_query_engine.config import EngineConfig
 
     try:
         parsed_filters = json.loads(filters) if filters else {}
@@ -165,7 +169,7 @@ def product_diagnosis(
         return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
 
     if not parsed_context:
-        client = OMSAPIClient(EngineConfig())
+        client = _build_product_client()
         query_result = ProductQueryEngine(
             inventory_adapter=InventoryAdapter(client),
             product_adapter=ProductApiAdapter(client),
@@ -208,8 +212,6 @@ def product_performance(
     from product_query_engine.inventory_adapter import InventoryAdapter
     from product_query_engine.product_adapter import ProductApiAdapter
     from product_query_engine.channel_product_adapter import ChannelProductApiAdapter
-    from oms_query_engine.api_client import OMSAPIClient
-    from oms_query_engine.config import EngineConfig
     from oms_query_engine.engine_v2 import OMSQueryEngine
     from oms_analysis_engine.data_fetcher import DataFetcher
     from oms_analysis_engine.engine import OMSAnalysisEngine
@@ -236,7 +238,7 @@ def product_performance(
     except ValueError as e:
         return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
 
-    client = OMSAPIClient(EngineConfig())
+    client = _build_product_client()
     product_result = ProductQueryEngine(
         inventory_adapter=InventoryAdapter(client),
         product_adapter=ProductApiAdapter(client),
@@ -286,6 +288,30 @@ def product_performance(
     }
     if channel_performance:
         result["details"]["channel_performance"] = channel_performance
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def product_publish_workflow(merchant_no: str | None = None, request_json: str | None = None) -> str:
+    """创建 OMS 商品并同步到渠道商品库。"""
+
+    try:
+        parsed_request = json.loads(request_json) if request_json else {}
+    except json.JSONDecodeError as e:
+        return json.dumps({"success": False, "error": "invalid_request_json", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    try:
+        resolved_merchant_no = _resolve_merchant_no(merchant_no)
+    except ValueError as e:
+        return json.dumps({"success": False, "error": "missing_merchant_no", "message": str(e)}, ensure_ascii=False, indent=2)
+
+    from product_query_engine.publish_workflow import ProductPublishWorkflow
+
+    client = _build_product_client()
+    result = ProductPublishWorkflow(client).publish(
+        merchant_no=resolved_merchant_no,
+        request=parsed_request,
+    )
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
@@ -842,6 +868,42 @@ def validate_cartonization(input_json: str, result_json: str) -> str:
     result_data = json.loads(result_json)
     validation = validate_result(input_data, result_data)
     return json.dumps(validation, ensure_ascii=False, indent=2, default=str)
+
+
+@mcp.tool()
+def batch_reallocation_analyze(identifiers_json: str, merchant_no: str | None = None) -> str:
+    """Analyze candidate orders for dangerous batch reallocation and return chat-form payload."""
+    from batch_reallocation.api_client import BatchReallocationAPIClient
+    from batch_reallocation.analyzer import BatchReallocationAnalyzer
+    from batch_reallocation.config import BatchReallocationConfig
+    from batch_reallocation.form_builder import build_form_payload
+
+    identifiers = json.loads(identifiers_json)
+    config = BatchReallocationConfig(merchant_no=merchant_no)
+    analyzer = BatchReallocationAnalyzer(config=config, client=BatchReallocationAPIClient(config))
+    result = analyzer.analyze(identifiers=identifiers, merchant_no=config.merchant_no)
+    return json.dumps(build_form_payload(result), ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
+def batch_reallocation_execute(request_json: str, merchant_no: str | None = None) -> str:
+    """Execute confirmed batch reallocation decisions after runtime recheck."""
+    from batch_reallocation.api_client import BatchReallocationAPIClient
+    from batch_reallocation.config import BatchReallocationConfig
+    from batch_reallocation.executor import BatchReallocationExecutor
+    from batch_reallocation.models import ExecuteRequest
+    from batch_reallocation.result_formatter import format_execution_result
+
+    payload = json.loads(request_json)
+    if not payload.get("confirmed"):
+        raise ValueError("batch_reallocation_execute requires confirmed=true before dangerous execution")
+    if merchant_no:
+        payload["merchant_no"] = merchant_no
+    request = ExecuteRequest(**payload)
+    config = BatchReallocationConfig(merchant_no=request.merchant_no)
+    executor = BatchReallocationExecutor(config=config, client=BatchReallocationAPIClient(config))
+    result = executor.execute(request)
+    return json.dumps(format_execution_result(result), ensure_ascii=False, indent=2)
 
 
 # ══════════════════════════════════════════════════════════

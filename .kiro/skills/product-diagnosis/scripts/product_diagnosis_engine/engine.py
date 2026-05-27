@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from product_diagnosis_engine.platform_requirements.shopify import evaluate_shopify_readiness
+
 
 class ProductDiagnosisEngine:
     def diagnose(self, identifier=None, merchant_no=None, intent=None, filters=None, context=None):
         filters = filters or {}
         context = context or {}
+        if intent == "platform_readiness" and str(filters.get("channel_code") or "").upper().startswith("SHOPIFY"):
+            return self._diagnose_shopify_readiness(identifier, filters, context)
+
         missing_fields = context.get("missing_fields") or context.get("product_snapshot", {}).get("missing_fields") or []
         required_missing = [field for field in missing_fields if field.get("required", True)]
 
@@ -166,6 +171,65 @@ class ProductDiagnosisEngine:
             "visual_blocks": [],
             "links": [],
             "errors": ["缺少可诊断的商品上下文"],
+        }
+
+    def _diagnose_shopify_readiness(self, identifier, filters, context):
+        details = (context.get("product_query_result") or {}).get("details", {})
+        product = details.get("product") or {}
+        skus = details.get("skus") or []
+        channel_summary = details.get("channel_summary") or []
+        readiness = evaluate_shopify_readiness(product, skus, channel_summary, filters.get("channel_code"))
+        issues = readiness["blocking_issues"]
+        ready = readiness["ready_to_publish"]
+        has_unsupported_channel_type = any(issue.get("code") == "unsupported_oms_shopify_channel_type" for issue in issues)
+        recommendation = (
+            {
+                "action": "use_supported_shopify_channel_type",
+                "precondition": "确认 OMS 渠道配置中存在 SHOPIFY channel type",
+                "risk": "继续使用 ShopifyV3 会被当前 OMS 发布服务拒绝",
+                "priority": "high",
+                "expected_effect": "改用 SHOPIFY 后可进入 Shopify 发布前置校验或发布流程",
+            }
+            if has_unsupported_channel_type
+            else {
+                "action": "complete_shopify_required_product_data",
+                "precondition": "确认 OMS 商品主档、SKU、价格、选项和图片字段",
+                "risk": "缺失字段会导致 Shopify productSet/productCreate/productVariantsBulkCreate 发布失败或发布后商品不可售",
+                "priority": "high" if issues else "low",
+                "expected_effect": "满足 Shopify 发布前置条件后再执行真实发布",
+            }
+        )
+        return {
+            "success": True,
+            "summary": (
+                f"{identifier} 满足 Shopify 发布前置条件。"
+                if ready
+                else f"{identifier} 不满足 Shopify 发布前置条件，发现 {len(issues)} 个阻塞项。"
+            ),
+            "reason": "基于 Shopify Admin GraphQL API 商品、variant、options/media 发布要求和 OMS 查询结果做发布前置校验。",
+            "evidences": [
+                {"source": issue["source"], "description": issue["message"], "data": issue}
+                for issue in issues
+            ],
+            "confidence": "high" if context.get("product_query_result") else "medium",
+            "data_completeness": "partial" if context.get("product_query_result") else "insufficient",
+            "severity": "major" if issues else None,
+            "recommendations": [recommendation],
+            "metrics": {"blocking_issue_count": len(issues)},
+            "details": {
+                "issue_type": "platform_readiness_failed" if issues else "platform_readiness_passed",
+                "platform": "SHOPIFY",
+                "failed_stage": "pre_publish_validation",
+                "ready_to_publish": ready,
+                "blocking_issues": issues,
+                "readiness_checklist": readiness["readiness_checklist"],
+                "retryable": True,
+                "requires_manual_fix": bool(issues),
+            },
+            "charts": [],
+            "visual_blocks": [],
+            "links": [],
+            "errors": [],
         }
 
     def _status_result(self, identifier, issue_type, failed_stage, source, rows, source_label):

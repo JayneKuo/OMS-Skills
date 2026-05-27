@@ -166,8 +166,8 @@ def test_product_query_mcp_parses_filters_and_returns_result(monkeypatch):
     monkeypatch.setitem(sys.modules, "product_query_engine.inventory_adapter", types.SimpleNamespace(InventoryAdapter=FakeInventoryAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.product_adapter", types.SimpleNamespace(ProductApiAdapter=FakeProductApiAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.channel_product_adapter", types.SimpleNamespace(ChannelProductApiAdapter=FakeChannelProductApiAdapter))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.api_client", types.SimpleNamespace(OMSAPIClient=lambda config: object()))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=lambda config: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
 
     result = json.loads(module.product_query(
         identifier="SKU-A",
@@ -206,6 +206,69 @@ def test_product_query_returns_error_when_merchant_missing(monkeypatch):
 
     assert result["success"] is False
     assert result["error"] == "missing_merchant_no"
+
+
+def test_product_query_uses_runtime_env_for_client_and_merchant(monkeypatch):
+    module = load_mcp_server()
+    captured = {}
+
+    class FakeProductQueryEngine:
+        def __init__(self, inventory_adapter=None, product_adapter=None, channel_product_adapter=None):
+            pass
+
+        def query(self, identifier=None, merchant_no=None, intent=None, filters=None):
+            captured["query"] = {
+                "identifier": identifier,
+                "merchant_no": merchant_no,
+                "intent": intent,
+                "filters": filters,
+            }
+            return {"success": True, "details": {"performance_query": filters}}
+
+    class FakeAdapter:
+        def __init__(self, client):
+            captured.setdefault("adapter_clients", []).append(client)
+
+    class FakeConfig:
+        def __init__(self):
+            captured["config_env"] = {
+                "OMS_BASE_URL": __import__("os").environ.get("OMS_BASE_URL"),
+                "CRM_MERCHANT_CODE": __import__("os").environ.get("CRM_MERCHANT_CODE"),
+                "OMS_ACCESS_TOKEN": __import__("os").environ.get("OMS_ACCESS_TOKEN"),
+                "OMS_TENANT_ID": __import__("os").environ.get("OMS_TENANT_ID"),
+            }
+
+    class FakeClient:
+        def __init__(self, config):
+            captured["client_config"] = config
+
+    monkeypatch.setenv("OMS_BASE_URL", "https://oms.example.com")
+    monkeypatch.setenv("CRM_MERCHANT_CODE", "LAN0000002")
+    monkeypatch.setenv("OMS_ACCESS_TOKEN", "token-123")
+    monkeypatch.setenv("OMS_TENANT_ID", "LT")
+    monkeypatch.setitem(sys.modules, "product_query_engine.engine", types.SimpleNamespace(ProductQueryEngine=FakeProductQueryEngine))
+    monkeypatch.setitem(sys.modules, "product_query_engine.inventory_adapter", types.SimpleNamespace(InventoryAdapter=FakeAdapter))
+    monkeypatch.setitem(sys.modules, "product_query_engine.product_adapter", types.SimpleNamespace(ProductApiAdapter=FakeAdapter))
+    monkeypatch.setitem(sys.modules, "product_query_engine.channel_product_adapter", types.SimpleNamespace(ChannelProductApiAdapter=FakeAdapter))
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=FakeClient))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=FakeConfig))
+
+    result = json.loads(module.product_query(identifier="SKU-A", filters='{"channel_code":"amazon"}'))
+
+    assert result["success"] is True
+    assert captured["config_env"] == {
+        "OMS_BASE_URL": "https://oms.example.com",
+        "CRM_MERCHANT_CODE": "LAN0000002",
+        "OMS_ACCESS_TOKEN": "token-123",
+        "OMS_TENANT_ID": "LT",
+    }
+    assert captured["query"] == {
+        "identifier": "SKU-A",
+        "merchant_no": "LAN0000002",
+        "intent": "overview",
+        "filters": {"channel_code": "amazon"},
+    }
+    assert len(captured["adapter_clients"]) == 3
 
 
 def test_product_performance_composes_product_query_and_sku_sales(monkeypatch):
@@ -266,8 +329,8 @@ def test_product_performance_composes_product_query_and_sku_sales(monkeypatch):
     monkeypatch.setitem(sys.modules, "product_query_engine.inventory_adapter", types.SimpleNamespace(InventoryAdapter=FakeInventoryAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.product_adapter", types.SimpleNamespace(ProductApiAdapter=FakeProductApiAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.channel_product_adapter", types.SimpleNamespace(ChannelProductApiAdapter=FakeChannelProductApiAdapter))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.api_client", types.SimpleNamespace(OMSAPIClient=lambda config: object()))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=lambda config: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
     monkeypatch.setitem(sys.modules, "oms_query_engine.engine_v2", types.SimpleNamespace(OMSQueryEngine=lambda: object()))
     monkeypatch.setitem(sys.modules, "oms_analysis_engine.data_fetcher", types.SimpleNamespace(DataFetcher=FakeDataFetcher))
     monkeypatch.setitem(sys.modules, "oms_analysis_engine.engine", types.SimpleNamespace(OMSAnalysisEngine=FakeOMSAnalysisEngine))
@@ -337,8 +400,8 @@ def test_product_performance_include_channel_runs_second_analysis(monkeypatch):
     monkeypatch.setitem(sys.modules, "product_query_engine.inventory_adapter", types.SimpleNamespace(InventoryAdapter=FakeInventoryAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.product_adapter", types.SimpleNamespace(ProductApiAdapter=FakeProductApiAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.channel_product_adapter", types.SimpleNamespace(ChannelProductApiAdapter=FakeChannelProductApiAdapter))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.api_client", types.SimpleNamespace(OMSAPIClient=lambda config: object()))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=lambda config: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
     monkeypatch.setitem(sys.modules, "oms_query_engine.engine_v2", types.SimpleNamespace(OMSQueryEngine=lambda: object()))
     monkeypatch.setitem(sys.modules, "oms_analysis_engine.data_fetcher", types.SimpleNamespace(DataFetcher=FakeDataFetcher))
     monkeypatch.setitem(sys.modules, "oms_analysis_engine.engine", types.SimpleNamespace(OMSAnalysisEngine=FakeOMSAnalysisEngine))
@@ -431,8 +494,8 @@ def test_product_diagnosis_auto_hydrates_context_when_missing(monkeypatch):
     monkeypatch.setitem(sys.modules, "product_query_engine.product_adapter", types.SimpleNamespace(ProductApiAdapter=FakeAdapter))
     monkeypatch.setitem(sys.modules, "product_query_engine.channel_product_adapter", types.SimpleNamespace(ChannelProductApiAdapter=FakeAdapter))
     monkeypatch.setitem(sys.modules, "product_diagnosis_engine.engine", types.SimpleNamespace(ProductDiagnosisEngine=FakeProductDiagnosisEngine))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.api_client", types.SimpleNamespace(OMSAPIClient=lambda config: object()))
-    monkeypatch.setitem(sys.modules, "oms_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=lambda config: object()))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
 
     result = json.loads(module.product_diagnosis(
         identifier="SKU-A",
@@ -463,3 +526,169 @@ def test_product_diagnosis_returns_error_for_invalid_context_json():
 
     assert result["success"] is False
     assert result["error"] == "invalid_context_json"
+
+
+def test_product_publish_workflow_creates_product_and_channel_product(monkeypatch):
+    module = load_mcp_server()
+    captured = {}
+
+    class FakeProductOMSAPIClient:
+        def __init__(self, config):
+            pass
+
+        def _ensure_token(self):
+            captured["token_checked"] = True
+
+        def post(self, path, payload):
+            if path == "/api/linker-oms/baseservice/rpc-api/product/spu/create-complete":
+                captured["product_payload"] = payload
+                return {
+                    "data": {
+                        "spuInfo": {"id": "SPU-1001", "internalItemId": "ITEM-1001"},
+                        "skuInfoList": [
+                            {"internalSkuId": "SKU-1"},
+                            {"internalSkuId": "SKU-2"},
+                            {"internalSkuId": "SKU-3"},
+                        ],
+                    }
+                }
+            if path == "/api/linker-oms/baseservice/rpc-api/channel-product/create-from-spu":
+                captured["channel_payload"] = payload
+                return {
+                    "code": 200,
+                    "data": {
+                        "successCount": 1,
+                        "failureCount": 0,
+                        "successList": [{"productId": "SPU-1001", "channelProductId": "CP-1", "success": True}],
+                        "failList": [],
+                    },
+                }
+            raise AssertionError(path)
+
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=FakeProductOMSAPIClient))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+
+    result = json.loads(module.product_publish_workflow(
+        merchant_no="M001",
+        request_json=json.dumps({
+            "product": {
+                "name": "Babolat Pure Drive",
+                "brand": "百宝力",
+                "model": "PD",
+                "categoryName": "网球球拍",
+                "variants": [
+                    {"sellerSku": "PD-G1", "gripSize": "一号", "price": 199.99},
+                    {"sellerSku": "PD-G2", "gripSize": "二号", "price": 199.99},
+                    {"sellerSku": "PD-G3", "gripSize": "三号", "price": 199.99}
+                ]
+            },
+            "channels": [
+                {"channel": "shopify", "channelNo": "SHOP-1"}
+            ]
+        }, ensure_ascii=False),
+    ))
+
+    assert result["success"] is True
+    assert captured["token_checked"] is True
+    assert captured["product_payload"]["spuInfo"]["merchantNo"] == "M001"
+    assert captured["product_payload"]["spuInfo"]["itemName"] == "Babolat Pure Drive"
+    assert captured["product_payload"]["skuInfoList"][0]["sellerSku"] == "PD-G1"
+    assert captured["product_payload"]["salesAttributes"][0]["attributeName"] == "Grip Size"
+    assert captured["channel_payload"] == {
+        "merchantNo": "M001",
+        "internalProducts": [
+            {
+                "spuId": "SPU-1001",
+                "channels": [{"channel": "shopify", "channelNo": "SHOP-1"}],
+                "internalSkuIds": ["SKU-1", "SKU-2", "SKU-3"],
+            }
+        ],
+    }
+    assert result["details"]["created_product"]["spuInfo"]["id"] == "SPU-1001"
+    assert result["details"]["channel_sync"]["data"]["successCount"] == 1
+
+
+def test_product_publish_workflow_returns_missing_spu_id_when_create_response_has_no_data(monkeypatch):
+    module = load_mcp_server()
+
+    class FakeProductOMSAPIClient:
+        def __init__(self, config):
+            pass
+
+        def _ensure_token(self):
+            pass
+
+        def post(self, path, payload):
+            if path == "/api/linker-oms/baseservice/rpc-api/product/spu/create-complete":
+                return {"code": 200, "data": None, "message": "created but no body"}
+            raise AssertionError(path)
+
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=FakeProductOMSAPIClient))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+
+    result = json.loads(module.product_publish_workflow(
+        merchant_no="M001",
+        request_json=json.dumps({
+            "product": {
+                "name": "Smoke Product",
+                "categoryName": "网球球拍",
+                "variants": [{"sellerSku": "SMOKE-1", "gripSize": "一号", "price": 199.99}]
+            },
+            "channels": [{"channel": "shopify", "channelNo": "SHOP-1"}]
+        }, ensure_ascii=False),
+    ))
+
+    assert result["success"] is False
+    assert result["error"] == "missing_spu_id"
+    assert result["details"]["created_product_response"] == {"code": 200, "data": None, "message": "created but no body"}
+
+
+def test_product_publish_workflow_extracts_spu_from_top_level_response(monkeypatch):
+    module = load_mcp_server()
+
+    class FakeProductOMSAPIClient:
+        def __init__(self, config):
+            pass
+
+        def _ensure_token(self):
+            pass
+
+        def post(self, path, payload):
+            if path == "/api/linker-oms/baseservice/rpc-api/product/spu/create-complete":
+                return {
+                    "code": 200,
+                    "message": "ok",
+                    "spuInfo": {"id": "SPU-ROOT-1"},
+                    "skuInfoList": [{"internalSkuId": "SKU-ROOT-1"}],
+                }
+            if path == "/api/linker-oms/baseservice/rpc-api/channel-product/create-from-spu":
+                return {"code": 200, "data": {"successCount": 1}}
+            raise AssertionError(path)
+
+    monkeypatch.setitem(sys.modules, "product_query_engine.api_client", types.SimpleNamespace(ProductOMSAPIClient=FakeProductOMSAPIClient))
+    monkeypatch.setitem(sys.modules, "product_query_engine.config", types.SimpleNamespace(EngineConfig=lambda: object()))
+
+    result = json.loads(module.product_publish_workflow(
+        merchant_no="M001",
+        request_json=json.dumps({
+            "product": {
+                "name": "Smoke Product",
+                "categoryName": "网球球拍",
+                "variants": [{"sellerSku": "SMOKE-1", "gripSize": "一号", "price": 199.99}]
+            },
+            "channels": [{"channel": "shopify", "channelNo": "SHOP-1"}]
+        }, ensure_ascii=False),
+    ))
+
+    assert result["success"] is True
+    assert result["details"]["created_product"]["spuInfo"]["id"] == "SPU-ROOT-1"
+    assert result["details"]["channel_sync"]["data"]["successCount"] == 1
+
+
+def test_product_publish_workflow_returns_error_for_invalid_request_json():
+    module = load_mcp_server()
+
+    result = json.loads(module.product_publish_workflow(merchant_no="M001", request_json="not-json"))
+
+    assert result["success"] is False
+    assert result["error"] == "invalid_request_json"

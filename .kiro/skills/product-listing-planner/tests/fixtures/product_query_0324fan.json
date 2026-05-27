@@ -1,0 +1,81 @@
+{
+  "success": true,
+  "summary": "已确认 0324fan 的商品查询结果。",
+  "metrics": {
+    "channel_product_count": 5,
+    "publish_history_count": 8,
+    "channel_count": 2
+  },
+  "details": {
+    "product": {
+      "record_id": 1240,
+      "product_id": null,
+      "internal_item_id": "ITM202603240230200039",
+      "seller_parent_sku": "0324fan",
+      "title": "fanfanfan",
+      "brand": "wbtest",
+      "status": "ACTIVE",
+      "category": "Bags & Luggage>Wallets & Cardholders>Coin Purses",
+      "price": 1999,
+      "currency": "USD",
+      "discount_price": 1998,
+      "discount_currency": "USD",
+      "image_count": 1
+    },
+    "skus": [
+      {
+        "record_id": "2036366676172017665",
+        "seller_sku": "0324fan",
+        "internal_sku_id": "SKU202603240230200045Z",
+        "status": "ACTIVE",
+        "price": 1999,
+        "currency": "USD",
+        "discount_price": 1998,
+        "discount_currency": "USD",
+        "inventory": 1
+      }
+    ],
+    "channel_summary": [
+      {
+        "channel_code": "SHEIN",
+        "channel_no": "C00000453",
+        "channel_product_count": 3,
+        "publish_history_count": 6,
+        "audit_statuses": ["DRAFT"],
+        "listing_statuses": [],
+        "publish_success_count": 0,
+        "publish_failure_count": 3,
+        "errors": [
+          "Product attribute list cannot be empty",
+          "SKC list cannot be empty, sales attributes with attribute_type=1 and attribute_label=1 are required",
+          "Validation failed: 1 field(s) are missing or invalid",
+          "Validation failed: 2 field(s) are missing or invalid"
+        ]
+      },
+      {
+        "channel_code": "ShopifyV3",
+        "channel_no": "C00000141",
+        "channel_product_count": 2,
+        "publish_history_count": 2,
+        "audit_statuses": ["DRAFT"],
+        "listing_statuses": [],
+        "publish_success_count": 0,
+        "publish_failure_count": 2,
+        "errors": [
+          "Exception Message: Unsupported channel type: ShopifyV3. Supported channels: [SHEIN, SHOPIFY]",
+          "Exception: java.lang.IllegalArgumentException",
+          "Publish failed: Unsupported channel type: ShopifyV3. Supported channels: [SHEIN, SHOPIFY]"
+        ]
+      }
+    ],
+    "resolution": {
+      "found_in_oms_product": true,
+      "found_in_product_list": false,
+      "found_in_channel_product": true,
+      "found_in_publish_history": true,
+      "best_match_type": "oms_product",
+      "identifier_type": "sku"
+    }
+  },
+  "errors": []
+}

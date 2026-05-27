@@ -52,6 +52,18 @@ metadata:
 
 ---
 
+## MVP 运行时状态
+
+当前可执行 MVP 支持 `intent="product_creation_brief"`：
+
+- 可将弱输入如 `tennis` / `网球` 转成测试商品创建资料。
+- 输出 `details.creation_brief.product`，可被 OMS 商品创建 workflow 消费。
+- 输出 `details.creation_brief.channels`，第一版默认 Shopify 即 `ShopifyV3`。
+- 输出为估算/建议，不包含外部市场、竞品、关键词搜索量或转化验证。
+- 不直接创建 OMS 商品、不创建 channel product、不发布到 Shopify；执行动作由 Product Agent 编排层在用户确认后完成。
+
+---
+
 ## 二、输入结构
 
 ```json

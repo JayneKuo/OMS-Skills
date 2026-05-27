@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "summary": "0324fan 不满足 Shopify 发布前置条件，发现 1 个阻塞项。",
+  "details": {
+    "issue_type": "platform_readiness_failed",
+    "platform": "SHOPIFY",
+    "failed_stage": "pre_publish_validation",
+    "ready_to_publish": false,
+    "blocking_issues": [
+      {
+        "code": "unsupported_oms_shopify_channel_type",
+        "message": "当前 OMS 发布错误显示 ShopifyV3 不被发布服务支持，应确认是否使用 SHOPIFY channel type。",
+        "source": "oms_publish_error",
+        "field": "channel_code"
+      }
+    ],
+    "retryable": true,
+    "requires_manual_fix": true
+  },
+  "metrics": {
+    "blocking_issue_count": 1
+  },
+  "recommendations": [
+    {
+      "action": "complete_shopify_required_product_data",
+      "precondition": "确认 OMS 商品主档、SKU、价格、选项和图片字段",
+      "risk": "缺失字段会导致 Shopify productSet/productCreate/productVariantsBulkCreate 发布失败或发布后商品不可售",
+      "priority": "high",
+      "expected_effect": "满足 Shopify 发布前置条件后再执行真实发布"
+    }
+  ],
+  "errors": []
+}

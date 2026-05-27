@@ -266,7 +266,49 @@ OMS 运营分析。基于 oms_query 的真实数据，执行异常诊断、根�
 
 ---
 
-## 4.5 fulfillment-planner（✅ 已新增编排层）
+## 4.5 batch-reallocation（✅ 已新增）
+
+### Purpose
+批量重新分仓。针对 Imported / Exception / Deallocated / On Hold 订单，先分析可恢复分仓候选，再通过聊天窗口表单收集用户决策，并在显式确认后执行 OMS recover。
+
+### Use When
+当用户请求以下任务时优先使用：
+
+- 批量重新分仓
+- 导入单长期未分仓，需要批量恢复
+- exception 订单需要批量 recover
+- deallocated 订单需要重新分仓
+- on hold 订单中未履约 SKU 需要重新分仓
+- 想先分析可操作订单，再让用户选择执行范围
+
+### Inputs
+- identifiers_json
+- merchant_no
+- request_json（decisions[]）
+
+### Outputs
+- user-facing analysis summary + confirmation view
+- internal execution context（groups / selection_mode / requires_confirmation）
+- execution summary（submitted / succeeded / skipped / warnings）
+
+### Constraints
+- 只处理 Imported / Exception / Deallocated / On Hold
+- 只允许处理 `unfulfilled_qty != 0` 的 SKU
+- 执行前必须显式确认
+- 执行前必须重新校验订单状态，避免 stale state
+- 缺少 USER 时不可执行
+
+### Upstream Dependencies
+- OMS sale order / order log / recover APIs
+- OMS runtime env
+
+### Downstream Consumers
+- OMS main agent
+- batch_reallocation_workflow
+
+---
+
+## 4.6 fulfillment-planner（✅ 已新增编排层）
 
 ### Purpose
 综合发货方案编排。面向“这单怎么发最合适”这类高价值问题，组合寻仓、装箱、运费、时效、综合成本能力，输出主推荐与备选方案。
@@ -461,6 +503,7 @@ Part 2: 基于承运商价格表计算包裹级和订单级运费，支持 4 种
 | oms-knowledge | ✅ 已上线 | 知识型 | MCP tool `oms_knowledge_query` |
 | oms_analysis | ✅ 已上线 | 分析型 | MCP tool `oms_analysis` |
 | warehouse_allocation | ✅ 已上线 | 推荐型 | MCP tool `warehouse_allocate` |
+| batch-reallocation | ✅ 已新增 | 危险动作分析+执行型 | MCP tools `batch_reallocation_analyze` `batch_reallocation_execute` |
 | fulfillment-planner | ✅ 已新增编排层 | 编排型 | skill orchestration |
 | shipping_rate | ✅ 已上线 v2.0 | 推荐+计算型 | MCP tools `shipping_rate_query` `shipping_rate_execute` `shipping_rate_recommend` `shipping_rate_calculate` |
 | eta | ✅ 已上线 | 计算型 | MCP tool `eta_calculate` |

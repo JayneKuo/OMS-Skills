@@ -104,20 +104,25 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                           "认证过期": 6, "超时": 7, "系统错误": 8}
         sorted_causes = sorted(root_cause_counter.items(),
                                key=lambda x: (CAUSE_PRIORITY.get(x[0], 99), -x[1]))
+        actionable_root_cause_counter = Counter(root_cause_counter)
+        if len(actionable_root_cause_counter) > 1 and any(c != "系统错误" for c in actionable_root_cause_counter):
+            actionable_root_cause_counter.pop("系统错误", None)
+        sorted_actionable_causes = sorted(
+            actionable_root_cause_counter.items(),
+            key=lambda x: (CAUSE_PRIORITY.get(x[0], 99), -x[1]),
+        )
 
         # 根因分布（最重要的结论）
-        if sorted_causes:
-            top_cause, top_count = sorted_causes[0]
+        if sorted_actionable_causes:
+            top_cause, top_count = sorted_actionable_causes[0]
             pct = top_count / sampled_order_count * 100 if sampled_order_count else 0
             evidences.append(self._build_evidence(
                 "business_field",
                 f"抽样 {len(sampled)} 单异常订单中，{pct:.0f}% 的根因是「{top_cause}」",
-                data=dict(root_cause_counter),
+                data=dict(actionable_root_cause_counter),
             ))
             # 其他根因（跳过"系统错误"如果已有更具体的根因）
-            for cause, cnt in sorted_causes[1:]:
-                if cause == "系统错误" and any(c != "系统错误" for c, _ in sorted_causes[:1]):
-                    continue  # 系统错误是包装，跳过
+            for cause, cnt in sorted_actionable_causes[1:]:
                 if cnt > 1:
                     pct2 = cnt / sampled_order_count * 100 if sampled_order_count else 0
                     evidences.append(self._build_evidence(
@@ -160,8 +165,8 @@ class BatchPatternAnalyzer(BaseAnalyzer):
 
         # 4. 生成建议
         recs = []
-        if root_cause_counter:
-            top_cause = root_cause_counter.most_common(1)[0][0]
+        if actionable_root_cause_counter:
+            top_cause = sorted_actionable_causes[0][0]
             if "库存" in top_cause:
                 sku_list = "、".join(s for s, _ in affected_skus.most_common(3))
                 recs.append(Recommendation(
@@ -188,8 +193,8 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                 ))
 
         # 5. 构建摘要
-        if sorted_causes:
-            top_cause = sorted_causes[0][0]
+        if sorted_actionable_causes:
+            top_cause = sorted_actionable_causes[0][0]
             if sampled_order_count < total_exc:
                 summary = f"共 {total_exc} 单异常，基于抽样 {sampled_order_count} 单日志，主要异常模式指向「{top_cause}」"
             else:
@@ -214,7 +219,8 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                 "total_orders": len(orders),
                 "exception_orders": total_exc,
                 "sampled_orders": len(sampled),
-                "root_cause_distribution": dict(root_cause_counter),
+                "root_cause_distribution": dict(actionable_root_cause_counter),
+                "raw_root_cause_distribution": dict(root_cause_counter),
                 "affected_skus": dict(affected_skus),
             },
             details={
@@ -233,7 +239,7 @@ class BatchPatternAnalyzer(BaseAnalyzer):
                     chart_id="batch_root_cause_distribution",
                     title="Root Cause Distribution",
                     chart_type="bar",
-                    data=[{"cause": k, "count": v} for k, v in root_cause_counter.items()],
+                    data=[{"cause": k, "count": v} for k, v in actionable_root_cause_counter.items()],
                     x_key="cause",
                     y_keys=["count"],
                     category_key="cause",

@@ -90,7 +90,39 @@
 
 ---
 
-## 4. fulfillment_planner_workflow（✅ 当前主编排层）
+## 4. batch_reallocation_workflow
+
+### Trigger
+当用户请求：
+
+- 批量重新分仓
+- import 订单长时间未分仓，想批量恢复
+- exception / deallocated / on hold 订单需要重新分仓
+- 想先分析哪些订单能重分，再决定执行
+
+### Steps
+1. 调用 `batch_reallocation_analyze`，解析订单并按场景分组
+2. 返回聊天窗口表单，让用户勾选订单或 SKU
+3. 明确询问最终确认，不得自动执行
+4. 调用 `batch_reallocation_execute` 执行已确认决策
+5. 输出成功、跳过、失败与风险提示
+
+### Outputs
+- groups
+- selected_orders / selected_skus
+- execution_summary
+- skipped_orders
+- warnings
+
+### Safety Rules
+- `Imported` / `Exception` 默认按整单批量选择
+- `Deallocated` / `On Hold` 必须重点展示 SKU 未履约情况
+- 只允许处理 `unfulfilled_qty != 0` 的 SKU
+- 状态漂移或不再可恢复时必须跳过并说明原因
+
+---
+
+## 5. fulfillment_planner_workflow（✅ 当前主编排层）
 
 ### Trigger
 当用户请求：
@@ -122,7 +154,7 @@
 
 ---
 
-## 5. workflow 使用原则
+## 6. workflow 使用原则
 
 1. 能单 skill 解决的问题，不要强行走 workflow  
 2. 涉及多个业务维度的推荐问题，优先走 `fulfillment_planner_workflow`  

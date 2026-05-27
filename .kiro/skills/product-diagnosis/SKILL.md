@@ -54,6 +54,10 @@ metadata:
 - 当证据不足时返回 `confidence=low`、`data_completeness=insufficient`，并提示补充 `product_query` 上下文。
 - 当 MCP 调用未传 `context` 时，会自动调用 `product_query(listing_status)` 获取商品、渠道商品和发布历史证据后再诊断。
 - 可直接消费 `publish_history` 和 `channel_products` 作为发布/审核失败证据。
+- 第一版 Shopify 发布能力支持 `intent="platform_readiness"` 且 `filters.channel_code` 为 `SHOPIFY` / `ShopifyV3` 的前置诊断。
+- Shopify readiness 会输出 `details.readiness_checklist`，覆盖商品标题、variant、SKU、价格、币种、多 variant options、图片和 OMS Shopify 渠道类型。
+- 当 `channel_summary.errors` 显示 `ShopifyV3` 不被 OMS 发布服务支持时，返回 `use_supported_shopify_channel_type` 修复建议。
+- 第一版不承诺 SHEIN/Amazon/TikTok readiness，不调用 Shopify API，不执行发布、重试或数据修改。
 
 ---
 
