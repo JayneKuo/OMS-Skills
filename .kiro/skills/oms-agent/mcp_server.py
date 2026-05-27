@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.join(_SKILLS_DIR, "oms-analysis", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-diagnosis", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "product-query", "scripts"))
 sys.path.insert(0, os.path.join(_SKILLS_DIR, "warehouse-allocation", "scripts"))
-sys.path.insert(0, os.path.join(_THIS_DIR, "batch-reallocation", "scripts"))
+sys.path.insert(0, os.path.join(_SKILLS_DIR, "batch-reallocation", "scripts"))
 sys.path.insert(0, _PROJECT_ROOT)
 
 from mcp.server.fastmcp import FastMCP
